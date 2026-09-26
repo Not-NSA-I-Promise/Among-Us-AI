@@ -349,6 +349,77 @@ def mimic(color_index: int) -> bool:
     return send_cmd(f"mimic {color_index}")
 
 
+def overrule(player_id: int) -> bool:
+    """Judge: cast the extra vote against a player id."""
+    return send_cmd(f"overrule {player_id}")
+
+
+DETECTIVE_PATH = os.path.join(_GAME_DIR, "detectiveData.txt")
+SCIENTIST_PATH = os.path.join(_GAME_DIR, "scientistData.txt")
+JUDGE_PATH = os.path.join(_GAME_DIR, "judgeData.txt")
+
+
+def read_detective_notes() -> list:
+    """The detective's own pages: one dict per inspected body.
+
+    Straight from DetectiveRole.notesPageInfos, so victim / room / nearby players
+    are what the game recorded, not an inference. The plugin writes one field per
+    line because names and room names contain spaces.
+    """
+    pages = []
+    cur = None
+    try:
+        with open(DETECTIVE_PATH) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if line.startswith("page "):
+                    cur = {"index": line.split()[1], "suspects": []}
+                    pages.append(cur)
+                elif cur is not None:
+                    key, _, val = line.partition(" ")
+                    if key == "suspect":
+                        cur["suspects"].append(val)
+                    else:
+                        cur[key] = val
+    except OSError:
+        pass
+    return pages
+
+
+def read_scientist_vitals() -> list:
+    """Scientist sensor read: [(name, color, state)] from the game's VitalsPanels."""
+    out = []
+    try:
+        with open(SCIENTIST_PATH) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                p = line.rsplit(" ", 2)
+                if len(p) == 3:
+                    name = p[0].strip()
+                    color = p[1].strip().strip("()")
+                    out.append((name, color, p[2].strip()))
+    except OSError:
+        pass
+    return out
+
+
+def read_judge_state() -> dict:
+    out = {}
+    try:
+        with open(JUDGE_PATH) as f:
+            for line in f:
+                p = line.split()
+                if len(p) == 2:
+                    out[p[0]] = p[1]
+    except OSError:
+        pass
+    return out
+
+
 if __name__ == "__main__":
     # quick self-test of the channel
     print("role      :", get_role())

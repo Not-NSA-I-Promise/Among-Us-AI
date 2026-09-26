@@ -503,6 +503,72 @@ def a_sab_request(pre=None):
     print("  now press 'b' to fire it")
 
 
+def a_detective():
+    banner("detective notes  (from DetectiveRole.notesPageInfos)")
+    pages = botlink.read_detective_notes()
+    if not pages:
+        print("  no detectiveData.txt, or no pages recorded yet.")
+        print("  inspect a body as Detective, then retry.")
+        return
+    print(f"  {len(pages)} page(s) recorded by the game:\n")
+    for p in pages:
+        print(f"    body {p['index']}: {p.get('victim', '?')}")
+        print(f"       location    {p.get('location', 'unknown')}")
+        print(f"       preposition {p.get('preposition', 'none')}")
+        print(f"       impostor    {p.get('impostor', 'unknown')}")
+        for s in p["suspects"]:
+            print(f"       near        {s}")
+        print()
+    print("  as the model would say it:")
+    print("   ", roleplay.detective_report())
+
+
+def a_scientist():
+    banner("scientist vitals  (VitalsPanel data)")
+    vitals = botlink.read_scientist_vitals()
+    if not vitals:
+        print("  no scientistData.txt - open Admin (vitals) first, then retry.")
+        return
+    for name, color, state in vitals:
+        mark = "  <<<" if state != "ALIVE" else ""
+        print(f"    {name:14} {color:8} {state}{mark}")
+
+
+def a_judge(pre=None):
+    banner("judge  (extra vote)")
+    state = botlink.read_judge_state()
+    if not state:
+        print("  no judgeData.txt - you are probably not the Judge.")
+        return
+    print(f"  has an overrule use : {state.get('hasuse')}")
+    print(f"  already used it     : {state.get('used')}")
+    print(f"  blocked by tasks    : {state.get('blocked')}")
+    if state.get("hasuse") != "1":
+        print("  no overrule available")
+        return
+    if state.get("used") == "1":
+        print("  already overruled this meeting")
+        return
+    if state.get("blocked") == "1":
+        print("  blocked until your tasks are done")
+        return
+    target = pre or input("  playerId to overrule > ").strip()
+    if not target:
+        print("  cancelled")
+        return
+    print(f"  sent: {botlink.overrule(target)}")
+
+
+def a_role_memory():
+    banner("role facts the bot has learned")
+    facts = roleplay.role_memory()
+    if not facts:
+        print("  nothing recorded yet.")
+        return
+    for f in facts:
+        print(f"  - {f}")
+
+
 def a_calibrate():
     banner("sabotage targets reported by the game")
     if not wait_for_game():
@@ -550,6 +616,10 @@ MENU = [
     ("sb", "queue sabotage  e.g. 'sb Electrical' or bare 'sb' to pick", a_sab_request),
     ("b", "sabotage      - fire it  e.g. 'b lights'", a_sabotage_choose),
     ("cal", "sabotage list - entries the game reports (nothing to calibrate)", a_calibrate),
+    ("dt", "detective   - bodies, rooms, who was nearby", a_detective),
+    ("sv", "scientist   - vitals: who is dead / disconnected", a_scientist),
+    ("j", "judge       - overrule a player  e.g. 'j 3'", a_judge),
+    ("rm", "role memory - facts the roles have learned", a_role_memory),
     ("f", "fake / knock", a_fake),
     ("u", "ui coords", a_uicoords),
 ]

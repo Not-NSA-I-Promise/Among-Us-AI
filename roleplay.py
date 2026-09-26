@@ -4,15 +4,15 @@ Each role gets a real action rather than just knowing its own name:
 
   Engineer   walks to a vent and enters it; kills from the vent if someone
              joins, otherwise drops back out
-  Scientist  reads the motion sensors the plugin reports
-  Tracker    reads every player's live position off the tracker
-  GuardianAngel  shields the most-likely-impostor
-  Shapeshifter   mimics a random living crewmate
-  Phantom    triggers invisibility
-  Noisemaker triggers the decoy
-  Viper      uses its vent kill (walk to a vent and USE)
-  Detective  reports who inspected it / body ages
-  Judge      votes extra via the normal meeting vote path
+Scientist  reads the vitals the game recorded for each player
+Tracker    opens the tracker; the map icons expose no readable positions
+GuardianAngel  shields the player the model judges most dangerous
+Shapeshifter   mimics the player the model judges worth copying
+Phantom    triggers invisibility
+Noisemaker triggers the decoy
+Viper      uses its vent kill (walk to a vent and USE)
+Detective  reports the bodies it inspected and who stood near them
+Judge      spends the extra vote on the player the model wants ejected
 
 Movement reuses utility.move(), and interaction uses the virtual gamepad USE
 button, which is the same path the game uses for every other console.
@@ -353,7 +353,11 @@ def decide_sabotage():
 
 
 def maybe_do_sabotage(G):
-    """Model-driven sabotage: decide, walk to Admin, then fire it."""
+    """Model-driven sabotage: decide, then fire it.
+
+    No walking to Admin any more: the plugin drives the map's own MapRoom, so
+    this works from wherever the bot happens to be standing.
+    """
     if not utility.isImpostor() or utility.isDead():
         return False
     if utility.in_meeting():
@@ -362,9 +366,6 @@ def maybe_do_sabotage(G):
     if not choice:
         return False
     print(f"  model chose sabotage: {choice}")
-    pos = admin_position()
-    if pos and not walk_to(G, pos[0], pos[1]):
-        return False
     m = _load_sabotage_module()
     m.ONLY = choice
     return m.sabotage(G)
@@ -477,21 +478,47 @@ def engineer_turn(G):
 
 # ----------------------------------------------------------------- Scientist
 def scientist_turn(G):
-    """Open Admin to read the motion sensors."""
+    """Open Admin, then read the vitals the game itself recorded.
+
+    The bot used to press the ability button and throw the result away. The
+    VitalsPanels behind that minigame already know who is dead or disconnected,
+    so the sensor read is data we can hand to the model.
+    """
     ability = botlink.read_ability()
     if ability.get("isdead") == "1":
         return False
-    bots = _others_in_vent_with_us()
-    if bots:
-        # Someone is vented: that is sensor-relevant, but the bot reads it
-        # straight from the plugin rather than from the map.
-        pass
-    return botlink.use_ability()
+    vitals = botlink.read_scientist_vitals()
+    if not vitals:
+        # nothing published yet: open Admin so the panels get built
+        return botlink.use_ability()
+    if not utility.in_meeting():
+        return False
+    return scientist_report(vitals)
+
+
+def scientist_report(vitals):
+    """Hand the sensor read to the model at the next meeting."""
+    dead = [f"{n} ({c})" for n, c, s in vitals if s == "DEAD"]
+    discon = [f"{n} ({c})" for n, c, s in vitals if s == "DISCONNECTED"]
+    if not dead and not discon:
+        return False
+    lines = []
+    if dead:
+        lines.append("Bodies reported by the sensors: " + ", ".join(dead))
+    if discon:
+        lines.append("Disconnected: " + ", ".join(discon))
+    _remember("\n".join(lines))
+    return True
 
 
 # ------------------------------------------------------------------- Tracker
 def tracker_turn(G):
-    """Open the tracker. Live positions come straight from the plugin."""
+    """Tracker: the ability reveals the tracked player on the map.
+
+    The map icons behind the tracker UI are not exposed as readable positions,
+    so this does not pretend to know exact coordinates. It opens the tracker,
+    which is the real action, and remembers who is being tracked.
+    """
     ability = botlink.read_ability()
     if ability.get("isdead") == "1":
         return False
@@ -500,24 +527,39 @@ def tracker_turn(G):
 
 # ------------------------------------------------------------ Guardian Angel
 def guardian_angel_turn(G):
-    """Shield the player the bot considers most dangerous."""
+    """Shield the player the bot considers most dangerous.
+
+    Uses the model rather than a coin flip: as a ghost the bot has real evidence
+    (who was near each body) and choosing randomly throws that away.
+    """
     ability = botlink.read_ability()
     if ability.get("isdead") == "1" or ability.get("protected") == "1":
         return False
     data = utility.getGameData()
     my_color = data["color"]
-    # Prefer whoever is alone and unvouched-for near the body/last room.
-    suspects = [c for c in utility.get_imposter_nearby_players(G)
-                if c != my_color]
-    target = random.choice(suspects) if suspects else None
+    living = [c for c, dead in data["playersDead"].items() if not dead and c != my_color]
+    if not living:
+        return False
+    target = _ask_model_choose(
+        "You are a Guardian Angel ghost. Choose exactly one living player to "
+        "protect for the rest of this round. Reply with their colour name and "
+        "nothing else.",
+        f"Living players: {', '.join(living)}.",
+        living,
+    )
     if target is None:
         return False
+    print(f"  model chose to protect {target}")
     return botlink.protect(botlink.COLOR_NAMES.index(target))
 
 
 # ---------------------------------------------------------------- Shapeshifter
 def shapeshifter_turn(G):
-    """Mimic someone, preferring a target nobody is looking at."""
+    """Mimic someone, preferring a target the model judges worth copying.
+
+    Mimicking a random player is worse than useless if the impostor team already
+    suspects that player, so the model picks.
+    """
     ability = botlink.read_ability()
     if ability.get("isdead") == "1":
         return False
@@ -526,7 +568,17 @@ def shapeshifter_turn(G):
     living = [c for c, dead in data["playersDead"].items() if not dead and c != my_color]
     if not living:
         return False
-    return botlink.mimic(botlink.COLOR_NAMES.index(random.choice(living)))
+    target = _ask_model_choose(
+        "You are an Impostor with the Shapeshifter role. Choose exactly one "
+        "living player to shapeshift into. Reply with their colour name and "
+        "nothing else.",
+        f"Living players: {', '.join(living)}.",
+        living,
+    )
+    if target is None:
+        return False
+    print(f"  model chose to mimic {target}")
+    return botlink.mimic(botlink.COLOR_NAMES.index(target))
 
 
 # ------------------------------------------------------- Phantom / Noisemaker
@@ -544,14 +596,145 @@ def viper_turn(G):
     return engineer_turn(G)
 
 
-# ---------------------------------------------------------------- Detective
+# ----------------------------------------------------------------- Detective
+def detective_turn(G):
+    """Report what the detective's own notes recorded.
+
+    DetectiveRole.notesPageInfos is the game's record: per inspected body, the
+    victim, the room, who was standing nearby and whether they were already dead,
+    plus the impostor-type hint the game fills in. That is the entire value of the
+    role, so it is published straight into the meeting chat and the model's
+    context instead of being read off a wall and thrown away.
+    """
+    pages = botlink.read_detective_notes()
+    if not pages:
+        return False
+    fresh = _unseen_pages(pages)
+    if not fresh:
+        return False
+    for page in fresh:
+        _remember(f"Detective notes for body {page.get('victim', '?')}: "
+                  f"found in {page.get('location', 'unknown')}, "
+                  f"preposition {page.get('preposition', 'none')}, "
+                  f"impostor type {page.get('impostor', 'unknown')}")
+        if page.get("suspects"):
+            _remember("Standing near that body: " + "; ".join(page["suspects"]))
+    print(f"  detective: {len(fresh)} new note page(s)")
+    return True
+
+
+_SEEN_DETECTIVE_PAGES = set()
+
+
+def _unseen_pages(pages):
+    """Only report each body once, so the bot does not repeat itself every tick."""
+    out = []
+    for page in pages:
+        key = (page.get("victim"), page.get("location"))
+        if key in _SEEN_DETECTIVE_PAGES:
+            continue
+        _SEEN_DETECTIVE_PAGES.add(key)
+        out.append(page)
+    return out
+
+
 def detective_report() -> str:
-    """Detective's info is passive, so hand it to the LLM as text."""
-    presence = botlink.read_kill_presence()
-    if not presence:
+    """Detective notes as plain text, for the model and the meeting chat."""
+    pages = botlink.read_detective_notes()
+    if not pages:
         return ""
-    return "Bodies and who was near them: " + ", ".join(
-        f"{c} near the body" for c in presence)
+    bits = []
+    for page in pages:
+        line = (f"body of {page.get('victim', '?')} was in "
+                f"{page.get('location', 'unknown')}")
+        if page.get("suspects"):
+            line += "; nearby: " + "; ".join(page["suspects"])
+        if page.get("impostor", "unknown") != "unknown":
+            line += f"; impostor type {page['impostor']}"
+        bits.append(line)
+    return " | ".join(bits)
+
+
+# --------------------------------------------------------------------- Judge
+def judge_turn(G):
+    """Spend the extra vote on the player the model most wants to eject."""
+    state = botlink.read_judge_state()
+    if state.get("hasuse") != "1" or state.get("used") == "1":
+        return False
+    if state.get("blocked") == "1":
+        return False
+    data = utility.getGameData()
+    my_color = data["color"]
+    candidates = [c for c, dead in data["playersDead"].items()
+                  if not dead and c != my_color]
+    if not candidates:
+        return False
+    target = _ask_model_choose(
+        "You are the Judge. You may cast one extra vote this meeting to eject "
+        "a player of your choice. Choose exactly one living player. Reply with "
+        "their colour name and nothing else.",
+        f"Living players: {', '.join(candidates)}.",
+        candidates,
+    )
+    if target is None:
+        return False
+    player_id = _player_id_for_color(target)
+    if player_id is None:
+        return False
+    print(f"  model overruled {target} (playerId {player_id})")
+    return botlink.overrule(player_id)
+
+
+def _player_id_for_color(color_name):
+    """Map a colour name to the game's playerId, from the live snapshot."""
+    try:
+        idx = botlink.COLOR_NAMES.index(color_name)
+    except ValueError:
+        return None
+    for pid, data in utility.getGameData().get("playerIds", {}).items():
+        if data == idx:
+            return int(pid)
+    return None
+
+
+# ------------------------------------------------------- shared model helper
+def _ask_model_choose(system_prompt, user_prompt, valid):
+    """Ask the model to pick one of `valid`. Returns the choice, or None.
+
+    The reply is matched against the allowed set rather than trusted blindly, so
+    a chatty model cannot make the bot protect or eject nobody, or eject itself.
+    """
+    import llm
+    try:
+        reply = llm.ask(
+            [{"role": "system", "content": system_prompt},
+             {"role": "user", "content": user_prompt}],
+            num_predict=12, temperature=0.2)
+    except Exception as exc:
+        print(f"  model unavailable ({exc}); no action taken")
+        return None
+    if not reply:
+        return None
+    low = reply.strip().lower()
+    for choice in valid:
+        c = choice.lower()
+        if c in low:
+            return choice
+    print(f"  model reply {reply.strip()[:40]!r} matched none of {valid}")
+    return None
+
+
+# Facts the roles learned, injected into the model's context at the next meeting.
+_ROLE_MEMORY = []
+
+
+def _remember(fact):
+    if fact and fact not in _ROLE_MEMORY:
+        _ROLE_MEMORY.append(fact)
+
+
+def role_memory():
+    return list(_ROLE_MEMORY)
 
 
 ROLE_TURNS = {
@@ -563,6 +746,8 @@ ROLE_TURNS = {
     "Phantom": simple_ability_turn,
     "Noisemaker": simple_ability_turn,
     "Viper": viper_turn,
+    "Detective": detective_turn,
+    "Judge": judge_turn,
 }
 
 
