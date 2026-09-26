@@ -131,6 +131,29 @@ CASES = [
      entry("Scientist", "crew", [t(1, "wait")], abilities=2),
      "abilities"),
 
+    # Phantom is on both sides, so the metatags must follow `side`. The writer
+    # originally took can_kill from the flat table, which is the crew version, and
+    # wrote an impostor Phantom into the dataset as unable to kill.
+    ("impostor Phantom can kill (the crew value must not leak in)",
+     entry("Phantom", "impostor", pad([t(1, "kill")]), can_kill=True),
+     None),
+
+    ("impostor Phantom marked unable to kill",
+     entry("Phantom", "impostor", [t(1, "wait")], can_kill=False),
+     "can_kill"),
+
+    ("crew Phantom cannot kill (must be ALLOWED)",
+     entry("Phantom", "crew", pad([t(1, "wait")]), can_kill=False),
+     None),
+
+    ("crew Phantom killing (must be caught)",
+     entry("Phantom", "crew", [t(1, "kill")]),
+     "cannot kill"),
+
+    ("a dual-side role with no side is rejected",
+     entry("Phantom", None, [t(1, "wait")]),
+     "required"),
+
     ("side contradicts the role",
      entry("Impostor", "crew", [t(1, "wait")]),
      "impostor role but side"),

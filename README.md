@@ -8,6 +8,16 @@ Here's a video I made detailing the creation process: https://youtu.be/VF41pxxw9
 
 #### This bot is currently not functional due to updates made to the game. I'll take a look when I can
 
+## Documentation
+
+| doc | what it covers |
+|---|---|
+| [ARCHITECTURE.md](ARCHITECTURE.md) | the model plays, the harness only executes — and the six real conflicts that creates |
+| [TOOLS.md](TOOLS.md) | all 20 actions the model can take, what each refuses, and what it has no access to |
+| [REFERENCES.md](REFERENCES.md) | external repos and the sources behind the dataset |
+| [dataset/README.md](dataset/README.md) | the hand-authored SFT set, the game dictionary, and the entry gate |
+| [DATASET_SOURCES.md](DATASET_SOURCES.md) | provenance for the task durations, with how much to trust them |
+
 ## Features
 - Dynamic movement and intelligent task routing
 - Automated task solving

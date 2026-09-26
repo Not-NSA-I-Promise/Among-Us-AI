@@ -22,7 +22,7 @@ if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 DICT_PATH = os.path.join(HERE, "AMONGUS_DICTIONARY.json")
-ENTRIES_DIR = os.path.join(HERE, "entries")
+ENTRIES_PATH = os.path.join(HERE, "entries.jsonl")
 
 with open(DICT_PATH, encoding="utf-8") as _f:
     D = json.load(_f)
@@ -102,12 +102,13 @@ def check_metatags(entry, r):
     if role in DUAL_SIDE_ROLES and not side:
         r.err("metatags", f"{role} can be on either side, so `side` is required")
     spec = role_spec(role, side)
-    if mt.get("can_vent") is not None and mt["can_vent"] != spec["can_vent"]:
-        r.err("metatags", f"can_vent={mt['can_vent']} but {role} ({side}) has "
-                          f"can_vent={spec['can_vent']}")
-    if mt.get("abilities") is not None and mt["abilities"] != spec["abilities"]:
-        r.err("metatags", f"abilities={mt['abilities']} but {role} has "
-                          f"{spec['abilities']}")
+    for key in ("can_vent", "can_kill", "abilities"):
+        if key in mt and mt[key] != spec.get(key):
+            r.err("metatags", f"{key}={mt[key]} but {role} ({side}) has "
+                              f"{key}={spec.get(key)}")
+    if mt.get("can_do_tasks") is not None and mt["can_do_tasks"] != spec["can_do_tasks"]:
+        r.err("metatags", f"can_do_tasks={mt['can_do_tasks']} but {role} has "
+                          f"{spec['can_do_tasks']}")
     if mt.get("map") not in VENT_NETWORKS and mt.get("map") not in ("Fungle",):
         r.warn("metatags", f"map {mt.get('map')!r} is not in the vent network table")
     if spec["abilities"] > 2:
@@ -305,55 +306,65 @@ def load(path):
         return json.load(f)
 
 
-def main():
-    args = [a for a in sys.argv[1:]]
-    strict = "--strict" in args
-    paths = [a for a in args if not a.startswith("--")]
+def iter_entries(path):
+    """Yield (label, entry) from a .jsonl file, or a single .json file.
 
-    if paths:
-        files = paths
+    The dataset is one JSONL file with an entry per line, which streams and never
+    holds every match in memory. A plain .json path is also accepted so a single
+    entry can be checked on its own while authoring.
+    """
+    if path.endswith(".jsonl"):
+        with open(path, encoding="utf-8") as f:
+            for n, line in enumerate(f, 1):
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    yield f"line {n}", json.loads(line)
+                except ValueError as exc:
+                    yield f"line {n}", {"__parse_error__": str(exc)}
     else:
-        if not os.path.isdir(ENTRIES_DIR):
-            print(f"no entries directory at {ENTRIES_DIR}")
+        with open(path, encoding="utf-8") as f:
+            yield os.path.basename(path), json.load(f)
+
+
+def main():
+    args = sys.argv[1:]
+    strict = "--strict" in args
+    paths = [a for a in args if not a.startswith("--")] or [ENTRIES_PATH]
+
+    total = failed = warned = 0
+    for path in paths:
+        if not os.path.exists(path):
+            print(f"no such file: {path}")
             return 1
-        files = sorted(os.path.join(ENTRIES_DIR, f)
-                       for f in os.listdir(ENTRIES_DIR) if f.endswith(".json"))
-
-    if not files:
-        print("no entries to validate")
-        return 1
-
-    failed = 0
-    warned = 0
-    for path in files:
-        name = os.path.basename(path)
-        try:
-            entry = load(path)
-        except Exception as exc:
-            print(f"FAIL {name}: could not parse - {exc}")
-            failed += 1
-            continue
-        r = validate(entry, name)
-        if r.errors:
-            failed += 1
-            print(f"FAIL {name}")
-            for e in r.errors:
-                print(f"     ERROR   {e}")
-            for w in r.warnings:
-                print(f"     warning {w}")
-        else:
-            warned += len(r.warnings)
-            if r.warnings:
-                print(f"PASS {name}  ({len(r.warnings)} warning(s))")
+        print(f"== {path}\n")
+        for name, entry in iter_entries(path):
+            total += 1
+            if "__parse_error__" in entry:
+                print(f"FAIL {name}: not valid JSON - {entry['__parse_error__']}")
+                failed += 1
+                continue
+            eid = entry.get("id", name)
+            r = validate(entry, eid)
+            if r.errors:
+                failed += 1
+                print(f"FAIL {eid}")
+                for e in r.errors:
+                    print(f"     ERROR   {e}")
                 for w in r.warnings:
                     print(f"     warning {w}")
             else:
+                warned += len(r.warnings)
                 mt = entry["metatags"]
-                print(f"PASS {name}  {mt['role']} / {mt['map']} / "
-                      f"{len(entry.get('turns', []))} turns")
+                suffix = f"  ({len(r.warnings)} warning(s))" if r.warnings else ""
+                print(f"PASS {eid:44} {mt['role']:14} {mt['map']:9} "
+                      f"{len(entry.get('turns', [])):3} turns{suffix}")
+                for w in r.warnings:
+                    print(f"     warning {w}")
 
     print()
-    print(f"{len(files)} entries, {failed} failed, {warned} warning(s)")
+    print(f"{total} entries, {failed} failed, {warned} warning(s)")
     if strict and warned:
         print("strict mode: warnings are failures")
         return 1

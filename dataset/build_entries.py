@@ -33,7 +33,7 @@ if ROOT not in sys.path:
 
 import agent  # noqa: E402
 
-OUT = os.path.join(HERE, "entries")
+OUT = os.path.join(HERE, "entries.jsonl")
 
 # Rooms and tasks per map, kept short here; the dictionary is authoritative.
 SKELD_ROOMS = ["Admin", "Cafeteria", "Reactor", "Upper Engine", "Lower Engine",
@@ -121,7 +121,7 @@ def build(eid, role, side, map_name, rooms, tasks, result, notes, turns,
     sp = system_prompt(role, side, rooms, tasks, visual)
     for t in turns:
         t["system"] = sp
-    spec = agent_role_spec(role)
+    spec = agent_role_spec(role, side)
     return {
         "id": eid,
         "source": "hand-authored",
@@ -153,10 +153,17 @@ def build(eid, role, side, map_name, rooms, tasks, result, notes, turns,
 eid_counts = {}
 
 
-def agent_role_spec(role):
-    sys.path.insert(0, os.path.join(HERE))
+def agent_role_spec(role, side=None):
+    """Legality record for a role, resolving dual-side roles by side.
+
+    Phantom is the trap: it is rolled on either side, and the flat table has the
+    crew version last, so an impostor Phantom would otherwise be written into the
+    dataset as unable to kill. That single wrong boolean teaches the model the
+    opposite of the truth.
+    """
+    sys.path.insert(0, HERE)
     import validate as V
-    return V.ROLES[role]
+    return V.role_spec(role, side)
 
 
 # =====================================================================
@@ -1378,20 +1385,24 @@ ENTRIES = [ENTRY_01, ENTRY_02, ENTRY_03, ENTRY_04, ENTRY_05,
            ENTRY_06, ENTRY_07, ENTRY_08, ENTRY_09, ENTRY_10]
 
 
+def summary():
+    return [(e["id"], e["metatags"]["role"], e["metatags"]["side"], len(e["turns"]))
+            for e in ENTRIES]
+
+
 def main():
-    os.makedirs(OUT, exist_ok=True)
-    written = []
-    for e in ENTRIES:
-        path = os.path.join(OUT, e["id"] + ".json")
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(e, f, indent=2, ensure_ascii=False)
-        written.append((e["id"], e["metatags"]["role"], e["metatags"]["side"],
-                        len(e["turns"])))
-    print(f"wrote {len(written)} entries to {OUT}\n")
-    for eid, role, side, n in written:
+    # One JSONL file: a single entry per line, so the set streams, shards and
+    # appends without holding every match in memory. Ten separate files also
+    # meant ten chances to lose one in a copy.
+    with open(OUT, "w", encoding="utf-8") as f:
+        for e in ENTRIES:
+            f.write(json.dumps(e, ensure_ascii=False) + "\n")
+
+    rows = summary()
+    print(f"wrote {len(rows)} entries to {OUT}\n")
+    for eid, role, side, n in rows:
         print(f"  {eid:42} {role:14} {side:9} {n:3} turns")
-    total = sum(n for _, _, _, n in written)
-    print(f"\n{total} turns total")
+    print(f"\n{sum(r[3] for r in rows)} turns total, {len(rows)} lines")
 
 
 if __name__ == "__main__":

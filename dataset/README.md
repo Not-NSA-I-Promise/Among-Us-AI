@@ -22,9 +22,19 @@ So these entries are written by hand to teach things the model cannot derive:
 | file | what it is |
 |---|---|
 | `AMONGUS_DICTIONARY.json` | the game knowledge a generating agent needs: roles, vent networks, task timings and orders, deception tactics, measured win correlates, slang, tropes, and a list of the specific failure modes to counteract |
-| `build_entries.py` | the authored entries, as code, and the script that writes them to `entries/` |
+| `build_entries.py` | the authored entries, as code, and the script that writes them |
 | `validate.py` | the gate. Rejects entries that teach a defect |
-| `entries/*.json` | the 10 sample entries, whole matches, 162 turns |
+| `entries.jsonl` | **the dataset**: 10 entries, one JSON object per line, 162 turns |
+
+### Why one JSONL file
+
+One file, one entry per line. It streams without loading every match into memory,
+shards by line, and appends without a rewrite. Ten separate `.json` files also
+meant ten chances to lose one in a copy, and a directory of files is awkward to
+load in a training pipeline for no benefit at this size.
+
+Rebuild with `python dataset/build_entries.py` (writes `entries.jsonl`), then gate
+it with `python dataset/validate.py`.
 
 ## Why whole matches
 
@@ -76,6 +86,16 @@ Two subtleties it handles:
   learns to accept a correction instead of retrying. Entry 08 has one, where the
   agent tries to solve a task as Shapeshifter, is refused, and switches to
   faking. That is a warning, not an error, and it is intentional.
+
+The dual-side bug bit for real. `build_entries.py` read `can_kill` from the flat
+role table, where the crew Phantom entry happens to be defined last, and wrote
+impostor Phantom into the dataset with `can_kill: false`. The validator passed it
+because the validator resolved the side correctly and the writer did not — the
+metatag was simply wrong, and it would have taught the model that the Phantom
+cannot kill. Both sides now go through the same `role_spec(role, side)`, the
+validator compares all of `can_vent` / `can_kill` / `abilities` /
+`can_do_tasks` against the metatags, and `tests/test_validator.py` has five
+assertions covering the dual-side cases in both directions.
 
 ## The 10 entries
 
