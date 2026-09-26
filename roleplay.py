@@ -597,6 +597,37 @@ def viper_turn(G):
 
 
 # ----------------------------------------------------------------- Detective
+# Detective is the one role with two distinct abilities, and they are genuinely
+# different actions, so they are separate entry points rather than one button:
+#   primary   - interrogate a player / inspect a body (adds a notes page)
+#   secondary - open the notebook and read the pages already collected
+def detective_interrogate(G=None):
+    """Primary ability: interrogate. Must be standing next to the target."""
+    ability = botlink.read_ability()
+    if ability.get("isdead") == "1":
+        return False
+    if ability.get("abilitycount") == "0":
+        print("  no ability button is showing - nothing to interrogate with")
+        return False
+    if botlink.use_ability():
+        print("  interrogate: pressed the primary ability")
+        return True
+    print("  interrogate: the game refused (no body or player in range?)")
+    return False
+
+
+def detective_notes(G=None):
+    """Secondary ability: read the notebook. Returns the notes as text."""
+    pages = botlink.read_detective_notes()
+    if not pages:
+        print("  notes: no pages recorded yet")
+        return ""
+    botlink.use_secondary_ability()
+    text = detective_report()
+    print(f"  notes: {len(pages)} page(s)")
+    return text
+
+
 def detective_turn(G):
     """Report what the detective's own notes recorded.
 
@@ -749,6 +780,65 @@ ROLE_TURNS = {
     "Detective": detective_turn,
     "Judge": judge_turn,
 }
+
+# How many ability buttons each role actually has.
+#
+# Derived from the IL2CPP dump by listing every class that overrides
+# UseSecondaryAbility: only DetectiveRole and PhantomRole do. Every other role
+# has exactly one ability, and two is the maximum any role has in this game.
+# The live count from abilityData.txt overrides this when available, so the
+# model is never told a role has an ability it does not have.
+TWO_ABILITY_ROLES = {"Detective", "Phantom"}
+
+ROLE_ABILITIES = {
+    "Crewmate": [],
+    "Impostor": [],
+    "Scientist": ["read vitals: who is dead or disconnected"],
+    "Engineer": ["vent anywhere on the ship"],
+    "Guardian Angel": ["protect one player for the round"],
+    "Shapeshifter": ["appear as another player"],
+    "Noisemaker": ["place a decoy arrow that draws players to you"],
+    "Phantom": ["turn invisible", "leave a decoy of yourself"],
+    "Tracker": ["track one player: their position and last known room"],
+    "Detective": ["interrogate a player or inspect a body",
+                  "read your notebook of collected notes"],
+    # Viper's vent and its vent-kill are the same button: using the ability puts
+    # it in a vent, and killing from there is what the kill button does. The dump
+    # shows Viper does not override UseSecondaryAbility, so it has one ability.
+    "Viper": ["vent, and kill from inside a vent"],
+    "Judge": ["one extra vote to eject a player"],
+}
+
+NO_ABILITY_ROLES = {r for r, a in ROLE_ABILITIES.items() if not a}
+
+
+def my_abilities(role=None, live_count=None):
+    """The abilities this bot actually has, as a short list of phrases."""
+    role = role or botlink.get_role()
+    if live_count is not None:
+        n = int(live_count)
+    else:
+        n = 2 if role in TWO_ABILITY_ROLES else (1 if role in ROLE_ABILITIES else 0)
+    abilities = list(ROLE_ABILITIES.get(role, []))
+    if n < len(abilities):
+        abilities = abilities[:n]
+    return abilities
+
+
+def ability_brief():
+    """One line describing what this bot can do, for the model's system prompt."""
+    role = botlink.get_role()
+    try:
+        live = botlink.read_ability().get("abilitycount")
+    except Exception:
+        live = None
+    abilities = my_abilities(role, live)
+    if not abilities:
+        return f"You are {role}. You have no special ability."
+    numbered = "; ".join(f"{i + 1}) {a}" for i, a in enumerate(abilities))
+    plural = "ability" if len(abilities) == 1 else "abilities"
+    return (f"You are {role}. You have {len(abilities)} {plural}: {numbered}. "
+            f"No role in this game has more than 2 abilities.")
 
 
 def fake_and_knock(G):

@@ -504,13 +504,26 @@ def a_sab_request(pre=None):
 
 
 def a_detective():
-    banner("detective notes  (from DetectiveRole.notesPageInfos)")
+    banner("detective  (two abilities: interrogate, and read notes)")
+    role = botlink.get_role()
+    ab = botlink.read_ability()
+    print(f"  role={role}  ability buttons showing={ab.get('abilitycount', '?')}")
+    for i, a in enumerate(roleplay.my_abilities(role, ab.get("abilitycount")), 1):
+        print(f"    ability {i}: {a}")
+
+    print("\n  -- interrogate (primary) --")
+    print("  Stand next to a body or a player, then press ENTER to interrogate.")
+    input()
+    print(f"  result: {roleplay.detective_interrogate()}")
+    time.sleep(0.8)
+
+    print("\n  -- read notes (secondary) --")
+    text = roleplay.detective_notes()
     pages = botlink.read_detective_notes()
     if not pages:
-        print("  no detectiveData.txt, or no pages recorded yet.")
-        print("  inspect a body as Detective, then retry.")
+        print("  no detectiveData.txt yet - interrogate a body first.")
         return
-    print(f"  {len(pages)} page(s) recorded by the game:\n")
+    print(f"\n  the game has {len(pages)} page(s):\n")
     for p in pages:
         print(f"    body {p['index']}: {p.get('victim', '?')}")
         print(f"       location    {p.get('location', 'unknown')}")
@@ -520,7 +533,25 @@ def a_detective():
             print(f"       near        {s}")
         print()
     print("  as the model would say it:")
-    print("   ", roleplay.detective_report())
+    print("   ", text)
+
+
+def a_detective_interrogate():
+    banner("detective: interrogate  (primary ability)")
+    if not wait_for_game():
+        return
+    print("  Stand next to a body or a player first.")
+    print(f"  result: {roleplay.detective_interrogate()}")
+
+
+def a_detective_notes():
+    banner("detective: read notes  (secondary ability)")
+    if not wait_for_game():
+        return
+    text = roleplay.detective_notes()
+    if not text:
+        return
+    print("\n  notes:\n   ", text)
 
 
 def a_scientist():
@@ -616,7 +647,9 @@ MENU = [
     ("sb", "queue sabotage  e.g. 'sb Electrical' or bare 'sb' to pick", a_sab_request),
     ("b", "sabotage      - fire it  e.g. 'b lights'", a_sabotage_choose),
     ("cal", "sabotage list - entries the game reports (nothing to calibrate)", a_calibrate),
-    ("dt", "detective   - bodies, rooms, who was nearby", a_detective),
+    ("dt", "detective   - both abilities: interrogate, then read notes", a_detective),
+    ("di", "interrogate - detective primary ability (stand next to target)", a_detective_interrogate),
+    ("dn", "notes       - detective secondary ability (open notebook)", a_detective_notes),
     ("sv", "scientist   - vitals: who is dead / disconnected", a_scientist),
     ("j", "judge       - overrule a player  e.g. 'j 3'", a_judge),
     ("rm", "role memory - facts the roles have learned", a_role_memory),
