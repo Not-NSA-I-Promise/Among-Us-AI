@@ -239,6 +239,67 @@ def a_vent_run():
     print(f"  vent_turn returned {ok}  -> inVent={botlink.read_ability().get('invent')}")
 
 
+def a_vent_options(pre=None):
+    banner("vent travel  (be inside a vent first)")
+    raw = botlink.read_vent_options_raw().strip()
+    if not raw:
+        print("  no ventOptions.txt yet - the plugin writes it every snapshot.")
+        print("  get inside a vent, then retry.")
+        return
+
+    diag = [ln for ln in raw.splitlines() if ln.startswith("#")]
+    if diag:
+        print("  " + diag[0].strip())
+    else:
+        print("  (no diagnostic line in ventOptions.txt)")
+
+    ab = botlink.read_ability()
+    print(f"  inVent={ab.get('invent')}  canVent={ab.get('canvent')}")
+    if ab.get("invent") != "1":
+        print("  you are NOT in a vent, so the game will not offer any travel options.")
+        print("  press '9' to run the vent routine, then come back here.")
+
+    opts = botlink.read_vent_options()
+    if not opts:
+        print("\n  no options reported. Check the #found / #field numbers above:")
+        print("    #field=False  -> the private currentTarget lookup failed")
+        print("    #found=0      -> no VentButton objects exist right now")
+        print("    #found>0      -> buttons exist but none were usable")
+        return
+
+    here = None
+    try:
+        here = int(botlink.getGameData()["task_rooms"].split("|")[0]) if False else None
+    except Exception:
+        pass
+    print(f"\n  {len(opts)} travel option(s):")
+    for vid, x, y in opts:
+        print(f"    vent {vid:2} at ({x:7.2f},{y:7.2f})")
+    if len(opts) == 1:
+        vid = opts[0][0]
+        print(f"\n  only one option -> travelling to vent {vid}")
+        time.sleep(0.4)
+        print(f"  sent: {botlink.vent_travel(vid)}")
+        return
+
+    pick = pre
+    if not pick:
+        pick = input("  which vent id? > ").strip()
+    if not pick:
+        print("  cancelled")
+        return
+    try:
+        vid = int(pick)
+    except ValueError:
+        print(f"  {pick!r} is not a vent id")
+        return
+    if vid not in [o[0] for o in opts]:
+        print(f"  vent {vid} is not one of the options above")
+        return
+    time.sleep(0.4)
+    print(f"  sent: {botlink.vent_travel(vid)}")
+
+
 def a_vents():
     banner("vent graph (game's own Left/Right/Center connectivity)")
     graph = botlink.vent_graph()
@@ -345,12 +406,59 @@ def a_witnesses():
     print("  (anyone in that list would be recorded as a witness if you killed there)")
 
 
-def a_sabotage_choose():
+def _sabotage_choices():
+    """Every sabotage the game currently reports, doors included."""
+    opts = botlink.sabotage_options()
+    aliases = {
+        "Reactor": "reactor",
+        "LifeSupp": "oxygen",
+        "Comms": "comms",
+        "Shields": "lights",
+        "HeliSabotage": "heli",
+        "MushroomMixupSabotage": "mushroom",
+    }
+    out = []
+    for o in opts:
+        out.append((aliases.get(o, o), o))
+    return out
+
+
+def _pick_sabotage(prompt="  > "):
+    """Numbered list built from the live game state, or a typed name."""
+    choices = _sabotage_choices()
+    if not choices:
+        print("  the game reported no sabotage entries - start a game as impostor.")
+        return None
+    print(f"  {botlink.sabotage_button_stats()}")
+    for i, (friendly, real) in enumerate(choices, 1):
+        kind = "doors" if real not in ("Reactor", "LifeSupp", "Comms", "Shields",
+                                       "HeliSabotage", "MushroomMixupSabotage") else "other"
+        print(f"  {i:>2}) {friendly:24} ({real}, {kind})")
+    print("\n  type a number, or a name directly (e.g. Electrical, lights, o2)")
+    raw = input(prompt).strip()
+    if not raw:
+        return None
+    if raw.isdigit():
+        n = int(raw)
+        if 1 <= n <= len(choices):
+            return choices[n - 1][0]
+        print(f"  no entry #{n}")
+        return None
+    low = raw.lower()
+    for friendly, _real in choices:
+        if friendly == low:
+            return friendly
+    print(f"  {raw!r} is not one of the entries listed above")
+    return None
+
+
+def a_sabotage_choose(pre=None):
     banner("sabotage  (choose which one)")
-    print("  1) random  2) reactor  3) oxygen  4) comms  5) lights")
-    pick = input("  > ").strip()
-    forced = {"2": "reactor", "3": "oxygen", "4": "comms", "5": "lights"}.get(pick)
     if not wait_for_game():
+        return
+    forced = pre or _pick_sabotage()
+    if not forced:
+        print("  cancelled")
         return
     import importlib.util
     spec = importlib.util.spec_from_file_location(
@@ -358,8 +466,7 @@ def a_sabotage_choose():
                              "task-solvers", "Sabotage.py"))
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
-    if forced:
-        mod.ONLY = forced
+    mod.ONLY = forced
     print(f"  result: {mod.sabotage()}")
 
 
@@ -384,140 +491,41 @@ def a_probe_use():
           else "\n  RESULT: none of A/X/B/Y opened admin. Stand closer to the table.")
 
 
-def a_sab_request():
-    banner("request a sabotage  (the model tells the harness what to do)")
-    print("  1) reactor  2) oxygen  3) comms  4) lights")
-    pick = input("  > ").strip()
-    name = {"1": "reactor", "2": "oxygen", "3": "comms", "4": "lights"}.get(pick)
+def a_sab_request(pre=None):
+    banner("queue a sabotage  (fires on the next 'b')")
+    if not wait_for_game():
+        return
+    name = pre or _pick_sabotage()
     if not name:
         print("  cancelled")
         return
-    print(f"  queued: {name} (the next sabotage will use it, then clear it)")
     print(f"  request_sabotage -> {roleplay.request_sabotage(name)}")
     print("  now press 'b' to fire it")
 
 
 def a_calibrate():
-    banner("calibrate sabotage click points")
+    banner("sabotage targets reported by the game")
     if not wait_for_game():
         return
-    print("  Walk to Admin, stand at the table and open the sabotage map.")
-    print("  Then click each button in turn; the exact point is recorded.")
-    input("  press ENTER once the map is open... ")
-    import Sabotage as _sab  # noqa
-    data = _sab.load_coords()
-    map_id = _sab._map_id()
-    data.setdefault(map_id, {})
-    print(f"\n  map = {map_id}")
-    print("  Click each sabotage button. Enter the name (or blank to skip),")
-    print("  then click the button on screen.\n")
-    while True:
-        name = input("  sabotage name (blank to finish): ").strip().lower()
-        if not name:
-            break
-        click = input("     now click that button on screen... ").strip()
-        print(f"     (enter={click})")
-        raw = input("     x,y of the click in pixels (from the top-left of the screen): ").strip()
-        try:
-            px, py = [int(v) for v in raw.replace(",", " ").split()[:2]]
-        except ValueError:
-            print("     could not parse, skipping")
-            continue
-        dims = utility.get_dimensions()
-        cx, cy = px - dims[0], py - dims[1]
-        w, h = dims[2], dims[3]
-        if w <= 0 or h <= 0 or cx <= 0 or cy <= 0:
-            print("     point is outside the game window, skipping")
-            continue
-        data[map_id][name] = [round(w / cx, 4), round(h / cy, 4)]
-        print(f"     saved {name} -> {[round(w/cx,4), round(h/cy,4)]}")
-    _sab.save_coords(data)
-    print(f"\n  saved to sabotage_coords.json  [{map_id}]")
-    print(f"  {data.get(map_id, {})}")
-
-
-def a_vent_options():
-    banner("vent travel  (pick a destination from the real vent menu)")
-    opts = botlink.read_vent_options()
-    if not opts:
-        print("  no vent options reported.")
-        print("  You must be INSIDE a vent (press 9 first) for the game to show them.")
-        return
-    print("  connected vents:")
-    for vid, x, y in opts:
-        print(f"    vent {vid:2}  button at ({x},{y})")
-    pick = input("  vent id to travel to (blank to cancel): ").strip()
-    if not pick.isdigit():
-        print("  cancelled")
-        return
-    target = int(pick)
-    if target not in [o[0] for o in opts]:
-        print(f"  vent {target} is not in the menu - pick one of the listed ids")
-        return
-    print(f"  travelling to vent {target} ...")
-    ok = botlink.vent_travel(target)
-    time.sleep(1.0)
-    pos = utility.getGameData()["position"] if utility.getGameData() else None
-    if pos:
-        print(f"  command sent: {ok}   now at ({pos[0]:.1f},{pos[1]:.1f})")
-    else:
-        print(f"  command sent: {ok}")
-
-
-def a_calibrate():
-    banner("calibrate sabotage buttons")
-    if not wait_for_game():
-        return
-    print("  1. Walk to Admin if you have to, or stay put if you are the impostor.")
-    print("  2. Open the sabotage map (impostor: your sabotage button).")
-    input("  press ENTER once the map is open... ")
-    time.sleep(1.0)
+    print("  " + botlink.sabotage_button_stats())
     btns = botlink.read_sabotage_buttons()
     if not btns:
-        print("  the game reported no sabotage buttons - is the map actually open?")
+        print("  no MapRoom objects found yet - start a game as impostor and retry.")
         return
-    print(f"\n  the game reports {len(btns)} sabotage buttons:")
-    for i, x, y in btns:
-        print(f"    #{i} at ({x},{y})")
-    print("\n  For each one: move the mouse over it and press SPACE.")
-    print("  I'll read the mouse position, so you never type coordinates.")
-    print("  Give it a name when asked. ENTER alone finishes.\n")
-
-    import json
-    path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                        "sabotage_coords.json")
-    try:
-        with open(path) as f:
-            data = json.load(f)
-    except (OSError, ValueError):
-        data = {}
-    map_id = None
-    try:
-        map_id = utility.getGameData()["map_id"].upper()
-    except Exception:
-        pass
-    data.setdefault(map_id, {})
-
-    while True:
-        name = input("  name for the button under the cursor (blank = done): ").strip()
-        if not name:
-            break
-        print("     move the mouse over the button and press SPACE... ", end="", flush=True)
-        press = input()
-        mx, my = pyautogui.position()
-        dims = utility.get_dimensions()
-        cx, cy = mx - dims[0], my - dims[1]
-        nearest = min(btns, key=lambda b: (b[1] - mx) ** 2 + (b[2] - my) ** 2)
-        dist = ((nearest[1] - mx) ** 2 + (nearest[2] - my) ** 2) ** 0.5
-        w, h = dims[2], dims[3]
-        data[map_id][name] = [round(w / cx, 4), round(h / cy, 4)]
-        print(f"     mouse=({mx},{my}) client=({cx},{cy}) nearest button #{nearest[0]} "
-              f"at {dist:.0f}px -> saved {name} = {[round(w/cx,4), round(h/cy,4)]}")
-    with open(path, "w") as f:
-        json.dump(data, f, indent=2)
-    print(f"\n  saved to sabotage_coords.json  [{map_id}]")
-    for k, v in data.get(map_id, {}).items():
-        print(f"    {k:20} w/{v[0]:<8} h/{v[1]}")
+    print(f"\n  the game exposes {len(btns)} sabotage entries. Names are read straight")
+    print("  off the map objects, so there is nothing to calibrate:\n")
+    for idx, name, val, active in btns:
+        print(f"    {name:24} system={val:<3} active={active}")
+    print("\n  door sabotages: " + ", ".join(
+        n for n in botlink.sabotage_options()
+        if n not in ("Reactor", "LifeSupp", "Comms", "Shields",
+                     "HeliSabotage", "MushroomMixupSabotage")))
+    print("  other sabotages: " + ", ".join(
+        n for n in botlink.sabotage_options()
+        if n in ("Reactor", "LifeSupp", "Comms", "Shields",
+                 "HeliSabotage", "MushroomMixupSabotage")))
+    print("\n  fire one with:  sb <name>   then   b")
+    print("  e.g. sb Electrical  /  sb lights  /  sb comms")
 
 
 MENU = [
@@ -539,9 +547,9 @@ MENU = [
     ("v", "vent graph", a_vents),
     ("w2", "witnesses    - who was near the last kill / is near now", a_witnesses),
     ("p", "purge pads  (game must be CLOSED)", a_purge_pads),
-    ("sb", "request sabotage - queue one for the model to pick", a_sab_request),
-    ("b", "sabotage      - fire it (honours the queued request)", a_sabotage_choose),
-    ("cal", "calibrate    - record exact sabotage click points", a_calibrate),
+    ("sb", "queue sabotage  e.g. 'sb Electrical' or bare 'sb' to pick", a_sab_request),
+    ("b", "sabotage      - fire it  e.g. 'b lights'", a_sabotage_choose),
+    ("cal", "sabotage list - entries the game reports (nothing to calibrate)", a_calibrate),
     ("f", "fake / knock", a_fake),
     ("u", "ui coords", a_uicoords),
 ]
@@ -563,16 +571,26 @@ def main():
         for key, label, _ in MENU:
             print(f"  {key:>2}) {label}")
         try:
-            choice = input("\n> ").strip().lower()
+            raw = input("\n> ").strip()
         except (EOFError, KeyboardInterrupt):
             break
-        if choice in ("q", "quit", "exit"):
+        if not raw:
+            continue
+        if raw.lower() in ("q", "quit", "exit"):
             break
+        # allow "sb Electrical" as well as a bare "sb"
+        parts = raw.split(None, 1)
+        choice = parts[0].lower()
+        arg = parts[1].strip() if len(parts) > 1 else None
         for key, _label, fn in MENU:
             if choice == key:
                 try:
                     show_state()
-                    fn()
+                    # handlers that take a target accept it as an argument
+                    if arg and fn.__code__.co_argcount:
+                        fn(arg)
+                    else:
+                        fn()
                 except Exception as exc:
                     print(f"{RED}  action failed: {exc}{RESET}")
                 break

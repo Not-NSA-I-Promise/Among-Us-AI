@@ -63,19 +63,15 @@ def describe(name):
 
 
 def sabotage(G=None):
-    """Trigger one sabotage from the Admin table.
+    """Trigger one sabotage on the in-game map.
 
-    Which sabotage is decided by the caller (the model, via
+    The plugin drives the map's own MapRoom object, so this works from anywhere
+    and at any resolution. Which sabotage is decided by the caller (the model, via
     roleplay.decide_sabotage) or by the queued sabotageRequest.txt. There is no
-    random choice of our own unless nothing was requested.
+    random choice of our own.
     """
     dimensions = get_dimensions()
     if not dimensions:
-        return False
-    map_id = _map_id()
-    table = load_coords().get(map_id, {})
-    if not table:
-        print(f"Sabotage: no coordinates for map {map_id}")
         return False
 
     forced = ONLY
@@ -90,16 +86,37 @@ def sabotage(G=None):
         except Exception:
             forced = None
 
-    if forced:
-        if forced not in table:
-            print(f"Sabotage: {forced} is not available on {map_id} "
-                  f"(have: {', '.join(table)})")
-            return False
-        chosen = forced
-    else:
-        chosen = random.choice(list(table))
+    if not forced:
+        # No model decision available: do nothing rather than fire something
+        # arbitrary. A wrong sabotage kills a crewmate and looks human.
+        print("Sabotage: no sabotage queued (use `sb` in the harness to request one)")
+        return False
 
-    dx, dy = table[chosen]
+    # Validate against what the game itself reports, not a hardcoded table.
+    try:
+        import sys
+        root = os.path.dirname(HERE)
+        if root not in sys.path:
+            sys.path.insert(0, root)
+        import botlink
+        available = botlink.sabotage_options()
+    except Exception:
+        available = []
+    if available:
+        # accept either the raw MapRoom name or a friendly alias
+        aliases = {"oxygen": "LifeSupp", "o2": "LifeSupp", "comms": "Comms",
+                   "lights": "Shields", "heli": "HeliSabotage",
+                   "upper": "UpperEngine", "lower": "LowerEngine",
+                   "medbay": "MedBay", "medica": "MedBay", "sec": "Security"}
+        target = aliases.get(forced.lower(), forced)
+        if target not in available:
+            print(f"Sabotage: {forced!r} is not on this map right now "
+                  f"(have: {', '.join(available)})")
+            return False
+    else:
+        print(f"Sabotage: {forced!r} (could not confirm against the game)")
+
+    chosen = forced
 
     # Must be a truthiness check: task_utility.is_urgent_task() returns False
     # (not None) when nothing is urgent, so `is not None` skipped every time.
@@ -108,38 +125,29 @@ def sabotage(G=None):
         return False
 
     wake()
-    # Impostors open the map with their own sabotage button from anywhere; there
-    # is no need to stand at the Admin table.
-    opened = False
+
+    # Ask the plugin to drive the map's own MapRoom object. The plugin resolves
+    # the name to a room and calls SabotageDoors()/SabotageLights()/etc, which is
+    # exactly what pressing the entry on the map does. Nothing here uses pixels,
+    # so the resolution genuinely cannot break it.
     try:
         import sys
         root = os.path.dirname(HERE)
         if root not in sys.path:
             sys.path.insert(0, root)
         import botlink
-        opened = botlink.open_sabotage_map()
-    except Exception:
-        opened = False
-
-    if not opened:
-        # fall back to clicking the Admin table in the world
-        pyautogui.click(dimensions[0] + round(dimensions[2] / 1.42),
-                        dimensions[1] + round(dimensions[3] / 1.207),
-                        duration=0.2)
-    time.sleep(0.9)
-
-    pyautogui.click(dimensions[0] + round(dimensions[2] / dx),
-                    dimensions[1] + round(dimensions[3] / dy), duration=0.2)
-    time.sleep(1 / 30)
-    print(f"Sabotage: triggered {chosen} ({describe(chosen)}) on {map_id}")
-
-    try:
-        cx, cy = load_coords().get("_close", {}).get(map_id, (12.8, 7.66))
-        pyautogui.click(dimensions[0] + round(dimensions[2] / cx),
-                        dimensions[1] + round(dimensions[3] / cy), duration=0.2)
-    except Exception:
-        pass
-    return True
+        if not botlink.open_sabotage_map():
+            print("Sabotage: the game did not accept opensabotage")
+            return False
+        time.sleep(0.9)
+        if botlink.click_sabotage(chosen):
+            time.sleep(1 / 30)
+            print(f"Sabotage: triggered {chosen} ({describe(chosen)})")
+            return True
+        print(f"Sabotage: the game refused {chosen!r} (not a map entry, or not allowed)")
+    except Exception as e:
+        print(f"Sabotage: plugin path failed ({e})")
+    return False
 
 
 if __name__ == "__main__":

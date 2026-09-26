@@ -189,25 +189,80 @@ def vent_travel(vent_id: int) -> bool:
 
 
 SABOTAGE_BUTTONS_PATH = os.path.join(_GAME_DIR, "sabotageButtons.txt")
+SABOTAGE_NAMES_PATH = os.path.join(_GAME_DIR, "sabotage_names.txt")
 
 
 def read_sabotage_buttons() -> list:
-    """Sabotage-map entries as [(index, x, y)], read from the game's own buttons."""
+    """Sabotage map entries as [(index, name, system_value, active)].
+
+    These come from the game's own MapRoom objects, which carry their SystemTypes,
+    so the names are real. Lines are "<index> <Name> <value> <active>"; a leading
+    "#" line carries the counts.
+    """
     out = []
     try:
         with open(SABOTAGE_BUTTONS_PATH) as f:
             for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
                 p = line.split()
-                if len(p) == 3 and p[0].isdigit():
-                    out.append((int(p[0]), int(p[1]), int(p[2])))
+                if len(p) >= 3 and p[0].isdigit():
+                    active = len(p) > 3 and p[3] in ("True", "true", "1")
+                    out.append((int(p[0]), p[1], int(p[2]), active))
     except (OSError, ValueError):
         pass
     return out
 
 
+def sabotage_options() -> list:
+    """Names the game itself reports, e.g. Cafeteria, Electrical, Reactor."""
+    return [name for _, name, _, _ in read_sabotage_buttons()]
+
+
+def sabotage_button_stats() -> str:
+    try:
+        with open(SABOTAGE_BUTTONS_PATH) as f:
+            for line in f:
+                if line.startswith("#"):
+                    return line.strip()
+    except OSError:
+        pass
+    return "#no sabotageButtons.txt"
+
+
+def read_sabotage_names() -> dict:
+    """Calibrated name -> button index. This is element identity, not pixels."""
+    out = {}
+    try:
+        with open(SABOTAGE_NAMES_PATH) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                p = line.split(" ", 1)
+                if len(p) == 2 and p[0].isdigit():
+                    out[p[1].strip()] = int(p[0])
+    except OSError:
+        pass
+    return out
+
+
+def write_sabotage_names(names: dict) -> None:
+    with open(SABOTAGE_NAMES_PATH, "w") as f:
+        f.write("# sabotage name -> button index (element identity, resolution independent)\n")
+        for name, idx in sorted(names.items(), key=lambda kv: kv[1]):
+            f.write(f"{idx} {name}\n")
+
+
 def open_sabotage_map() -> bool:
     """Impostors open the sabotage map with their own button, from anywhere."""
     return send_cmd("opensabotage")
+
+
+def click_sabotage(name: str) -> bool:
+    """Ask the plugin to activate a sabotage by name; it finds the live button."""
+    return send_cmd(f"clicksabotage {name}")
 
 
 def read_vent_options_raw() -> str:
