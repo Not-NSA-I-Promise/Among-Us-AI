@@ -3,6 +3,7 @@ from utility import *
 from math import dist
 import networkx as nx
 from solver import *
+import roleplay
 from random import choice
 import keyboard
 
@@ -269,6 +270,9 @@ def main(G) -> int:
     ret = 0
     while True:
         if isInGame() and not keyboard.is_pressed('`'):
+            # Special roles get a real action (vent, tracker, protect, mimic, ...).
+            # Impostors are included: Impostor/Phantom/Shapeshifter/Viper all vent.
+            roleplay.role_turn(G)
             # Begin gameplay loop
             if not isImpostor():
                 ret = move_and_complete_tasks(G, move_list, tasks)

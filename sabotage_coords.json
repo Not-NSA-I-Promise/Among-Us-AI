@@ -1,0 +1,67 @@
+{
+  "_comment": "Admin-table sabotage click points as (width/x, height/y) divisors of the game client area. Calibrate with 'cal' in test_commands.py while the sabotage map is open, which overwrites this file with exact values.",
+  "SHIP": {
+    "reactor": [
+      9.846,
+      2.045
+    ],
+    "oxygen": [
+      1.452,
+      2.182
+    ],
+    "comms": [
+      1.582,
+      1.093
+    ],
+    "lights": [
+      2.51,
+      1.485
+    ],
+    "lights_navigation": [
+      1.031,
+      2.204
+    ],
+    "doors_cafeteria": [
+      1.875,
+      4.122
+    ],
+    "doors_upper": [
+      5.304,
+      3.396
+    ],
+    "doors_medbay": [
+      2.807,
+      2.466
+    ],
+    "doors_security": [
+      3.802,
+      2.03
+    ],
+    "doors_electrical": [
+      2.954,
+      1.521
+    ],
+    "doors_lower": [
+      5.304,
+      1.312
+    ],
+    "doors_storage": [
+      1.99,
+      1.304
+    ]
+  },
+  "PB": {
+    "reactor": [
+      1.48,
+      2.49
+    ],
+    "lights": [
+      4.17,
+      2.2
+    ],
+    "comms": [
+      4.17,
+      2.2
+    ]
+  }
+}

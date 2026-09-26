@@ -42,6 +42,26 @@ with open("sendDataDir.txt") as f:
 # starts at skeld, not hardcoded
 MAP = "SHIP"
 
+
+def _load_config() -> dict:
+    """Bot behaviour toggles from bot_config.json (all optional)."""
+    cfg = {
+        # Walking past a body used to self-report instantly, which handed an
+        # impostor kill straight to the crew. Off unless you opt in.
+        "auto_report": False,
+    }
+    try:
+        import json
+        with open("bot_config.json") as f:
+            cfg.update(json.load(f))
+    except (OSError, ValueError):
+        pass
+    return cfg
+
+
+BOT_CONFIG = _load_config()
+AUTO_REPORT = bool(BOT_CONFIG.get("auto_report", False))
+
 global gamepad
 gamepad = vg.VX360Gamepad()
 
@@ -79,73 +99,85 @@ def getGameData():
     """
     global impostor, MAP
 
-    # number of parameters (lines) in data
     dataLen : int = 15
-    x,y,status,tasks, task_locations, task_steps, map_id, dead, inMeeting, speed, color, room, lights, nearbyPlayers, playersVent, playersDead = (None,)*(dataLen + 1) # x and y are 1 line, so add 1
-    lines = []
-    while True:
-        with open(SEND_DATA_PATH) as file:
-            lines = file.readlines()
-            if len(lines) < dataLen:
-                file.close()
-                continue
 
-            x = float(lines[0].split()[0])
-            y = float(lines[0].split()[1])
-            status = lines[1].strip()
-            impostor = status
+    def _snapshot():
+        """One complete, fresh snapshot, or None."""
+        try:
+            if (time.time() - os.path.getmtime(SEND_DATA_PATH)) > 5:
+                return None          # stale: not in a live match
+            with open(SEND_DATA_PATH) as file:
+                lines = file.readlines()
+        except OSError:
+            return None
+        return lines if len(lines) >= dataLen else None
 
-            tasks = lines[2].rstrip().strip('][').split(", ")
+    lines = None
+    deadline = time.time() + 10
+    while time.time() < deadline:
+        lines = _snapshot()
+        if lines is not None:
+            break
+        time.sleep(0.05)
+    if lines is None:
+        return None
 
-            task_locations = lines[3].rstrip().strip('][').split(", ")
+    try:
+        x = float(lines[0].split()[0])
+        y = float(lines[0].split()[1])
+        status = lines[1].strip()
+        impostor = status
 
-            task_steps = lines[4].rstrip().strip('][').split(", ")
+        tasks = lines[2].rstrip().strip('][').split(", ")
 
-            map_id = lines[5].rstrip()
-            MAP = map_id.upper()
+        task_locations = lines[3].rstrip().strip('][').split(", ")
 
-            dead = bool(int(lines[6].rstrip()))
+        task_steps = lines[4].rstrip().strip('][').split(", ")
 
-            inMeeting = bool(int(lines[7].rstrip()))
+        map_id = lines[5].rstrip()
+        MAP = map_id.upper()
 
-            speed = float(lines[8].rstrip())
+        dead = bool(int(lines[6].rstrip()))
 
-            color = translatePlayerColorID(int(lines[9].rstrip()))
+        inMeeting = bool(int(lines[7].rstrip()))
 
-            room = lines[10].rstrip()
+        speed = float(lines[8].rstrip())
 
-            lights = False if '0' in lines[11].rstrip() else True
+        color = translatePlayerColorID(int(lines[9].rstrip()))
 
-            nearbyPlayers = {}
-            try:
-                bigLongInput = lines[12].rstrip().strip('][').split(", ")
-                for item in bigLongInput:
-                    item = item.split("/")
-                    nearbyPlayers[translatePlayerColorID(int(item[0]))] = (float(item[1]), float(item[2]))
-            except ValueError:
-                nearbyPlayers = []
+        room = lines[10].rstrip()
 
-            playersVent = {}
-            try:
-                bigLongInput = lines[13].rstrip().strip('][').split(", ")
-                for item in bigLongInput:
-                    item = item.split("/")
-                    playersVent[translatePlayerColorID(int(item[0]))] = False if '0' in item[1] else True
-            except ValueError:
-                playersVent = []
+        lights = False if '0' in lines[11].rstrip() else True
 
-            playersDead = {}
-            try:
-                bigLongInput = lines[14].rstrip().strip('][').split(", ")
-                for item in bigLongInput:
-                    item = item.split("/")
-                    playersDead[translatePlayerColorID(int(item[0]))] = False if '0' in item[1] else True
-            except ValueError:
-                playersDead = []
+        nearbyPlayers = {}
+        try:
+            bigLongInput = lines[12].rstrip().strip('][').split(", ")
+            for item in bigLongInput:
+                item = item.split("/")
+                nearbyPlayers[translatePlayerColorID(int(item[0]))] = (float(item[1]), float(item[2]))
+        except ValueError:
+            nearbyPlayers = []
 
-        if None in [x,y,status,tasks, task_locations, task_steps, map_id, dead, inMeeting, speed, color, room, nearbyPlayers, playersVent, playersDead]:
-            continue
-        break
+        playersVent = {}
+        try:
+            bigLongInput = lines[13].rstrip().strip('][').split(", ")
+            for item in bigLongInput:
+                item = item.split("/")
+                playersVent[translatePlayerColorID(int(item[0]))] = False if '0' in item[1] else True
+        except ValueError:
+            playersVent = []
+
+        playersDead = {}
+        try:
+            bigLongInput = lines[14].rstrip().strip('][').split(", ")
+            for item in bigLongInput:
+                item = item.split("/")
+                playersDead[translatePlayerColorID(int(item[0]))] = False if '0' in item[1] else True
+        except ValueError:
+            playersDead = []
+    except (ValueError, IndexError):
+        # torn or malformed snapshot - never return a half-filled dict
+        return None
 
     if dead or status == "impostor":
         if tasks[0] == "Submit Scan" and task_locations[0] == "Hallway":
@@ -893,7 +925,14 @@ def focus():
     else:
         print("Window not found")
 
-def move(dest_list : list, G = load_G(getGameData()["map_id"])) -> int:
+def move(dest_list : list, G = None) -> int:
+    # G used to be a default argument calling getGameData(), which ran at import
+    # time and blew up whenever the game was not in a match. Resolve it lazily.
+    if G is None:
+        data = getGameData()
+        if data is None:
+            return 0
+        G = load_G(data["map_id"])
     """ Handles player movement, reporting, and kills
 
         Parameters
@@ -948,16 +987,23 @@ def move(dest_list : list, G = load_G(getGameData()["map_id"])) -> int:
 
             # Kill logic
             if isImpostor():
-                if can_kill() and is_KillTimer_0() and should_I_kill():
-                    gamepad.press_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_X)
+                # can_kill() probed a hardcoded pixel (width/1.08, height/1.49) which
+                # resolved to the middle of the room, not the USE button, so it always
+                # returned False. The plugin already publishes the kill cooldown in
+                # imposterData.txt, which is the real signal.
+                if is_KillTimer_0() and should_I_kill():
+                    # A is USE on the Xbox layout; X is the square button and did nothing.
+                    gamepad.press_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
                     gamepad.update()
                     time.sleep(1/30)
-                    gamepad.release_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_X)
+                    gamepad.release_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
                     gamepad.update()
                     time.sleep(1/60)
-            
-            # Report/self report check
-            if can_report():
+
+            # Report check. Auto-reporting is OFF by default: it fired the instant the
+            # bot walked past a body, which gave away an impostor kill instantly.
+            # Enable it in bot_config.json only if you want the bot to self-report.
+            if AUTO_REPORT and can_report():
                 if len(nearby_players) > 1 or on_cams():
                     press_report()
                     time.sleep(1/60)

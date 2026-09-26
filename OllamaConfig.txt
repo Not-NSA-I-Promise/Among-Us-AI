@@ -1,0 +1,20 @@
+﻿# Ollama connection for Among-Us-AI chat
+# Host running Ollama (other laptop on the same LAN):
+HOST=http://192.168.100.58:11434
+
+# Model. Must be reasonably fast: the final vote is cast ~12s before the
+# meeting ends, so slower than ~10s per reply will miss the window.
+# Benchmarked on this host (80 token budget, full meeting prompt):
+#   llama3.2      ~7s   good format, weakest roleplay
+#   qwen3.5:2b   ~10s   good format
+#   gemma4:e2b   ~14s   good format, best roleplay of the fast ones
+#   qwen3.5:4b  ~150s  too slow for the vote step
+MODEL=gemma4:e2b
+
+# Max tokens per reply. The system prompt asks for <80 chars, so ~80 is plenty.
+NUM_PREDICT=80
+TEMPERATURE=0.8
+
+# Must stay false for reasoning/thinking models (qwen3.5, gemma4): they spend
+# the entire NUM_PREDICT budget thinking and return an empty message.
+THINK=false

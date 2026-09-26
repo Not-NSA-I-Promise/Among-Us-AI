@@ -1,5 +1,6 @@
-import openai
+import requests
 from utility import getGameData, in_meeting, get_chat_messages, clear_chat, translatePlayerColorID, allTasksDone, get_nearby_players, load_G, get_kill_list, get_num_alive_players
+import botlink
 import time
 import pyautogui
 import networkx as nx
@@ -8,16 +9,45 @@ import sys, os
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/task-solvers")
 from task_utility import get_dimensions, get_screen_coords, wake, get_screen_ratio
 
-API_KEY = ""
+OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "llama3.2")
+OLLAMA_NUM_PREDICT = int(os.environ.get("OLLAMA_NUM_PREDICT", "80"))
+OLLAMA_TEMPERATURE = float(os.environ.get("OLLAMA_TEMPERATURE", "0.8"))
+OLLAMA_THINK = os.environ.get("OLLAMA_THINK", "false").lower() in ("1", "true", "yes")
 try:
-    with open("APIkey.txt") as f:
-        API_KEY = f.readline().rstrip()
-    f.close()
-except:
-    print("No API key detected. Automatic chatting disabled.")
-    raise SystemExit(0)
+    with open("OllamaConfig.txt") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            key = key.strip().upper()
+            value = value.strip()
+            if key == "HOST":
+                OLLAMA_HOST = value
+            elif key == "MODEL":
+                OLLAMA_MODEL = value
+            elif key == "NUM_PREDICT":
+                OLLAMA_NUM_PREDICT = int(value)
+            elif key == "TEMPERATURE":
+                OLLAMA_TEMPERATURE = float(value)
+            elif key == "THINK":
+                OLLAMA_THINK = value.lower() in ("1", "true", "yes")
+except FileNotFoundError:
+    pass
 
-openai.api_key = API_KEY
+def check_ollama() -> bool:
+    try:
+        requests.get(f"{OLLAMA_HOST}/api/tags", timeout=3)
+        return True
+    except requests.RequestException:
+        return False
+
+if not check_ollama():
+    print(f"Cannot reach Ollama at {OLLAMA_HOST}. Automatic chatting disabled.")
+    raise SystemExit(0)
 
 with open("sendDataDir.txt") as f:
     line = f.readline().rstrip()
@@ -62,14 +92,32 @@ def get_meeting_time():
         time = int(f.readline())
     return time
 
-def ask_gpt(prompts : str) -> str: 
+def ask_gpt(prompts : list) -> str:
     print("sent prompt")
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=prompts
-    )
-
-    message = response['choices'][0]['message']['content']
+    payload = {
+        "model": OLLAMA_MODEL,
+        "messages": prompts,
+        "stream": False,
+        "think": OLLAMA_THINK,
+        "options": {
+            "num_predict": OLLAMA_NUM_PREDICT,
+            "temperature": OLLAMA_TEMPERATURE,
+        },
+    }
+    message = ""
+    for attempt in range(2):
+        response = requests.post(f"{OLLAMA_HOST}/api/chat", json=payload, timeout=120)
+        response.raise_for_status()
+        data = response.json()
+        message = (data.get("message", {}) or {}).get("content", "") or ""
+        if message.strip():
+            break
+        # Thinking models can burn the whole num_predict budget on reasoning and
+        # return empty content - retry once with thinking explicitly disabled.
+        if OLLAMA_THINK:
+            break
+        print("empty response, retrying with think=false")
+        payload["think"] = False
     print("returned message")
     return message.rstrip()
 
@@ -108,15 +156,27 @@ def skip(dimensions):
 
 def vote(color : str = "SKIP"):
     dimensions = get_dimensions()
-    x = dimensions[0] + round(dimensions[2] / 1.12)
-    y = dimensions[1] + round(dimensions[3] / 19.6)
-    wake()
-    time.sleep(0.1)
 
-    # close chat
-    pyautogui.click(x,y, duration=0.3)
+    # close chat through the game API, same reason as opening it
+    if not botlink.close_chat():
+        coords = botlink.read_ui_coords().get("chat")
+        if coords:
+            wake()
+            pyautogui.click(dimensions[0] + coords[0], dimensions[1] + coords[1], duration=0.3)
     time.sleep(0.5)
 
+    color = color.upper()
+    if color == "SKIP":
+        index = -1
+    else:
+        index = botlink.COLOR_NAMES.index(color) if color in botlink.COLOR_NAMES else -1
+
+    # Drive MeetingHud.Select/Confirm via the plugin. Falls back to the old
+    # pixel voting path if the command channel is not answering.
+    if botlink.cast_vote(index):
+        time.sleep(0.5)
+        return
+    wake()
     pos = find_col_pos(dimensions, color)
     if pos is None:
         skip(dimensions)
@@ -146,6 +206,18 @@ if len(kill_prompt) > 0:
 
 found_prompt = f'You found the body in {get_last_room()}.' if get_caller_color() == color and len(dead_str) != 0 else ''
 
+# Specific role (Engineer/Scientist/Tracker/...) from the plugin, plus whoever was
+# standing near the victim when they died.
+role_name = botlink.get_role()
+role_prompt = f'Your specific role is {role_name} ({botlink.get_role_ability(role_name)}).' if role_name != "Unknown" else ''
+
+presence = botlink.read_kill_presence()
+if presence:
+    witnesses = ", ".join(f"{c} was {d} tiles away" for c, d in presence.items())
+    presence_prompt = f'When the body was found, {witnesses}.'
+else:
+    presence_prompt = ''
+
 meeting_start_time = time.time()
 time.sleep(4.5)
 
@@ -159,8 +231,8 @@ prompts =   [
                 {"role": "system", "content": 
                  re.sub(' +', ' ', f'''You are playing the game Among Us in a meeting with your crewmates. Your color is {color}.
                  {get_caller_color()} called the meeting. {"Nobody is" if len(dead_str) == 0 else dead_str + " are"} dead. {tasks_prompt}. The last room you were in was {get_last_room()}.
-                 Before the meeting, you were {"not near anyone" if len(nearby_players) == 0 else "near " + str(nearby_players).strip("][")}. {kill_prompt} {found_prompt}
-                 The prompts you see that are not from you, {color}, are messages from your crewmates. Your role is {role}. Your tasks are {tasks}. 
+                 Before the meeting, you were {"not near anyone" if len(nearby_players) == 0 else "near " + str(nearby_players).strip("][")}. {kill_prompt} {found_prompt} {presence_prompt}
+                 The prompts you see that are not from you, {color}, are messages from your crewmates. Your role is {role}. {role_prompt} Your tasks are {tasks}. 
                  There are {get_num_alive_players()} players left alive.
                  {location_prompt}. Your crewmates' and your messages are identified by their color in the prompt. 
                  Reply to prompts with very few words and don't be formal. Try to only use 1 sentence, preferably an improper one. Never return more than 80 alphanumeric characters at a time.
@@ -182,10 +254,15 @@ seen_chats = []
 
 dimensions = get_dimensions()
 
-x = dimensions[0] + round(dimensions[2] / 1.12)
-y = dimensions[1] + round(dimensions[3] / 19.6)
-wake()
-pyautogui.click(x,y, duration=0.3)
+# Open the chat through the game's own API (InGamePlayerList.SetActive) rather
+# than clicking a fixed pixel ratio, which was landing on the Settings button.
+# Falls back to a template-free coordinate from uiCoords.txt if the command
+# channel is unavailable.
+if not botlink.open_chat():
+    coords = botlink.read_ui_coords().get("chat")
+    if coords:
+        wake()
+        pyautogui.click(dimensions[0] + coords[0], dimensions[1] + coords[1], duration=0.3)
 time.sleep(0.5)
 
 x = dimensions[0] + round(dimensions[2] / 3)
@@ -236,8 +313,8 @@ while in_meeting() and not decided_to_vote:
                 pyautogui.typewrite(f"{response.lower()}\n", interval=0.025)
             is_new_chats = False
             time.sleep(4)
-    except openai.error.RateLimitError:
-        print("Rate limit reached")
+    except requests.RequestException as e:
+        print(f"Ollama request failed: {e}")
         break
 
 get_names_dict()

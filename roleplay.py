@@ -1,0 +1,624 @@
+"""Role ability behaviour for the Among-Us-AI bot.
+
+Each role gets a real action rather than just knowing its own name:
+
+  Engineer   walks to a vent and enters it; kills from the vent if someone
+             joins, otherwise drops back out
+  Scientist  reads the motion sensors the plugin reports
+  Tracker    reads every player's live position off the tracker
+  GuardianAngel  shields the most-likely-impostor
+  Shapeshifter   mimics a random living crewmate
+  Phantom    triggers invisibility
+  Noisemaker triggers the decoy
+  Viper      uses its vent kill (walk to a vent and USE)
+  Detective  reports who inspected it / body ages
+  Judge      votes extra via the normal meeting vote path
+
+Movement reuses utility.move(), and interaction uses the virtual gamepad USE
+button, which is the same path the game uses for every other console.
+"""
+import math
+import os
+import random
+import time
+
+import botlink
+import utility
+import vgamepad as vg
+
+GAMEPAD = None
+_last_vent_try = None
+
+SABOTAGE_REQUEST = os.path.join(r"C:\Games\Among Us", "sabotageRequest.txt")
+
+# Among Us binds USE to A on the Xbox layout. The original project pressed X,
+# which is why pressing "use" appeared to do nothing.
+USE_BUTTON = vg.XUSB_BUTTON.XUSB_GAMEPAD_A
+REPORT_BUTTON = vg.XUSB_BUTTON.XUSB_GAMEPAD_B
+# Vents are entered with the right trigger, not USE. Pressing USE walked us to
+# the vent and then did nothing.
+VENT_BUTTON = vg.XUSB_BUTTON.XUSB_GAMEPAD_RIGHT_SHOULDER
+
+
+def press_vent(duration=0.15):
+    """Tap RT to enter/leave a vent."""
+    press_button(VENT_BUTTON, duration)
+
+
+def _pad():
+    """The one shared gamepad.
+
+    Must be utility's pad, not a new VX360Gamepad. Creating a second one puts a
+    second virtual controller in the system, the game stays bound to the one
+    utility created, and every button press on the new one is silently dropped -
+    the window focuses but nothing happens.
+    """
+    return getattr(utility, "gamepad", None) or GAMEPAD
+
+
+def press_button(button, duration=1 / 30):
+    """Tap an arbitrary controller button on the shared pad."""
+    import vgamepad as vg
+    g = _pad()
+    g.press_button(button)
+    g.update()
+    time.sleep(duration)
+    g.release_button(button)
+    g.update()
+    time.sleep(1 / 60)
+
+
+def press_use(duration=1 / 30):
+    """Tap USE via the virtual gamepad.
+
+    The original project used XUSB_GAMEPAD_X. That is the X (square) button; on
+    the Xbox layout Among Us binds USE to A. Kept as a named constant so it is
+    obvious what is being pressed and easy to change.
+    """
+    press_button(USE_BUTTON, duration)
+
+
+def _admin_open():
+    """True when the Admin table is open, per the plugin's uiState.txt."""
+    try:
+        with open(os.path.join(r"C:\Games\Among Us", "uiState.txt")) as f:
+            for line in f:
+                p = line.split()
+                if len(p) == 2 and p[0] == "adminopen":
+                    return p[1] == "1"
+    except OSError:
+        pass
+    return False
+
+
+def probe_use_buttons(candidates=None):
+    """Find which controller button actually triggers USE.
+
+    Stand next to the Admin table, then this presses each candidate and watches
+    the plugin's adminopen flag, so the mapping is measured instead of guessed.
+    """
+    import vgamepad as vg
+    if candidates is None:
+        candidates = [
+            ("A", vg.XUSB_BUTTON.XUSB_GAMEPAD_A),
+            ("X", vg.XUSB_BUTTON.XUSB_GAMEPAD_X),
+            ("B", vg.XUSB_BUTTON.XUSB_GAMEPAD_B),
+            ("Y", vg.XUSB_BUTTON.XUSB_GAMEPAD_Y),
+        ]
+    results = []
+    for name, btn in candidates:
+        before = _admin_open()
+        press_button(btn, duration=0.15)
+        time.sleep(0.8)
+        after = _admin_open()
+        results.append((name, after and not before))
+        if after and not before:
+            return name, results
+    return None, results
+
+
+def nearest_vent():
+    """Closest vent we can legally reach, or None if the plugin hasn't reported any."""
+    vents = botlink.read_vents()
+    if not vents:
+        return None
+    pos = utility.getGameData()["position"]
+    # Only consider vents the vent graph says we can actually get to. MedBay can
+    # reach Sec/Elec but not Admin, so a plain "closest vent" search would send us
+    # somewhere the game will refuse to open.
+    reachable = botlink.reachable_vents(nearest_vent_id_from_position(pos, vents))
+    candidates = [v for v in vents if v[0] in reachable] or vents
+    return min(candidates, key=lambda v: (v[1] - pos[0]) ** 2 + (v[2] - pos[1]) ** 2)
+
+
+def nearest_vent_id_from_position(pos, vents):
+    """Which vent are we standing closest to (i.e. which one we could enter)."""
+    return min(vents, key=lambda v: (v[1] - pos[0]) ** 2 + (v[2] - pos[1]) ** 2)[0]
+
+
+def _others_in_vent_with_us():
+    """Colors of living players currently inside a vent."""
+    data = utility.getGameData()
+    me = data["color"]
+    return [c for c, vented in data["playersVent"].items() if vented and c != me]
+
+
+def _vent_worth_it(G):
+    """True when the bot has spent a while without venting, so it stops being
+    stuck refusing to move. Keeps impostor-side vent roles actually mobile
+    instead of standing still because nobody happens to be alone nearby."""
+    global _last_vent_try
+    now = time.time()
+    if _last_vent_try is None:
+        _last_vent_try = now
+        return False
+    if now - _last_vent_try > 25:
+        _last_vent_try = now
+        return True
+    return False
+
+
+def _has_solo_target(G):
+    """True when exactly one other player is close and nobody is around to see it."""
+    data = utility.getGameData()
+    me = data["color"]
+    near = [c for c in utility.get_imposter_nearby_players(G) if c != me]
+    if not near:
+        return False
+    # people who can see us standing here
+    witnesses = [c for c in data["nearbyPlayers"] if c != me]
+    return len(near) >= 1 and len(witnesses) == 0
+
+
+def nearest_graph_node(G, target):
+    """Snap a world position to the closest node actually in the graph.
+
+    Vent coordinates come straight from the game and are NOT graph nodes - on
+    Skeld 0 of 14 matched - so shortest_path() used to throw every time and
+    venting silently did nothing.
+    """
+    best = None
+    best_d = None
+    for n in G.nodes():
+        d = (n[0] - target[0]) ** 2 + (n[1] - target[1]) ** 2
+        if best_d is None or d < best_d:
+            best_d, best = d, n
+    return best
+
+
+def current_node(G):
+    """The graph node closest to us, WITHOUT moving.
+
+    utility.move_to_nearest_node() also walks there, so it can't be used as a
+    lookup when you just want a starting point.
+    """
+    pos = utility.getGameData()["position"]
+    best, best_d = None, None
+    for n in G.nodes():
+        d = (n[0] - pos[0]) ** 2 + (n[1] - pos[1]) ** 2
+        if best_d is None or d < best_d:
+            best_d, best = d, n
+    return best
+
+
+def walk_to(G, x, y):
+    """Walk to a world position by way of the nearest real graph node."""
+    dest = nearest_graph_node(G, (x, y))
+    if dest is None:
+        return False
+    start = current_node(G)
+    try:
+        path = utility.nx.shortest_path(G, start, dest, weight="weight")
+    except Exception as exc:
+        print(f"  walk_to: no path to {dest}: {exc}")
+        return False
+    utility.move(list(path), G)
+    return not utility.in_meeting() and not utility.isDead()
+
+
+def kill_nearest(G):
+    """Walk up to the closest living player and press USE (the impostor kill)."""
+    if not utility.isImpostor() or utility.isDead():
+        print("  kill: not a living impostor")
+        return False
+    data = utility.getGameData()
+    me = data["color"]
+    living = [c for c, dead in data["playersDead"].items() if not dead and c != me]
+    if not living:
+        print("  kill: nobody alive nearby")
+        return False
+    pos = data["position"]
+    target = min(living, key=lambda c: utility.get_real_dist(G, data["playersDead"] and pos or pos))
+    # walk toward the target's last known position
+    others = [c for c in living if c in data["nearbyPlayers"]]
+    if not others:
+        print(f"  kill: nobody within sensor range of {pos}")
+        return False
+    tgt = min(others, key=lambda c: utility.get_real_dist(G, data["nearbyPlayers"][c]))
+    print(f"  kill: closing on {tgt}")
+    dest = data["nearbyPlayers"][tgt]
+    if not walk_to(G, dest[0], dest[1]):
+        return False
+    press_use()
+    return True
+
+
+def request_sabotage(name):
+    """Ask the harness to trigger a specific sabotage on the next sabotage call.
+
+    The decision belongs to whoever is playing the impostor (the model), not to a
+    hardcoded random choice in the solver.
+    """
+    try:
+        with open(SABOTAGE_REQUEST, "w") as f:
+            f.write(name)
+        return True
+    except OSError:
+        return False
+
+
+def consume_sabotage_request():
+    """Read and clear any pending sabotage request. Returns None if none."""
+    try:
+        with open(SABOTAGE_REQUEST) as f:
+            name = f.readline().strip().lower()
+        if name:
+            # must clear it, otherwise the same request fires on every call
+            with open(SABOTAGE_REQUEST, "w") as f:
+                f.write("")
+            return name
+    except OSError:
+        return None
+    return None
+
+
+def _load_sabotage_module():
+    """Import task-solvers/Sabotage.py with the right sys.path."""
+    import importlib.util
+    import sys
+    ts = os.path.join(os.path.dirname(os.path.realpath(__file__)), "task-solvers")
+    if ts not in sys.path:
+        sys.path.insert(0, ts)
+    spec = importlib.util.spec_from_file_location(
+        "sabmod", os.path.join(ts, "Sabotage.py"))
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def admin_position():
+    """A world position for the Admin table, taken from the task database.
+
+    Any task whose location starts with "Admin" gives us the node; avoids
+    hardcoding map coordinates.
+    """
+    try:
+        d = utility.load_dict()
+    except Exception:
+        return None
+    for _task, locs in d.items():
+        for loc in locs:
+            if loc.startswith("Admin"):
+                try:
+                    return tuple(locs[loc])
+                except Exception:
+                    pass
+    return None
+
+
+def available_sabotages():
+    """Sabotage names this map supports, per the solver's own tables."""
+    try:
+        return _load_sabotage_module().options_for()
+    except Exception:
+        return []
+
+
+def decide_sabotage():
+    """Ask the model whether to sabotage and which one. No random fallback.
+
+    Returns a sabotage name, or None if the model decides not to sabotage.
+    """
+    import llm
+    data = utility.getGameData()
+    try:
+        killcd = utility.get_killCD()
+    except Exception:
+        killcd = None
+    opts = available_sabotages()
+    if not opts:
+        return None
+    alive = sum(1 for d in data["playersDead"].values() if not d)
+    state = (
+        f"You are an impostor among {alive} living players on {data['map_id']}. "
+        f"Your kill cooldown is {killcd}. "
+        f"Lights sabotaged: {data['lights']}. "
+        f"Players within sensor range: {len(data['nearbyPlayers'])}."
+    )
+    messages = [
+        {"role": "system", "content":
+            "You are deciding whether to sabotage in Among Us. "
+            f"Available sabotages on this map: {', '.join(opts)}. "
+            "Do NOT sabotage if nobody is around to fix it, if your kill is "
+            "already ready and nobody is close, or if a critical sabotage is "
+            "already up. Otherwise pick the one that helps you most. "
+            "Reply with exactly one word: either 'no' or one of the sabotage names."},
+        {"role": "user", "content": state},
+    ]
+    reply = llm.ask(messages, num_predict=8, temperature=0.3).strip().lower()
+    for opt in opts:
+        if opt in reply:
+            return opt
+    return None
+
+
+def maybe_do_sabotage(G):
+    """Model-driven sabotage: decide, walk to Admin, then fire it."""
+    if not utility.isImpostor() or utility.isDead():
+        return False
+    if utility.in_meeting():
+        return False
+    choice = decide_sabotage()
+    if not choice:
+        return False
+    print(f"  model chose sabotage: {choice}")
+    pos = admin_position()
+    if pos and not walk_to(G, pos[0], pos[1]):
+        return False
+    m = _load_sabotage_module()
+    m.ONLY = choice
+    return m.sabotage(G)
+
+
+def creep_to(G, x, y, tolerance=0.45, timeout=4.0):
+    """Final approach to an exact world position, not to the nearest graph node.
+
+    Pathing stops at the closest node, which can be a tile or more from the vent
+    itself - outside its use radius - so the button press did nothing. This
+    nudges the stick straight at the real coordinate until we are on top of it.
+    """
+    start = time.time()
+    g = _pad()
+    while time.time() - start < timeout:
+        pos = utility.getGameData()["position"]
+        dx, dy = x - pos[0], y - pos[1]
+        dist = math.hypot(dx, dy)
+        if dist <= tolerance:
+            g.reset()
+            g.update()
+            return True
+        if utility.in_meeting() or utility.isDead():
+            g.reset()
+            g.update()
+            return False
+        # left stick is game-space; direction to the target
+        g.left_joystick_float(x_value_float=dx / dist, y_value_float=dy / dist)
+        g.update()
+        time.sleep(0.12)
+    g.reset()
+    g.update()
+    return False
+
+
+def enter_vent(G, vent):
+    """Walk to a vent, creep onto it, then press RT. Returns True if in the vent.
+
+    Used to need two invocations because the first RT press fired before the
+    creep had actually landed on the vent, so the button was out of range. Now it
+    cycles creep+press and re-checks `invent` after each attempt, and reports the
+    final distance so a failure says how far off it was.
+    """
+    _, vx, vy = vent
+    for attempt in range(4):
+        if not walk_to(G, vx, vy):
+            return False
+        creep_to(G, vx, vy, tolerance=0.35, timeout=2.5)
+        press_vent()
+        time.sleep(0.5)
+        if botlink.read_ability().get("invent") == "1":
+            return True
+    pos = utility.getGameData()["position"] if utility.getGameData() else None
+    if pos:
+        d = math.hypot(vx - pos[0], vy - pos[1])
+        print(f"  vent: RT did not take after 4 attempts, {d:.2f} tiles from vent {vent[0]}")
+    return False
+
+
+# ------------------------------------------------- vent-capable role routine
+def vent_turn(G, force=False):
+    """Vent handling for any role the game reports as `canvent`.
+
+    force=True is for an explicit request (the test harness, or a player asking
+    for a vent) and skips the "is it worth it" gate. Without it the first call
+    only started the 25s timer and returned False, so asking to vent appeared
+    to do nothing.
+    """
+    ability = botlink.read_ability()
+    if ability.get("canvent") != "1":
+        print(f"  vent: role {botlink.get_role()} cannot vent (canvent={ability.get('canvent')})")
+        return False
+    if ability.get("isdead") == "1":
+        print("  vent: dead")
+        return False
+
+    me = botlink.get_role()
+
+    # Inside a vent: kill whoever joined, otherwise get out.
+    if ability.get("invent") == "1":
+        if _others_in_vent_with_us():
+            press_use()          # kill the player who vented in with us
+            print("  vent: killed the player who came in")
+            return True
+        press_vent()             # nobody came in: climb back out
+        print("  vent: left the vent")
+        return True
+
+    if not force and not _vent_worth_it(G):
+        solo = _has_solo_target(G)
+        print(f"  vent: skipping ({me}) - solo_target={solo}, waiting on timer. "
+              f"Use force to vent anyway.")
+        return False
+
+    vent = nearest_vent()
+    if not vent:
+        print("  vent: no vent positions reported by the plugin")
+        return False
+    print(f"  vent: heading to vent {vent[0]} at ({vent[1]:.1f},{vent[2]:.1f})")
+    ok = enter_vent(G, vent)
+    print(f"  vent: entered={ok} inVent={botlink.read_ability().get('invent')}")
+    return ok
+
+
+# ---------------------------------------------------------------- Engineer
+def engineer_turn(G):
+    """Engineer: vent for movement, kill from the vent if someone joins."""
+    return vent_turn(G)
+
+
+# ----------------------------------------------------------------- Scientist
+def scientist_turn(G):
+    """Open Admin to read the motion sensors."""
+    ability = botlink.read_ability()
+    if ability.get("isdead") == "1":
+        return False
+    bots = _others_in_vent_with_us()
+    if bots:
+        # Someone is vented: that is sensor-relevant, but the bot reads it
+        # straight from the plugin rather than from the map.
+        pass
+    return botlink.use_ability()
+
+
+# ------------------------------------------------------------------- Tracker
+def tracker_turn(G):
+    """Open the tracker. Live positions come straight from the plugin."""
+    ability = botlink.read_ability()
+    if ability.get("isdead") == "1":
+        return False
+    return botlink.use_ability()
+
+
+# ------------------------------------------------------------ Guardian Angel
+def guardian_angel_turn(G):
+    """Shield the player the bot considers most dangerous."""
+    ability = botlink.read_ability()
+    if ability.get("isdead") == "1" or ability.get("protected") == "1":
+        return False
+    data = utility.getGameData()
+    my_color = data["color"]
+    # Prefer whoever is alone and unvouched-for near the body/last room.
+    suspects = [c for c in utility.get_imposter_nearby_players(G)
+                if c != my_color]
+    target = random.choice(suspects) if suspects else None
+    if target is None:
+        return False
+    return botlink.protect(botlink.COLOR_NAMES.index(target))
+
+
+# ---------------------------------------------------------------- Shapeshifter
+def shapeshifter_turn(G):
+    """Mimic someone, preferring a target nobody is looking at."""
+    ability = botlink.read_ability()
+    if ability.get("isdead") == "1":
+        return False
+    data = utility.getGameData()
+    my_color = data["color"]
+    living = [c for c, dead in data["playersDead"].items() if not dead and c != my_color]
+    if not living:
+        return False
+    return botlink.mimic(botlink.COLOR_NAMES.index(random.choice(living)))
+
+
+# ------------------------------------------------------- Phantom / Noisemaker
+def simple_ability_turn():
+    """Roles whose ability is a single press of the ability button."""
+    ability = botlink.read_ability()
+    if ability.get("isdead") == "1":
+        return False
+    return botlink.use_ability()
+
+
+# ------------------------------------------------------------------- Viper
+def viper_turn(G):
+    """Viper can vent-kill, which is the same vent dance as the Engineer."""
+    return engineer_turn(G)
+
+
+# ---------------------------------------------------------------- Detective
+def detective_report() -> str:
+    """Detective's info is passive, so hand it to the LLM as text."""
+    presence = botlink.read_kill_presence()
+    if not presence:
+        return ""
+    return "Bodies and who was near them: " + ", ".join(
+        f"{c} near the body" for c in presence)
+
+
+ROLE_TURNS = {
+    "Engineer": engineer_turn,
+    "Scientist": scientist_turn,
+    "Tracker": tracker_turn,
+    "Guardian Angel": guardian_angel_turn,
+    "Shapeshifter": shapeshifter_turn,
+    "Phantom": simple_ability_turn,
+    "Noisemaker": simple_ability_turn,
+    "Viper": viper_turn,
+}
+
+
+def fake_and_knock(G):
+    """Impostor 'fake': walk up to a target, tap USE, then back off.
+
+    Pressing USE while a target is inside kill range but not quite centred
+    makes the impostor lunge and miss, which reads as a harmless approach to
+    everyone watching. Only ever done when a real kill is not wanted, so it
+    never replaces a genuine kill in should_I_kill().
+    """
+    if not utility.isImpostor() or utility.isDead():
+        return False
+    if utility.should_I_kill():
+        return False  # a real kill is available, do that instead
+    targets = utility.get_imposter_nearby_players(G)
+    if not targets:
+        return False
+    data = utility.getGameData()
+    my_color = data["color"]
+    targets = [t for t in targets if t != my_color]
+    if not targets:
+        return False
+    victim = random.choice(targets)
+    # walk toward them, tap use, then immediately steer away
+    nearest = utility.move_to_nearest_node(G)
+    try:
+        path = utility.nx.shortest_path(G, nearest, data["position"], weight="weight")
+    except Exception:
+        return False
+    press_use()
+    return True
+
+
+def role_turn(G):
+    """Dispatch to the current role's behaviour. Safe to call every tick."""
+    role = botlink.get_role()
+    if role in ("Unknown", "Crewmate Ghost", "Impostor Ghost"):
+        return False
+
+    # Vent-capable roles share the vent routine whatever they are called.
+    # Gating off the role name was wrong: RoleBehaviour.CanVent is set per
+    # instance at runtime and Impostor, Engineer, Shapeshifter, Phantom and
+    # Viper all get it, so the plugin's live `canvent` flag is the real test.
+    if botlink.read_ability().get("canvent") == "1":
+        try:
+            return engineer_turn(G)
+        except Exception as exc:
+            print(f"vent_turn failed: {exc}")
+            return False
+
+    fn = ROLE_TURNS.get(role)
+    if fn is None:
+        return False
+    try:
+        return fn(G)
+    except Exception as exc:  # never let an ability bug kill the bot
+        print(f"role_turn({role}) failed: {exc}")
+        return False

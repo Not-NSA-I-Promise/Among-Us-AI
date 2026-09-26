@@ -1,0 +1,4 @@
+{
+  "_comment": "Bot behaviour toggles. auto_report: when true the bot self-reports a body it walks past. It is false by default because it gave away impostor kills instantly.",
+  "auto_report": false
+}

@@ -58,7 +58,10 @@ def get_screenshot(dimensions=None, window_title="Among Us"):
     if window_title:
         hwnd = win32gui.FindWindow(None, window_title)
         if hwnd and not dimensions:
-            win32gui.SetForegroundWindow(hwnd)
+            try:
+                win32gui.SetForegroundWindow(hwnd)
+            except Exception:
+                pass
             x, y, x1, y1 = win32gui.GetClientRect(hwnd)
             x, y = win32gui.ClientToScreen(hwnd, (x, y))
             x1, y1 = win32gui.ClientToScreen(hwnd, (x1 - x, y1 - y))
@@ -77,13 +80,21 @@ def get_dimensions():
     window_title="Among Us"
     hwnd = win32gui.FindWindow(None, window_title)
     if hwnd:
-        win32gui.SetForegroundWindow(hwnd)
+        # Focusing is best-effort. SetForegroundWindow raises
+        # pywintypes.error when the process does not own focus, and since every
+        # coordinate helper goes through here, an unguarded call takes the whole
+        # bot down. Getting the rect does not require focus.
+        try:
+            win32gui.SetForegroundWindow(hwnd)
+        except Exception:
+            pass
         x, y, x1, y1 = win32gui.GetClientRect(hwnd)
         x, y = win32gui.ClientToScreen(hwnd, (x, y))
         x1, y1 = win32gui.ClientToScreen(hwnd, (x1 - x, y1 - y))
-        return[x,y,x1,y1]
+        return [x, y, x1, y1]
     else:
         print('Window not found!')
+        return None
 
 def click_use():
     wake()

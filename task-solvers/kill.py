@@ -13,9 +13,14 @@ def get_kill_button_pos() -> tuple:
     return (x,y)
 
 def can_kill() -> bool:
-    x,y = get_kill_button_pos()
-    col = pyautogui.pixel(x, y)
-    return col[0] > 200 and col[1] > 200 and col[2] > 200
+    # Same reasoning as can_report(): this is called from the movement loop, so
+    # it must never raise or it takes movement down with it.
+    try:
+        x,y = get_kill_button_pos()
+        col = pyautogui.pixel(x, y)
+        return col[0] > 200 and col[1] > 200 and col[2] > 200
+    except Exception:
+        return False
 
 def kill() -> None:
     if not can_kill():

@@ -23,7 +23,7 @@ def chat(can_vote_flag : bool):
             continue
         time.sleep(10)
         return
-    p = subprocess.Popen(["python", f"chatGPT.py"])
+    p = subprocess.Popen([sys.executable, f"chatGPT.py"])
     while p.poll() is None:
         if keyboard.is_pressed('`'):
             p.kill()
@@ -58,7 +58,7 @@ def solve_task(task_name=None, task_location=None) -> int:
     if task_name == "vote":
         print("Should never be here")
         if not dead:
-            p = subprocess.Popen(["python", f"task-solvers\\vote.py"])
+            p = subprocess.Popen([sys.executable, f"task-solvers\\vote.py"])
         else:
             return 0
         p.wait()
@@ -75,7 +75,7 @@ def solve_task(task_name=None, task_location=None) -> int:
         if urgent is None:
             # Open solver file
             if random.randint(1,3) % 3 == 0:
-                p = subprocess.Popen(["python", f"task-solvers\Sabotage.py"])
+                p = subprocess.Popen([sys.executable, f"task-solvers\Sabotage.py"])
             else:
                 return 0
         else:
@@ -104,7 +104,7 @@ def solve_task(task_name=None, task_location=None) -> int:
         f.close()
 
         # Open solver file
-        p = subprocess.Popen(["python", f"task-solvers\{task_name}.py"])
+        p = subprocess.Popen([sys.executable, f"task-solvers\{task_name}.py"])
 
         # Wait for process to finish
         while p.poll() is None:
