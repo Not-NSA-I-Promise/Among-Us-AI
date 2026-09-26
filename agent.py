@@ -195,6 +195,73 @@ def overrule(player_id):
     raise ActionError(f"overrule refused: {botlink.last_result()}")
 
 
+# ------------------------------------------------------------------- faking
+def fake_task(name, visual=False):
+    """Pretend to do a task, for as long as a real one takes.
+
+    The point is the WAIT. An impostor who leaves a panel in one second is
+    caught; one who stands there for the real duration is not, even though the
+    task bar never moves.
+
+    Visual tasks (MedBay scan, Start Reactor, Asteroids, Chart Course) are
+    refused by default, because other players can see the task happening and
+    standing still does not imitate it. Pass visual=True to override.
+    """
+    import importlib.util
+    ts = os.path.join(os.path.dirname(os.path.realpath(__file__)), "task-solvers")
+    spec = importlib.util.spec_from_file_location(
+        "fakemod", os.path.join(ts, "fake_task.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    result = mod.fake_task(str(name), allow_visual=bool(visual))
+    if not result.get("ok"):
+        raise ActionError(result.get("reason", "could not fake that"))
+    # Report the honest caveat rather than claiming the task got done.
+    return (f"faked {result['task']} for {result['seconds']}s "
+            f"(timing only - the task bar did not move)")
+
+
+# ------------------------------------------------------------------- venting
+def vent():
+    """Go into a vent, or travel to a connected one if already inside.
+
+    Requires canvent. The game refuses otherwise, and the refusal is reported
+    back rather than swallowed.
+    """
+    import roleplay
+    ability = botlink.read_ability()
+    if ability.get("canvent") != "1":
+        raise ActionError("your role cannot vent")
+    if ability.get("isdead") == "1":
+        raise ActionError("you are dead")
+    try:
+        G = utility.load_G(utility.getGameData()["map_id"])
+    except Exception as exc:
+        raise ActionError(f"no map graph: {exc}")
+
+    if ability.get("invent") == "1":
+        # already in a vent: travel to one of the connected ones
+        options = botlink.read_vent_options()
+        if not options:
+            raise ActionError(
+                "you are in a vent but the game reported no travel options. "
+                "Nothing is in range to travel to.")
+        target = options[0][0]
+        for vid, _x, _y in options:
+            if vid != options[0][0]:
+                target = vid
+                break
+        if botlink.vent_travel(target):
+            return f"travelled to vent {target}"
+        raise ActionError(f"the game refused to travel to vent {target}: "
+                          f"{botlink.last_result()}")
+
+    ok = roleplay.vent_turn(G, force=True)
+    if not ok:
+        raise ActionError("could not reach a vent or get into one")
+    return "entered a vent"
+
+
 # ------------------------------------------------------------------ tasks
 def do_task(name=None):
     """Do a named task: walk to where it is, then solve it.
@@ -204,12 +271,22 @@ def do_task(name=None):
     direct pixel-level dragging and asking it to would burn context for nothing.
     """
     import roleplay
+    import solver
+    if not utility.isImpostor() or utility.isDead():
+        # Crewmates do real tasks. Impostors do not: real progress on a task is
+        # proof of innocence, so an imp asking to do one is asking for the
+        # opposite of what it wants.
+        raise ActionError("you are an impostor - do not complete real tasks, "
+                          "use fake_task instead to look busy")
     if not name:
         # no name given: just solve whatever is underfoot
         try:
-            return utility.do_tasks() or "did the task here"
+            ok = solver.solve_task()
         except Exception as exc:
             raise ActionError(str(exc))
+        if ok != 0:
+            raise ActionError(f"the solver returned {ok}")
+        return "did the task here"
 
     wanted = str(name).strip()
     try:
@@ -234,11 +311,11 @@ def do_task(name=None):
         # let the walk settle before the minigame is opened
         time.sleep(0.4)
     try:
-        ok = utility.do_tasks()
+        ok = solver.solve_task(task_name=task_name)
     except Exception as exc:
         raise ActionError(f"solving {task_name} failed: {exc}")
-    if not ok:
-        raise ActionError(f"the solver could not complete {task_name} at {location}")
+    if ok != 0:
+        raise ActionError(f"the solver returned {ok} for {task_name} at {location}")
     return f"completed {task_name} in {location}"
 
 
@@ -372,6 +449,8 @@ ACTIONS = {
     "notes": ((), read_notes, "notes - Detective: read your notebook"),
     "overrule": (("player_id",), overrule, "overrule <player_id> - Judge: extra vote to eject"),
     "do_task": (("task",), do_task, "do_task <task> - walk to a task and complete it"),
+    "fake_task": (("task",), fake_task, "fake_task <task> - pretend to do a task, taking the real time"),
+    "vent": ((), vent, "vent - go into a vent, or travel to a connected one if inside"),
     "say": (("message",), say, "say <message> - speak in chat or at a meeting"),
     "vote": (("color",), vote, "vote <color|skip> - vote at a meeting"),
     "observe": (("what",), observe, "observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information"),
@@ -412,8 +491,22 @@ def tool_reference(role=None):
         if rooms:
             lines.append("Rooms on this map: " + ", ".join(rooms))
         # likewise: it cannot do a task it has not been told about
+        is_imp = False
+        try:
+            is_imp = botlink.read_ability().get("isimpostor") == "1"
+        except Exception:
+            pass
         tasks = _rp.outstanding_tasks()
-        if tasks:
+        if tasks and is_imp:
+            # An impostor's task list is a cover story, never real work. Telling
+            # an imp to "do" a task is nonsense - it made the model try to
+            # solve Start Reactor while trying to kill people.
+            lines.append("You are an IMPOSTOR. The tasks below are your cover "
+                         "story - never actually complete one, because real "
+                         "progress gives you away. Use fake_task to stand at a "
+                         "panel for the right length of time.")
+            lines.append("Your fake task list: " + ", ".join(tasks))
+        elif tasks:
             lines.append("Tasks you still have to do: " + ", ".join(tasks))
         if rooms or tasks:
             lines.append("")
@@ -463,6 +556,11 @@ PHRASES = [
     (r"^overrule\s+(\w+)$", "overrule", 1),
     # "do the wiring task" -> the wiring. Must not swallow the article, hence the
     # lookahead: without it "do a task" backtracks to capturing "a".
+    (r"^(?:go\s+)?vent$", "vent", None),
+    (r"^vent\s+(?:to\s+(?:a\s+|the\s+)?)?(\w+)$", "vent", None),
+    (r"^(?:hide|enter|get)\s+(?:in|into)\s+(?:a\s+|the\s+)?vent$", "vent", None),
+    (r"^(?:fake|pretend)\s+(?:i'?m\s+|im\s+|to\s+be\s+)?(?:doing\s+)?(?:a\s+|the\s+)?(?:task\s+)?(.+)$", "fake_task", 1),
+    (r"^(?:look\s+like)\s+(?:i(?:'m| am)\s+)?doing\s+(?:a\s+|the\s+)?(.+)$", "fake_task", 1),
     (r"^(?:do|complete|finish)\s+(?:(?:a|the|my)\s+)?(?!a\b|the\b|my\b)(.+?)\s+task$", "do_task", 1),
     (r"^(?:do|complete|finish)\s+(?:a\s+|the\s+|my\s+)?task\s+(?:in\s+|at\s+)?(?:the\s+)?(.+)$", "do_task", 1),
     (r"^(?:do|complete|finish)\s+(?:a\s+|the\s+|my\s+)?task$", "do_task", "here"),

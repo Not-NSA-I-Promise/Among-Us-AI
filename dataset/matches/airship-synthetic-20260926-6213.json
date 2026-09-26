@@ -1,0 +1,1032 @@
+{
+  "id": "airship-synthetic-20260926-6213",
+  "source": "synthetic",
+  "map": "Airship",
+  "role": "Guardian Angel",
+  "is_impostor": false,
+  "result": "crew",
+  "turns": [
+    {
+      "n": 1,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Brig; alive: CYAN, LIME, WHITE, BROWN",
+      "assistant": "go to CYAN",
+      "action": "go_to",
+      "args": [
+        "CYAN"
+      ],
+      "observation": "walking to CYAN",
+      "ok": true
+    },
+    {
+      "n": 2,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Brig; alive: CYAN, LIME, WHITE, BROWN; near you: ORANGE, PINK | last turn you chose: go_to CYAN",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 3,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Brig; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: wait",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 4,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Brig; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: wait",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 5,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Brig; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: wait",
+      "assistant": "protect LIME",
+      "action": "protect",
+      "args": [
+        "LIME"
+      ],
+      "observation": "protect done",
+      "ok": true
+    },
+    {
+      "n": 6,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Engine; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: protect LIME",
+      "assistant": "do_task Start Reactor",
+      "action": "do_task",
+      "args": [
+        "Start Reactor"
+      ],
+      "observation": "completed Start Reactor in Records",
+      "ok": true
+    },
+    {
+      "n": 7,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Engine; alive: CYAN, LIME, WHITE, BROWN; near you: GREEN | last turn you chose: do_task Start Reactor",
+      "assistant": "head to LIME",
+      "action": "go_to",
+      "args": [
+        "LIME"
+      ],
+      "observation": "walking to LIME",
+      "ok": true
+    },
+    {
+      "n": 8,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Security; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: go_to LIME",
+      "assistant": "protect GREEN",
+      "action": "protect",
+      "args": [
+        "GREEN"
+      ],
+      "observation": "protect done",
+      "ok": true
+    },
+    {
+      "n": 9,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Security; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: protect GREEN",
+      "assistant": "observe map",
+      "action": "observe",
+      "args": [
+        "map"
+      ],
+      "observation": "map: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 10,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Security; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: observe map",
+      "assistant": "do_task Swipe Card",
+      "action": "do_task",
+      "args": [
+        "Swipe Card"
+      ],
+      "observation": "completed Swipe Card in Armory",
+      "ok": true
+    },
+    {
+      "n": 11,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Security; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: do_task Swipe Card",
+      "assistant": "sudo kill everyone",
+      "action": null,
+      "args": null,
+      "observation": "no valid action (said: sudo kill everyone)",
+      "ok": false
+    },
+    {
+      "n": 12,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Security; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: do_task Swipe Card",
+      "assistant": "go to room",
+      "action": null,
+      "args": null,
+      "observation": "no valid action (said: go to room)",
+      "ok": false
+    },
+    {
+      "n": 13,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Security; alive: CYAN, LIME, WHITE, BROWN; near you: BROWN, GREEN | last turn you chose: do_task Swipe Card",
+      "assistant": "go to Cargo Bay",
+      "action": "go_to",
+      "args": [
+        "Cargo Bay"
+      ],
+      "observation": "walking to Cargo Bay",
+      "ok": true
+    },
+    {
+      "n": 14,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Security; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: go_to Cargo Bay",
+      "assistant": "teleport to helms",
+      "action": null,
+      "args": null,
+      "observation": "no valid action (said: teleport to helms)",
+      "ok": false
+    },
+    {
+      "n": 15,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Security; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: go_to Cargo Bay",
+      "assistant": "do_task Chart Course",
+      "action": "do_task",
+      "args": [
+        "Chart Course"
+      ],
+      "observation": "completed Chart Course in Engine",
+      "ok": true
+    },
+    {
+      "n": 16,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Security; alive: CYAN, LIME, WHITE, BROWN; near you: LIME | last turn you chose: do_task Chart Course",
+      "assistant": "do_task Reboot Wifi",
+      "action": "do_task",
+      "args": [
+        "Reboot Wifi"
+      ],
+      "observation": "completed Reboot Wifi in Galley",
+      "ok": true
+    },
+    {
+      "n": 17,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Showers; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: do_task Reboot Wifi",
+      "assistant": "walk towards GREEN",
+      "action": "go_to",
+      "args": [
+        "GREEN"
+      ],
+      "observation": "walking to GREEN",
+      "ok": true
+    },
+    {
+      "n": 18,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Showers; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: go_to GREEN",
+      "assistant": "observe map",
+      "action": "observe",
+      "args": [
+        "map"
+      ],
+      "observation": "map: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 19,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Showers; alive: CYAN, LIME, WHITE, BROWN; near you: ORANGE | last turn you chose: observe map",
+      "assistant": "observe state",
+      "action": "observe",
+      "args": [
+        "state"
+      ],
+      "observation": "state: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 20,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Showers; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: observe state",
+      "assistant": "do_task Start Reactor",
+      "action": "do_task",
+      "args": [
+        "Start Reactor"
+      ],
+      "observation": "completed Start Reactor in Engine",
+      "ok": true
+    },
+    {
+      "n": 21,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Showers; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: do_task Start Reactor",
+      "assistant": "observe memory",
+      "action": "observe",
+      "args": [
+        "memory"
+      ],
+      "observation": "memory: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 22,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Showers; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: observe memory",
+      "assistant": "observe map",
+      "action": "observe",
+      "args": [
+        "map"
+      ],
+      "observation": "map: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 23,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Showers; alive: CYAN, LIME, WHITE, BROWN; near you: ROSE | last turn you chose: observe map",
+      "assistant": "observe map",
+      "action": "observe",
+      "args": [
+        "map"
+      ],
+      "observation": "map: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 24,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Showers; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: observe map",
+      "assistant": "do_task Ventilation",
+      "action": "do_task",
+      "args": [
+        "Ventilation"
+      ],
+      "observation": "completed Ventilation in Airship Upper",
+      "ok": true
+    },
+    {
+      "n": 25,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Showers; alive: CYAN, LIME, WHITE, BROWN; a meeting is running; 4 turns left in this meeting: you still need to speak and vote | last turn you chose: do_task Ventilation",
+      "assistant": "observe memory",
+      "action": "observe",
+      "args": [
+        "memory"
+      ],
+      "observation": "memory: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 26,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Showers; alive: CYAN, LIME, WHITE, BROWN; a meeting is running; 3 turns left in this meeting: you still need to speak and vote | last turn you chose: observe memory",
+      "assistant": "say i have admin, i was in the o2 room",
+      "action": "say",
+      "args": [],
+      "observation": "said it",
+      "ok": true
+    },
+    {
+      "n": 27,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Showers; alive: CYAN, LIME, WHITE, BROWN; a meeting is running; 2 turns left in this meeting: you still need to speak and vote | last turn you chose: say",
+      "assistant": "",
+      "action": null,
+      "args": null,
+      "observation": "no valid action (said: )",
+      "ok": false
+    },
+    {
+      "n": 28,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Showers; alive: CYAN, LIME, WHITE, BROWN; a meeting is running; 1 turns left in this meeting: you still need to speak and vote | last turn you chose: say",
+      "assistant": "observe witnesses",
+      "action": "observe",
+      "args": [
+        "witnesses"
+      ],
+      "observation": "witnesses: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 29,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Showers; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: observe witnesses",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 30,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Showers; alive: CYAN, LIME, WHITE, BROWN; near you: PINK, YELLOW | last turn you chose: wait",
+      "assistant": "observe memory",
+      "action": "observe",
+      "args": [
+        "memory"
+      ],
+      "observation": "memory: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 31,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Galley; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: observe memory",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 32,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Showers; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: wait",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 33,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Showers; alive: CYAN, LIME, WHITE, BROWN; near you: ROSE, PINK | last turn you chose: wait",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 34,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Showers; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: wait",
+      "assistant": "go_to Brig",
+      "action": "go_to",
+      "args": [
+        "Brig"
+      ],
+      "observation": "walking to Brig",
+      "ok": true
+    },
+    {
+      "n": 35,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Showers; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: go_to Brig",
+      "assistant": "observe state",
+      "action": "observe",
+      "args": [
+        "state"
+      ],
+      "observation": "state: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 36,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Showers; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: observe state",
+      "assistant": "do the thing",
+      "action": null,
+      "args": null,
+      "observation": "no valid action (said: do the thing)",
+      "ok": false
+    },
+    {
+      "n": 37,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Showers; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: observe state",
+      "assistant": "observe witnesses",
+      "action": "observe",
+      "args": [
+        "witnesses"
+      ],
+      "observation": "witnesses: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 38,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Kitchen; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: observe witnesses",
+      "assistant": "protect BROWN",
+      "action": "protect",
+      "args": [
+        "BROWN"
+      ],
+      "observation": "protect done",
+      "ok": true
+    },
+    {
+      "n": 39,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Kitchen; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: protect BROWN",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 40,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Showers; alive: CYAN, LIME, WHITE, BROWN; near you: YELLOW, PINK | last turn you chose: wait",
+      "assistant": "sudo kill everyone",
+      "action": null,
+      "args": null,
+      "observation": "no valid action (said: sudo kill everyone)",
+      "ok": false
+    },
+    {
+      "n": 41,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Records; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: wait",
+      "assistant": "observe witnesses",
+      "action": "observe",
+      "args": [
+        "witnesses"
+      ],
+      "observation": "witnesses: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 42,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Records; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: observe witnesses",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 43,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Galley; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: wait",
+      "assistant": "protect ORANGE",
+      "action": "protect",
+      "args": [
+        "ORANGE"
+      ],
+      "observation": "protect done",
+      "ok": true
+    },
+    {
+      "n": 44,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Galley; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: protect ORANGE",
+      "assistant": "protect WHITE",
+      "action": "protect",
+      "args": [
+        "WHITE"
+      ],
+      "observation": "protect done",
+      "ok": true
+    },
+    {
+      "n": 45,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Galley; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: protect WHITE",
+      "assistant": "observe vitals",
+      "action": "observe",
+      "args": [
+        "vitals"
+      ],
+      "observation": "vitals: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 46,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Galley; alive: CYAN, LIME, WHITE, BROWN; near you: ROSE | last turn you chose: observe vitals",
+      "assistant": "observe state",
+      "action": "observe",
+      "args": [
+        "state"
+      ],
+      "observation": "state: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 47,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Galley; alive: CYAN, LIME, WHITE, BROWN; near you: YELLOW | last turn you chose: observe state",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 48,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Galley; alive: CYAN, LIME, WHITE, BROWN; near you: LIME | last turn you chose: wait",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 49,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Galley; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: wait",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 50,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Cargo Bay; alive: CYAN, LIME, WHITE, BROWN; near you: YELLOW, LIME | last turn you chose: wait",
+      "assistant": "wait for it",
+      "action": null,
+      "args": null,
+      "observation": "no valid action (said: wait for it)",
+      "ok": false
+    },
+    {
+      "n": 51,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Cargo Bay; alive: CYAN, LIME, WHITE, BROWN; near you: YELLOW | last turn you chose: wait",
+      "assistant": "do_task Unblock Manifolds",
+      "action": "do_task",
+      "args": [
+        "Unblock Manifolds"
+      ],
+      "observation": "completed Unblock Manifolds in Cargo Bay",
+      "ok": true
+    },
+    {
+      "n": 52,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Cargo Bay; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: do_task Unblock Manifolds",
+      "assistant": "do_task Reboot Wifi",
+      "action": "do_task",
+      "args": [
+        "Reboot Wifi"
+      ],
+      "observation": "completed Reboot Wifi in Airship Lower",
+      "ok": true
+    },
+    {
+      "n": 53,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Cargo Bay; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: do_task Reboot Wifi",
+      "assistant": "observe vitals",
+      "action": "observe",
+      "args": [
+        "vitals"
+      ],
+      "observation": "vitals: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 54,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Cargo Bay; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: observe vitals",
+      "assistant": "go_to Medical",
+      "action": "go_to",
+      "args": [
+        "Medical"
+      ],
+      "observation": "walking to Medical",
+      "ok": true
+    },
+    {
+      "n": 55,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Cargo Bay; alive: CYAN, LIME, WHITE, BROWN; near you: LIME | last turn you chose: go_to Medical",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 56,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Cargo Bay; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: wait",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 57,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Cargo Bay; alive: CYAN, LIME, WHITE, BROWN; near you: YELLOW | last turn you chose: wait",
+      "assistant": "protect BANANA",
+      "action": "protect",
+      "args": [
+        "BANANA"
+      ],
+      "observation": "protect done",
+      "ok": true
+    },
+    {
+      "n": 58,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Cargo Bay; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: protect BANANA",
+      "assistant": "do_task Clear Asteroids",
+      "action": "do_task",
+      "args": [
+        "Clear Asteroids"
+      ],
+      "observation": "completed Clear Asteroids in Engine",
+      "ok": true
+    },
+    {
+      "n": 59,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Cargo Bay; alive: CYAN, LIME, WHITE, BROWN; near you: GREEN | last turn you chose: do_task Clear Asteroids",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 60,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Cargo Bay; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: wait",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 61,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Cargo Bay; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: wait",
+      "assistant": "go_to Records",
+      "action": "go_to",
+      "args": [
+        "Records"
+      ],
+      "observation": "walking to Records",
+      "ok": true
+    },
+    {
+      "n": 62,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Cargo Bay; alive: CYAN, LIME, WHITE, BROWN; near you: BLUE | last turn you chose: go_to Records",
+      "assistant": "do_task Reboot Wifi",
+      "action": "do_task",
+      "args": [
+        "Reboot Wifi"
+      ],
+      "observation": "completed Reboot Wifi in Medical",
+      "ok": true
+    },
+    {
+      "n": 63,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Kitchen; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: do_task Reboot Wifi",
+      "assistant": "protect PINK",
+      "action": "protect",
+      "args": [
+        "PINK"
+      ],
+      "observation": "protect done",
+      "ok": true
+    },
+    {
+      "n": 64,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Cockpit; alive: CYAN, LIME, WHITE, BROWN; near you: ROSE, BLUE | last turn you chose: protect PINK",
+      "assistant": "protect BLUE",
+      "action": "protect",
+      "args": [
+        "BLUE"
+      ],
+      "observation": "protect done",
+      "ok": true
+    },
+    {
+      "n": 65,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Cockpit; alive: CYAN, LIME, WHITE, BROWN; near you: ROSE, LIME | last turn you chose: protect BLUE",
+      "assistant": "do_task Start Reactor",
+      "action": "do_task",
+      "args": [
+        "Start Reactor"
+      ],
+      "observation": "completed Start Reactor in Records",
+      "ok": true
+    },
+    {
+      "n": 66,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Airship Lower; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: do_task Start Reactor",
+      "assistant": "protect BANANA",
+      "action": "protect",
+      "args": [
+        "BANANA"
+      ],
+      "observation": "protect done",
+      "ok": true
+    },
+    {
+      "n": 67,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Airship Lower; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: protect BANANA",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 68,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Airship Lower; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: wait",
+      "assistant": "protect BANANA",
+      "action": "protect",
+      "args": [
+        "BANANA"
+      ],
+      "observation": "protect done",
+      "ok": true
+    },
+    {
+      "n": 69,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Meeting Room; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: protect BANANA",
+      "assistant": "observe witnesses",
+      "action": "observe",
+      "args": [
+        "witnesses"
+      ],
+      "observation": "witnesses: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 70,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Meeting Room; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: observe witnesses",
+      "assistant": "observe witnesses",
+      "action": "observe",
+      "args": [
+        "witnesses"
+      ],
+      "observation": "witnesses: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 71,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Meeting Room; alive: CYAN, LIME, WHITE, BROWN; near you: ROSE | last turn you chose: observe witnesses",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 72,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Meeting Room; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: wait",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 73,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Meeting Room; alive: CYAN, LIME, WHITE, BROWN; near you: GREEN | last turn you chose: wait",
+      "assistant": "head to Armory",
+      "action": "go_to",
+      "args": [
+        "Armory"
+      ],
+      "observation": "walking to Armory",
+      "ok": true
+    },
+    {
+      "n": 74,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Meeting Room; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: go_to Armory",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 75,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Meeting Room; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: wait",
+      "assistant": "go to Cargo Bay",
+      "action": "go_to",
+      "args": [
+        "Cargo Bay"
+      ],
+      "observation": "walking to Cargo Bay",
+      "ok": true
+    },
+    {
+      "n": 76,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Showers; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: go_to Cargo Bay",
+      "assistant": "do_task Start Reactor",
+      "action": "do_task",
+      "args": [
+        "Start Reactor"
+      ],
+      "observation": "completed Start Reactor in Engine",
+      "ok": true
+    },
+    {
+      "n": 77,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Airship Lower; alive: CYAN, LIME, WHITE, BROWN; near you: GREEN, LIME | last turn you chose: do_task Start Reactor",
+      "assistant": "do_task Start Reactor",
+      "action": "do_task",
+      "args": [
+        "Start Reactor"
+      ],
+      "observation": "completed Start Reactor in Brig",
+      "ok": true
+    },
+    {
+      "n": 78,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Airship Lower; alive: CYAN, LIME, WHITE, BROWN; near you: GREEN, PINK | last turn you chose: do_task Start Reactor",
+      "assistant": "protect BLACK",
+      "action": "protect",
+      "args": [
+        "BLACK"
+      ],
+      "observation": "protect done",
+      "ok": true
+    },
+    {
+      "n": 79,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Airship Lower; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: protect BLACK",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 80,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Airship Lower; alive: CYAN, LIME, WHITE, BROWN; near you: BLUE, CYAN | last turn you chose: wait",
+      "assistant": "do the thing",
+      "action": null,
+      "args": null,
+      "observation": "no valid action (said: do the thing)",
+      "ok": false
+    },
+    {
+      "n": 81,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Medical; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: wait",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 82,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Galley; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: wait",
+      "assistant": "observe memory",
+      "action": "observe",
+      "args": [
+        "memory"
+      ],
+      "observation": "memory: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 83,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Galley; alive: CYAN, LIME, WHITE, BROWN; near you: LIME | last turn you chose: observe memory",
+      "assistant": "head to Airship Upper",
+      "action": "go_to",
+      "args": [
+        "Airship Upper"
+      ],
+      "observation": "walking to Airship Upper",
+      "ok": true
+    },
+    {
+      "n": 84,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Galley; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: go_to Airship Upper",
+      "assistant": "walk towards Engine",
+      "action": "go_to",
+      "args": [
+        "Engine"
+      ],
+      "observation": "walking to Engine",
+      "ok": true
+    },
+    {
+      "n": 85,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Records; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: go_to Engine",
+      "assistant": "protect BLACK",
+      "action": "protect",
+      "args": [
+        "BLACK"
+      ],
+      "observation": "protect done",
+      "ok": true
+    },
+    {
+      "n": 86,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Brig; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: protect BLACK",
+      "assistant": "observe vitals",
+      "action": "observe",
+      "args": [
+        "vitals"
+      ],
+      "observation": "vitals: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 87,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Brig; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: observe vitals",
+      "assistant": "observe memory",
+      "action": "observe",
+      "args": [
+        "memory"
+      ],
+      "observation": "memory: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 88,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Brig; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: observe memory",
+      "assistant": "observe map",
+      "action": "observe",
+      "args": [
+        "map"
+      ],
+      "observation": "map: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 89,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Brig; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: observe map",
+      "assistant": "protect LIME",
+      "action": "protect",
+      "args": [
+        "LIME"
+      ],
+      "observation": "protect done",
+      "ok": true
+    },
+    {
+      "n": 90,
+      "system": "You are Guardian Angel. You have 1 ability: 1) protect one player for the round.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Cockpit, Armory, Kitchen, Medical, Cargo Bay, Ventilation, Records, Meeting Room, Showers, Engine, Brig, Galley, Security, Airship Upper, Airship Lower\nTasks you still have to do: Swipe Card, Fix Wiring, Fuel Engines, Start Reactor, Submit Scan, Download Data, Align Engine Output, Clear Asteroids, Chart Course, Reboot Wifi, Unblock Manifolds, Ventilation\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Guardian Angel (crew); in Brig; alive: CYAN, LIME, WHITE, BROWN | last turn you chose: protect LIME",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    }
+  ],
+  "stats": {
+    "total": 90,
+    "refused": 8,
+    "unparseable": 8
+  },
+  "notes": "synthesised by dataset/generate.py; teaches format and phase transitions, not game knowledge"
+}

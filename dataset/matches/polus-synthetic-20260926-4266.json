@@ -1,0 +1,726 @@
+{
+  "id": "polus-synthetic-20260926-4266",
+  "source": "synthetic",
+  "map": "Polus",
+  "role": "Phantom",
+  "is_impostor": false,
+  "result": "draw",
+  "turns": [
+    {
+      "n": 1,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Vault; alive: CYAN, ROSE, ORANGE, BROWN; near you: PURPLE",
+      "assistant": "vent",
+      "action": "vent",
+      "args": [],
+      "observation": "entered a vent",
+      "ok": true
+    },
+    {
+      "n": 2,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Vault; alive: CYAN, ROSE, ORANGE, BROWN; near you: CYAN, BROWN; you are inside a vent | last turn you chose: vent",
+      "assistant": "do_task Sort Samples",
+      "action": "do_task",
+      "args": [
+        "Sort Samples"
+      ],
+      "observation": "completed Sort Samples in Comms",
+      "ok": true
+    },
+    {
+      "n": 3,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Admin; alive: CYAN, ROSE, ORANGE, BROWN; you are inside a vent | last turn you chose: do_task Sort Samples",
+      "assistant": "vent",
+      "action": "vent",
+      "args": [],
+      "observation": "entered a vent",
+      "ok": true
+    },
+    {
+      "n": 4,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Admin; alive: CYAN, ROSE, ORANGE, BROWN | last turn you chose: vent",
+      "assistant": "vent",
+      "action": "vent",
+      "args": [],
+      "observation": "entered a vent",
+      "ok": true
+    },
+    {
+      "n": 5,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Vault; alive: CYAN, ROSE, ORANGE, BROWN; you are inside a vent | last turn you chose: vent",
+      "assistant": "I think we should probably do something about the lights maybe",
+      "action": null,
+      "args": null,
+      "observation": "no valid action (said: I think we should probably do something about the lights maybe)",
+      "ok": false
+    },
+    {
+      "n": 6,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Vault; alive: CYAN, ROSE, ORANGE, BROWN; you are inside a vent | last turn you chose: vent",
+      "assistant": "head to BLUE",
+      "action": "go_to",
+      "args": [
+        "BLUE"
+      ],
+      "observation": "walking to BLUE",
+      "ok": true
+    },
+    {
+      "n": 7,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Vault; alive: CYAN, ROSE, ORANGE, BROWN; you are inside a vent | last turn you chose: go_to BLUE",
+      "assistant": "observe state",
+      "action": "observe",
+      "args": [
+        "state"
+      ],
+      "observation": "state: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 8,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Vault; alive: CYAN, ROSE, ORANGE, BROWN; near you: BLACK, RED; you are inside a vent | last turn you chose: observe state",
+      "assistant": "hide in a vent",
+      "action": "vent",
+      "args": [],
+      "observation": "entered a vent",
+      "ok": true
+    },
+    {
+      "n": 9,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Vault; alive: CYAN, ROSE, ORANGE, BROWN | last turn you chose: vent",
+      "assistant": "do_task Download Data",
+      "action": "do_task",
+      "args": [
+        "Download Data"
+      ],
+      "observation": "completed Download Data in MedBay",
+      "ok": true
+    },
+    {
+      "n": 10,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Vault; alive: CYAN, ROSE, ORANGE, BROWN; near you: BLACK | last turn you chose: do_task Download Data",
+      "assistant": "observe memory",
+      "action": "observe",
+      "args": [
+        "memory"
+      ],
+      "observation": "memory: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 11,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Vault; alive: CYAN, ROSE, ORANGE, BROWN | last turn you chose: observe memory",
+      "assistant": "vent",
+      "action": "vent",
+      "args": [],
+      "observation": "entered a vent",
+      "ok": true
+    },
+    {
+      "n": 12,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Vault; alive: CYAN, ROSE, ORANGE, BROWN; you are inside a vent | last turn you chose: vent",
+      "assistant": "hide in a vent",
+      "action": "vent",
+      "args": [],
+      "observation": "entered a vent",
+      "ok": true
+    },
+    {
+      "n": 13,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Oxygen; alive: CYAN, ROSE, ORANGE, BROWN; near you: ORANGE, CYAN | last turn you chose: vent",
+      "assistant": "",
+      "action": null,
+      "args": null,
+      "observation": "no valid action (said: )",
+      "ok": false
+    },
+    {
+      "n": 14,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Oxygen; alive: CYAN, ROSE, ORANGE, BROWN | last turn you chose: vent",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 15,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Oxygen; alive: CYAN, ROSE, ORANGE, BROWN | last turn you chose: wait",
+      "assistant": "observe memory",
+      "action": "observe",
+      "args": [
+        "memory"
+      ],
+      "observation": "memory: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 16,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Oxygen; alive: CYAN, ROSE, ORANGE, BROWN | last turn you chose: observe memory",
+      "assistant": "walk towards Oxygen",
+      "action": "go_to",
+      "args": [
+        "Oxygen"
+      ],
+      "observation": "walking to Oxygen",
+      "ok": true
+    },
+    {
+      "n": 17,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Oxygen; alive: CYAN, ROSE, ORANGE, BROWN | last turn you chose: go_to Oxygen",
+      "assistant": "vent",
+      "action": "vent",
+      "args": [],
+      "observation": "refused: your role cannot vent",
+      "ok": false
+    },
+    {
+      "n": 18,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Admin; alive: CYAN, ROSE, ORANGE, BROWN; near you: BROWN, PURPLE | last turn you chose: vent",
+      "assistant": "do_task Reboot Wifi",
+      "action": "do_task",
+      "args": [
+        "Reboot Wifi"
+      ],
+      "observation": "completed Reboot Wifi in Oxygen",
+      "ok": true
+    },
+    {
+      "n": 19,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Admin; alive: CYAN, ROSE, ORANGE, BROWN | last turn you chose: do_task Reboot Wifi",
+      "assistant": "vent",
+      "action": "vent",
+      "args": [],
+      "observation": "entered a vent",
+      "ok": true
+    },
+    {
+      "n": 20,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Admin; alive: CYAN, ROSE, ORANGE, BROWN; you are inside a vent | last turn you chose: vent",
+      "assistant": "do_task Submit Scan",
+      "action": "do_task",
+      "args": [
+        "Submit Scan"
+      ],
+      "observation": "completed Submit Scan in Outside",
+      "ok": true
+    },
+    {
+      "n": 21,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Admin; alive: CYAN, ROSE, ORANGE, BROWN; near you: CYAN; you are inside a vent | last turn you chose: do_task Submit Scan",
+      "assistant": "go to Comms",
+      "action": "go_to",
+      "args": [
+        "Comms"
+      ],
+      "observation": "walking to Comms",
+      "ok": true
+    },
+    {
+      "n": 22,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Admin; alive: CYAN, ROSE, ORANGE, BROWN; you are inside a vent | last turn you chose: go_to Comms",
+      "assistant": "go to Security",
+      "action": "go_to",
+      "args": [
+        "Security"
+      ],
+      "observation": "walking to Security",
+      "ok": true
+    },
+    {
+      "n": 23,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Admin; alive: CYAN, ROSE, ORANGE, BROWN; near you: BLACK, CYAN; you are inside a vent | last turn you chose: go_to Security",
+      "assistant": "do_task Empty Chute",
+      "action": "do_task",
+      "args": [
+        "Empty Chute"
+      ],
+      "observation": "completed Empty Chute in Records",
+      "ok": true
+    },
+    {
+      "n": 24,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Admin; alive: CYAN, ROSE, ORANGE, BROWN; a meeting is running; you are inside a vent; 3 turns left in this meeting: you still need to speak and vote | last turn you chose: do_task Empty Chute",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 25,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Admin; alive: CYAN, ROSE, ORANGE, BROWN; a meeting is running; you are inside a vent; 2 turns left in this meeting: you still need to speak and vote | last turn you chose: wait",
+      "assistant": "observe vitals",
+      "action": "observe",
+      "args": [
+        "vitals"
+      ],
+      "observation": "vitals: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 26,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Snowball; alive: CYAN, ROSE, ORANGE, BROWN; a meeting is running; you are inside a vent; 1 turns left in this meeting: you still need to speak and vote | last turn you chose: observe vitals",
+      "assistant": "vote green",
+      "action": "vote",
+      "args": [
+        "green"
+      ],
+      "observation": "voted for green",
+      "ok": true
+    },
+    {
+      "n": 27,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Snowball; alive: CYAN, ROSE, ORANGE, BROWN; you are inside a vent | last turn you chose: vote green",
+      "assistant": "I think we should probably do something about the lights maybe",
+      "action": null,
+      "args": null,
+      "observation": "no valid action (said: I think we should probably do something about the lights maybe)",
+      "ok": false
+    },
+    {
+      "n": 28,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Boiler Room; alive: CYAN, ROSE, ORANGE, BROWN; near you: CYAN; you are inside a vent | last turn you chose: vote green",
+      "assistant": "do_task Fix Weather Node",
+      "action": "do_task",
+      "args": [
+        "Fix Weather Node"
+      ],
+      "observation": "completed Fix Weather Node in Electrical",
+      "ok": true
+    },
+    {
+      "n": 29,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Specimen; alive: CYAN, ROSE, ORANGE, BROWN; you are inside a vent | last turn you chose: do_task Fix Weather Node",
+      "assistant": "go_to Office",
+      "action": "go_to",
+      "args": [
+        "Office"
+      ],
+      "observation": "walking to Office",
+      "ok": true
+    },
+    {
+      "n": 30,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Specimen; alive: CYAN, ROSE, ORANGE, BROWN; you are inside a vent | last turn you chose: go_to Office",
+      "assistant": "go to room",
+      "action": null,
+      "args": null,
+      "observation": "no valid action (said: go to room)",
+      "ok": false
+    },
+    {
+      "n": 31,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Specimen; alive: CYAN, ROSE, ORANGE, BROWN; you are inside a vent | last turn you chose: go_to Office",
+      "assistant": "observe memory",
+      "action": "observe",
+      "args": [
+        "memory"
+      ],
+      "observation": "memory: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 32,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Specimen; alive: CYAN, ROSE, ORANGE, BROWN; you are inside a vent | last turn you chose: observe memory",
+      "assistant": "hide in a vent",
+      "action": "vent",
+      "args": [],
+      "observation": "entered a vent",
+      "ok": true
+    },
+    {
+      "n": 33,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Specimen; alive: CYAN, ROSE, ORANGE, BROWN | last turn you chose: vent",
+      "assistant": "hide in a vent",
+      "action": "vent",
+      "args": [],
+      "observation": "entered a vent",
+      "ok": true
+    },
+    {
+      "n": 34,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Specimen; alive: CYAN, ROSE, ORANGE, BROWN; near you: BLACK, ROSE; you are inside a vent | last turn you chose: vent",
+      "assistant": "vent",
+      "action": "vent",
+      "args": [],
+      "observation": "entered a vent",
+      "ok": true
+    },
+    {
+      "n": 35,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Specimen; alive: CYAN, ROSE, ORANGE, BROWN; near you: BROWN, RED | last turn you chose: vent",
+      "assistant": "hide in a vent",
+      "action": "vent",
+      "args": [],
+      "observation": "entered a vent",
+      "ok": true
+    },
+    {
+      "n": 36,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Specimen; alive: CYAN, ROSE, ORANGE, BROWN; you are inside a vent | last turn you chose: vent",
+      "assistant": "go_to BANANA",
+      "action": "go_to",
+      "args": [
+        "BANANA"
+      ],
+      "observation": "walking to BANANA",
+      "ok": true
+    },
+    {
+      "n": 37,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Security; alive: CYAN, ROSE, ORANGE, BROWN; you are inside a vent | last turn you chose: go_to BANANA",
+      "assistant": "observe witnesses",
+      "action": "observe",
+      "args": [
+        "witnesses"
+      ],
+      "observation": "witnesses: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 38,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Security; alive: CYAN, ROSE, ORANGE, BROWN; near you: BROWN, CYAN; you are inside a vent | last turn you chose: observe witnesses",
+      "assistant": "observe map",
+      "action": "observe",
+      "args": [
+        "map"
+      ],
+      "observation": "map: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 39,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Gap Room; alive: CYAN, ROSE, ORANGE, BROWN; near you: PURPLE; you are inside a vent | last turn you chose: observe map",
+      "assistant": "go_to Specimen",
+      "action": "go_to",
+      "args": [
+        "Specimen"
+      ],
+      "observation": "walking to Specimen",
+      "ok": true
+    },
+    {
+      "n": 40,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Gap Room; alive: CYAN, ROSE, ORANGE, BROWN; you are inside a vent | last turn you chose: go_to Specimen",
+      "assistant": "hide in a vent",
+      "action": "vent",
+      "args": [],
+      "observation": "entered a vent",
+      "ok": true
+    },
+    {
+      "n": 41,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Electrical; alive: CYAN, ROSE, ORANGE, BROWN; near you: BLUE | last turn you chose: vent",
+      "assistant": "do_task Reboot Wifi",
+      "action": "do_task",
+      "args": [
+        "Reboot Wifi"
+      ],
+      "observation": "completed Reboot Wifi in Admin",
+      "ok": true
+    },
+    {
+      "n": 42,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Electrical; alive: CYAN, ROSE, ORANGE, BROWN; near you: PURPLE | last turn you chose: do_task Reboot Wifi",
+      "assistant": "go_to Records",
+      "action": "go_to",
+      "args": [
+        "Records"
+      ],
+      "observation": "walking to Records",
+      "ok": true
+    },
+    {
+      "n": 43,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Electrical; alive: CYAN, ROSE, ORANGE, BROWN; near you: BLACK | last turn you chose: go_to Records",
+      "assistant": "teleport to helms",
+      "action": null,
+      "args": null,
+      "observation": "no valid action (said: teleport to helms)",
+      "ok": false
+    },
+    {
+      "n": 44,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Snowball; alive: CYAN, ROSE, ORANGE, BROWN; near you: BROWN, RED | last turn you chose: go_to Records",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 45,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Snowball; alive: CYAN, ROSE, ORANGE, BROWN; near you: CYAN, ORANGE | last turn you chose: wait",
+      "assistant": "observe map",
+      "action": "observe",
+      "args": [
+        "map"
+      ],
+      "observation": "map: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 46,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Snowball; alive: CYAN, ROSE, ORANGE, BROWN; near you: ROSE, CYAN | last turn you chose: observe map",
+      "assistant": "wait for it",
+      "action": null,
+      "args": null,
+      "observation": "no valid action (said: wait for it)",
+      "ok": false
+    },
+    {
+      "n": 47,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in MedBay; alive: CYAN, ROSE, ORANGE, BROWN | last turn you chose: observe map",
+      "assistant": "vent",
+      "action": "vent",
+      "args": [],
+      "observation": "entered a vent",
+      "ok": true
+    },
+    {
+      "n": 48,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in MedBay; alive: CYAN, ROSE, ORANGE, BROWN; near you: ROSE; you are inside a vent | last turn you chose: vent",
+      "assistant": "observe witnesses",
+      "action": "observe",
+      "args": [
+        "witnesses"
+      ],
+      "observation": "witnesses: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 49,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in MedBay; alive: CYAN, ROSE, ORANGE, BROWN; near you: ROSE; you are inside a vent | last turn you chose: observe witnesses",
+      "assistant": "observe memory",
+      "action": "observe",
+      "args": [
+        "memory"
+      ],
+      "observation": "memory: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 50,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in MedBay; alive: CYAN, ROSE, ORANGE, BROWN; you are inside a vent | last turn you chose: observe memory",
+      "assistant": "vent",
+      "action": "vent",
+      "args": [],
+      "observation": "entered a vent",
+      "ok": true
+    },
+    {
+      "n": 51,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in MedBay; alive: CYAN, ROSE, ORANGE, BROWN | last turn you chose: vent",
+      "assistant": "do_task Submit Scan",
+      "action": "do_task",
+      "args": [
+        "Submit Scan"
+      ],
+      "observation": "completed Submit Scan in Gap Room",
+      "ok": true
+    },
+    {
+      "n": 52,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in MedBay; alive: CYAN, ROSE, ORANGE, BROWN | last turn you chose: do_task Submit Scan",
+      "assistant": "walk towards BANANA",
+      "action": "go_to",
+      "args": [
+        "BANANA"
+      ],
+      "observation": "walking to BANANA",
+      "ok": true
+    },
+    {
+      "n": 53,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in MedBay; alive: CYAN, ROSE, ORANGE, BROWN | last turn you chose: go_to BANANA",
+      "assistant": "observe state",
+      "action": "observe",
+      "args": [
+        "state"
+      ],
+      "observation": "state: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 54,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in MedBay; alive: CYAN, ROSE, ORANGE, BROWN | last turn you chose: observe state",
+      "assistant": "go_to Security",
+      "action": "go_to",
+      "args": [
+        "Security"
+      ],
+      "observation": "walking to Security",
+      "ok": true
+    },
+    {
+      "n": 55,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Office; alive: CYAN, ROSE, ORANGE, BROWN; near you: BLACK | last turn you chose: go_to Security",
+      "assistant": "",
+      "action": null,
+      "args": null,
+      "observation": "no valid action (said: )",
+      "ok": false
+    },
+    {
+      "n": 56,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Records; alive: CYAN, ROSE, ORANGE, BROWN | last turn you chose: go_to Security",
+      "assistant": "vent",
+      "action": "vent",
+      "args": [],
+      "observation": "entered a vent",
+      "ok": true
+    },
+    {
+      "n": 57,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Records; alive: CYAN, ROSE, ORANGE, BROWN; you are inside a vent | last turn you chose: vent",
+      "assistant": "observe notes",
+      "action": "observe",
+      "args": [
+        "notes"
+      ],
+      "observation": "notes: (synthetic observation)",
+      "ok": true
+    },
+    {
+      "n": 58,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Records; alive: CYAN, ROSE, ORANGE, BROWN; you are inside a vent | last turn you chose: observe notes",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true
+    },
+    {
+      "n": 59,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Records; alive: CYAN, ROSE, ORANGE, BROWN; you are inside a vent | last turn you chose: wait",
+      "assistant": "head to Vault",
+      "action": "go_to",
+      "args": [
+        "Vault"
+      ],
+      "observation": "walking to Vault",
+      "ok": true
+    },
+    {
+      "n": 60,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Records; alive: CYAN, ROSE, ORANGE, BROWN; you are inside a vent | last turn you chose: go_to Vault",
+      "assistant": "go_to Gap Room",
+      "action": "go_to",
+      "args": [
+        "Gap Room"
+      ],
+      "observation": "walking to Gap Room",
+      "ok": true
+    },
+    {
+      "n": 61,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Records; alive: CYAN, ROSE, ORANGE, BROWN; you are inside a vent | last turn you chose: go_to Gap Room",
+      "assistant": "hide in a vent",
+      "action": "vent",
+      "args": [],
+      "observation": "entered a vent",
+      "ok": true
+    },
+    {
+      "n": 62,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Security; alive: CYAN, ROSE, ORANGE, BROWN | last turn you chose: vent",
+      "assistant": "go_to Records",
+      "action": "go_to",
+      "args": [
+        "Records"
+      ],
+      "observation": "walking to Records",
+      "ok": true
+    },
+    {
+      "n": 63,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Security; alive: CYAN, ROSE, ORANGE, BROWN | last turn you chose: go_to Records",
+      "assistant": "I think we should probably do something about the lights maybe",
+      "action": null,
+      "args": null,
+      "observation": "no valid action (said: I think we should probably do something about the lights maybe)",
+      "ok": false
+    },
+    {
+      "n": 64,
+      "system": "You are Phantom. You have 2 abilities: 1) turn invisible; 2) leave a decoy of yourself.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Snowball, Comms, Oxygen, Laboratory, Vault, Records, Specimen, Outside, Gap Room, Ventilation\nTasks you still have to do: Boarding Pass, Fix Wiring, Sort Samples, Fuel Engines, Start Reactor, Submit Scan, Download Data, Clean O2 Filter, Fix Weather Node, Reboot Wifi, Record Temperature, Empty Chute\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Phantom (crew); in Security; alive: CYAN, ROSE, ORANGE, BROWN | last turn you chose: go_to Records",
+      "assistant": "observe memory",
+      "action": "observe",
+      "args": [
+        "memory"
+      ],
+      "observation": "memory: (synthetic observation)",
+      "ok": true
+    }
+  ],
+  "stats": {
+    "total": 64,
+    "refused": 9,
+    "unparseable": 8
+  },
+  "notes": "synthesised by dataset/generate.py; teaches format and phase transitions, not game knowledge"
+}
