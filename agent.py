@@ -49,14 +49,19 @@ def _nearby_players():
 def go_to_room(room):
     """Walk to a named room on this map."""
     import roleplay
-    key = str(room).strip().lower()
+    key = str(room).strip()
     try:
         G = utility.load_G(utility.getGameData()["map_id"])
     except Exception as exc:
         raise ActionError(f"no map graph: {exc}")
     pos = roleplay.room_position(G, key)
     if pos is None:
-        raise ActionError(f"no room called {key!r} on this map")
+        # Tell the model what the rooms are actually called, so it can correct
+        # itself next turn instead of repeating an invented name.
+        rooms = roleplay.known_rooms()
+        raise ActionError(
+            f"there is no room called {key!r} on this map. "
+            f"The rooms are: {', '.join(rooms)}")
     ok = roleplay.walk_to(G, pos[0], pos[1])
     return f"walking to {key}" if ok else f"could not walk to {key}"
 
@@ -333,6 +338,18 @@ def tool_reference(role=None):
         # ability list will happily invent a third ability.
         "No role in this game has more than 2 abilities.",
         "",
+    ]
+    # The model cannot ask to go somewhere whose name it does not know, so the
+    # room list is part of the prompt rather than something it has to guess.
+    try:
+        import roleplay as _rp
+        rooms = _rp.known_rooms()
+        if rooms:
+            lines.append("Rooms on this map: " + ", ".join(rooms))
+            lines.append("")
+    except Exception:
+        pass
+    lines += [
         "You may call exactly one of these per turn. Nothing else is possible:",
         "",
     ]
@@ -348,26 +365,93 @@ def tool_reference(role=None):
     return "\n".join(lines)
 
 
+# The model talks like a person, not like an API. These map ordinary phrasings
+# onto the action table. This does NOT widen what is possible: every entry here
+# still resolves to an action that already existed, and a verb with no entry is
+# still rejected outright.
+PHRASES = [
+    (r"^go\s+to\s+(?:the\s+)?(.+)$", "go_to", 1),
+    (r"^(?:head|walk|move|run|travel|return|go)\s+(?:to|over\s+to|towards?)\s+(?:the\s+)?(.+)$", "go_to", 1),
+    (r"^(?:go|walk)\s+(?!to\b|over\b|towards?\b)(\w+)$", "go_to", 1),
+    (r"^stop(?:\s+walking)?$", "stop", None),
+    (r"^(?:stand\s+still|hold\s+position|hold\s+still|do\s+nothing|nothing|wait|idle)$", "wait", None),
+    (r"^kill(?:\s+(?:the\s+)?(?:\w+))?$", "kill", None),
+    (r"^murder\s+(?:\w+)$", "kill", None),
+    (r"^report(?:\s+(?:the\s+)?body)?$", "report", None),
+    (r"^sabotage\s+(?:the\s+)?(.+)$", "sabotage", 1),
+    (r"^queue\s+sabotage\s+(?:the\s+)?(.+)$", "queue_sabotage", 1),
+    (r"^use\s+(?:my\s+)?ability\s*2$", "ability2", None),
+    (r"^use\s+(?:my\s+)?secondary\s+ability$", "ability2", None),
+    (r"^use\s+(?:my\s+)?ability\s*1$", "ability", None),
+    (r"^use\s+(?:my\s+)?(?:primary\s+)?ability$", "ability", None),
+    (r"^use\s+ability$", "ability", None),
+    (r"^(?:protect|shield|guard)\s+(?:the\s+)?(\w+)$", "protect", 1),
+    (r"^mimic\s+(?:the\s+)?(\w+)$", "mimic", 1),
+    (r"^(?:shapeshift\s+(?:into|to)\s+)(?:the\s+)?(\w+)$", "mimic", 1),
+    (r"^interrogate(?:\s+.*)?$", "interrogate", None),
+    (r"^(?:read|open|check)\s+(?:my\s+)?notes$", "notes", None),
+    (r"^overrule\s+(\w+)$", "overrule", 1),
+    (r"^(?:do|complete|finish)\s+(?:a\s+|the\s+|my\s+)?task$", "do_task", None),
+    (r"^say\s+(?:to\s+(?:the\s+)?chat\s+)?[\"']?(.+?)[\"']?$", "say", 1),
+    (r"^(?:vote\s+for\s+|vote\s+|eject\s+)(\w+)$", "vote", 1),
+    (r"^skip(?:\s+(?:the\s+)?vote)?$", "vote", None),
+    (r"^(?:observe|check|look\s+at|read)\s+(?:the\s+)?(\w+)$", "observe", 1),
+]
+
+def _normalise(line):
+    """Best-effort mapping of a human sentence onto (name, arg|None)."""
+    import re
+    low = line.strip().strip("`").strip().strip('"').strip("'")
+    for pattern, name, group in PHRASES:
+        m = re.match(pattern, low, re.IGNORECASE)
+        if not m:
+            continue
+        if group is None:
+            if name == "vote":
+                return "vote", "skip"
+            return name, None
+        arg = m.group(group)
+        if not arg:
+            # an optional capture that did not participate
+            return name, None
+        arg = re.sub(r"^(the|a|an)\s+", "", arg.strip(), flags=re.IGNORECASE)
+        if not arg:
+            return name, None
+        return name, arg
+    return None, None
+
+
 def parse_action(reply):
     """Turn one line of model output into (name, [args]). None if unusable."""
     if not reply:
         return None, None
     line = reply.strip().splitlines()[0].strip()
     line = line.strip("`").strip()
-    for prefix in ("action:", "action =", "call:", "tool:"):
+    for prefix in ("action:", "action =", "call:", "tool:", "I will", "i will"):
         if line.lower().startswith(prefix):
             line = line[len(prefix):].strip()
-    if not line:
-        return None, None
+
     parts = line.replace("=", " ").split()
     name = parts[0].lower().strip(",.:;")
-    if name not in ACTIONS:
+
+    # The specific English patterns are tried first. Otherwise "sabotage the
+    # lights" matches the literal name "sabotage" and swallows "the" as its
+    # argument, and "vote for RED" swallows "for".
+    got, arg = _normalise(line)
+    if got is not None and got in ACTIONS:
+        required, _fn, _desc = ACTIONS[got]
+        if required and not arg:
+            return None, line          # e.g. "go to" with nowhere to go
+        return got, [arg] if required else []
+
+    if name in ACTIONS:
+        args = [p.strip(",.;:\"'") for p in parts[1:]]
+        required, _fn, _desc = ACTIONS[name]
+        if len(args) >= len(required):
+            return name, args[:len(required)]
         return None, line
-    args = [p.strip(",.;:\"'") for p in parts[1:]]
-    required, _fn, _desc = ACTIONS[name]
-    if len(args) < len(required):
-        return None, line
-    return name, args[:len(required)]
+
+    return None, line
 
 
 def run_action(name, args):

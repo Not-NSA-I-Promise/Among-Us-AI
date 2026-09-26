@@ -306,6 +306,86 @@ def admin_position():
     return None
 
 
+# The room names the task database knows, so the model can say "Electrical" or
+# "lower engine" and still be understood. Built once, from data rather than a
+# hand-typed list, so a new map adds its own rooms.
+def known_rooms():
+    try:
+        d = utility.load_dict()
+    except Exception:
+        return []
+    rooms = set()
+    for locs in d.values():
+        for loc in locs:
+            if not loc:
+                continue
+            head = loc.split("|")[0].split(",")[0].strip()
+            # entries like "Reactor(-21/-7)" are positions, not room names
+            if head and "(" not in head:
+                rooms.add(head)
+    return sorted(rooms)
+
+
+def room_position(G, name):
+    """Find a named room in the map graph, the way the model will refer to it.
+
+    The model says "Electrical", "lower engine" or "LowerEngine"; the graph uses
+    its own node names. This matches case- and separator-insensitively so a
+    natural phrasing still lands on a real node, and returns None when there is
+    genuinely no such room rather than guessing.
+    """
+    if not name:
+        return None
+    want = str(name).strip().lower()
+    for ch in (" ", "_", "-", "."):
+        want = want.replace(ch, "")
+
+    # 1. exact-ish match against the room names we know, to get a node hint
+    alias = None
+    for room in known_rooms():
+        norm = room.lower().replace(" ", "").replace("_", "").replace("-", "")
+        if norm == want:
+            alias = room
+            break
+    if alias is None:
+        for room in known_rooms():
+            norm = room.lower().replace(" ", "").replace("_", "").replace("-", "")
+            if norm.startswith(want) or want.startswith(norm):
+                alias = room
+                break
+
+    # 2. a node in the graph whose name matches
+    if G is not None and G.nodes:
+        for node in G.nodes:
+            norm = str(node).lower().replace(" ", "").replace("_", "").replace("-", "")
+            if norm == want:
+                return node
+    if alias is None:
+        return None
+
+    # 3. a task located in that room gives us a real world position
+    try:
+        d = utility.load_dict()
+    except Exception:
+        d = {}
+    for locs in d.values():
+        for loc, pos in locs.items():
+            head = loc.split("|")[0].split(",")[0].strip()
+            norm = head.lower().replace(" ", "").replace("_", "").replace("-", "")
+            if norm == alias.lower().replace(" ", ""):
+                try:
+                    return tuple(pos)
+                except Exception:
+                    pass
+
+    # 4. fall back to any graph node in that room
+    if G is not None and G.nodes:
+        for node in G.nodes:
+            if alias.lower() in str(node).lower():
+                return node
+    return None
+
+
 def available_sabotages():
     """Sabotage names this map supports, per the solver's own tables."""
     try:
