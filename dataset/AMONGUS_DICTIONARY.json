@@ -1,0 +1,483 @@
+{
+  "purpose": [
+    "Reference for whoever generates SFT entries for the Among Us agent.",
+    "The base model has never played this game and does not know the terms,",
+    "the maps, the legality rules or the social language. Everything it needs",
+    "to avoid writing nonsense lives here.",
+    "",
+    "Read this before generating. An entry that violates ROLES, VENT_NETWORKS,",
+    "or TASK_SEQUENCE is defective and validate.py will reject it."
+  ],
+
+  "what_the_game_is": {
+    "shape": "social deduction, 10-15 players, two hidden sides",
+    "crew": "complete the task bar; impostors are a minority and hidden",
+    "impostor": "kill crewmates until impostors equal or outnumber crewmates",
+    "phases": [
+      "drop - everyone spawns, roles are assigned, no talking",
+      "task phase - free movement, no public chat, this is where kills happen",
+      "meeting - triggered by a body report or the emergency button; chat, then a vote",
+      "the vote ejects the highest-voted player; a tie or a Skip vote voids it",
+      "a meeting has a timer, normally 15-25s of discussion then a vote"
+    ],
+    "two_vote_states": "the same person can be voted twice in one meeting only if they survive the first vote; if they are ejected the meeting ends"
+  },
+
+  "ROLES": {
+    "note": "authoritative legality table. validate.py checks every turn against this.",
+
+    "impostor_side": {
+      "Impostor": {
+        "abilities": 1, "can_vent": true, "can_kill": true,
+        "special": "none. the baseline impostor.",
+        "can_do_tasks": false
+      },
+      "Shapeshifter": {
+        "abilities": 1, "can_vent": true, "can_kill": true,
+        "special": "mimic another player's appearance and name",
+        "can_do_tasks": false
+      },
+      "Phantom": {
+        "abilities": 2, "can_vent": true, "can_kill": true,
+        "special": "ability 1 = turn invisible; ability 2 = leave a decoy of yourself",
+        "can_do_tasks": false,
+        "note": "one of only TWO roles with a second ability"
+      },
+      "Viper": {
+        "abilities": 1, "can_vent": true, "can_kill": true,
+        "special": "vents, and can kill from inside a vent at longer range",
+        "can_do_tasks": false
+      }
+    },
+
+    "crew_side": {
+      "Crewmate": {"abilities": 0, "can_vent": false, "can_kill": false, "can_do_tasks": true},
+      "Scientist": {
+        "abilities": 1, "can_vent": false, "can_kill": false, "can_do_tasks": true,
+        "special": "Admin vitals: sees who is dead and who is disconnected"
+      },
+      "Engineer": {
+        "abilities": 1, "can_vent": true, "can_kill": false, "can_do_tasks": true,
+        "special": "vents for movement only, cannot kill"
+      },
+      "Guardian Angel": {
+        "abilities": 1, "can_vent": false, "can_kill": false, "can_do_tasks": true,
+        "special": "protects one player for the round",
+        "note": "a ghost role. the bot only has this after dying"
+      },
+      "Tracker": {
+        "abilities": 1, "can_vent": false, "can_kill": false, "can_do_tasks": true,
+        "special": "track one player, shown on the map",
+        "note": "Tracker CANNOT vent. this is the single most common legality mistake"
+      },
+      "Noisemaker": {
+        "abilities": 1, "can_vent": false, "can_kill": false, "can_do_tasks": true,
+        "special": "place a decoy arrow that pulls players toward you"
+      },
+      "Detective": {
+        "abilities": 2, "can_vent": false, "can_kill": false, "can_do_tasks": true,
+        "special": "ability 1 = interrogate a player or inspect a body; ability 2 = read your notebook",
+        "note": "one of only TWO roles with a second ability"
+      },
+      "Judge": {
+        "abilities": 1, "can_vent": false, "can_kill": false, "can_do_tasks": true,
+        "special": "one extra vote per game to eject a player",
+        "note": "blocked from the overrule until your tasks are done"
+      },
+      "Phantom": {
+        "abilities": 2, "can_vent": true, "can_kill": false, "can_do_tasks": true,
+        "special": "ability 1 = vanish (usable by anyone, not only the killer); ability 2 = decoy",
+        "note": "Phantom can appear on EITHER side. as a crewmate it vents and cannot kill"
+      }
+    },
+
+    "hard_rules": [
+      "no role has more than 2 abilities",
+      "only Detective and Phantom have 2",
+      "only Impostor, Shapeshifter, Phantom, Viper, Engineer can vent",
+      "only impostor-side roles can kill",
+      "no impostor-side role should ever complete a real task",
+      "Guardian Angel only exists as a ghost, so it appears after a death"
+    ]
+  },
+
+  "VENT_NETWORKS": {
+    "note": "vents connect in fixed groups. validate.py checks vent travel against this. Room names must be exact.",
+
+    "Skeld": {
+      "vent_count": 14,
+      "networks": [
+        ["Upper Engine", "Reactor", "Lower Engine"],
+        ["MedBay", "Security", "Electrical"],
+        ["Admin", "Cafeteria", "Shields Hallway"],
+        ["Weapons", "Navigation", "Shields"]
+      ],
+      "no_vent_in": ["Storage", "Communications", "Oxygen"],
+      "two_vent_rooms": ["Navigation", "Reactor"]
+    },
+
+    "Polus": {
+      "vent_count": 12,
+      "networks": [
+        ["Outside Security", "Inside O2", "Outside Electrical"],
+        ["Left of Dropship (above Electrical)", "Outside Laboratory"],
+        ["In Storage", "In Office", "Outside Communications"],
+        ["In Laboratory (lavatory)", "Near Lava Pit", "In Admin", "Outside Admin"]
+      ],
+      "no_vent_in": ["Boiler Room", "Communications", "Dropship", "MedBay",
+                      "Security", "Specimen Room", "Weapons", "Decontamination"],
+      "note": "Polus vents are holes in the ground with no open/close animation, so a vent on Polus is much harder to spot being used"
+    },
+
+    "Airship": {
+      "vent_count": 12,
+      "networks": [
+        ["Vault", "Cockpit", "Viewing Deck"],
+        ["Engine Room", "Kitchen", "Outside Main Hall"],
+        ["Outside Records", "Main Hall", "Below Gap Room"],
+        ["Records", "Showers", "Cargo Bay"]
+      ],
+      "no_vent_in": ["Armory", "Brig", "Communications", "Electrical",
+                     "Hall of Portraits", "Lounge", "Medical", "Meeting Room",
+                     "Outside", "Security", "Ventilation"],
+      "no_visual_tasks": true,
+      "note": "the Vault vent is a trap: cameras see you leave the Vault without entering it"
+    },
+
+    "Mira HQ": {
+      "all_interconnected": true,
+      "no_vent_in": ["Cafeteria", "Communications", "Storage"],
+      "note": "the only map where every vent reaches every other. the classic play is to vent, be seen, and cut the witness off before they reach Cafeteria"
+    },
+
+    "Fungle": {
+      "note": "a bean-shaped walk-around map with a moving layout, added 2024. rooms move between rounds, so treat room names as unstable"
+    },
+
+    "universal": "Communications has no vent on ANY map"
+  },
+
+  "TASK_SEQUENCE": {
+    "why_this_matters": [
+      "Wiring panels are numbered 1-7 and the correct colours always follow that",
+      "numbering. A fake that connects them in the wrong order is visibly wrong to",
+      "anyone who knows the pattern, and a model that learns the wrong order will",
+      "do it every time. Never write an entry that fakes wiring out of order."
+    ],
+
+    "fix_wiring": {
+      "panel_order": ["Electrical", "Storage", "Admin", "Navigation", "Cafeteria", "Security"],
+      "note": "you get 3 of these 6 panels per game, in this fixed relative order. upper number to lower number on every panel",
+      "wire_numbers": "colours are ordered by a hidden number 1-7; connect lowest number to lowest",
+      "correct_fake": "stand at the panel for 3-4s per panel, in panel_order, connecting in number order"
+    },
+
+    "multi_stage_tasks": {
+      "Fuel Engines": "Storage -> Upper Engine -> back to Storage -> Lower Engine, 6s per stage",
+      "Align Engine Output": "Upper Engine -> Lower Engine -> Reactor, 2-3s per stage",
+      "Fuel Engines (Polus)": "Storage -> Outside Electrical -> Administrative -> Boiler Room"
+    },
+
+    "timed_tasks_you_cannot_fake": {
+      "note": "the task bar only fills after the timer. leaving early is the tell",
+      "Download Data": "8-10s",
+      "Upload Data": "8-10s",
+      "Submit Scan": "10s, VISUAL",
+      "Start Reactor": "15s+, VISUAL",
+      "Inspect Sample": "~60s, timer keeps running if you walk away",
+      "Prime Shields": "8-12s",
+      "Clear Asteroids": "8-12s, VISUAL"
+    },
+
+    "visual_tasks": {
+      "definition": "other players can SEE the task happening, so standing still does not imitate it",
+      "list": ["Submit Scan", "Start Reactor", "Clear Asteroids", "Chart Course"],
+      "rule": "never write an entry where the agent fakes a visual task by default. allow_visual only when the entry explains why the lesser evil was chosen",
+      "note": "Airship has NO visual tasks, which is why it is considered harder for crewmates"
+    },
+
+    "faking_rules": [
+      "stand still for the REAL duration, sampled from the range, never a fixed constant",
+      "wait for the task bar to move before leaving, if a real task would have moved it",
+      "a fake never completes the task. the bar does not fill. the agent must report this honestly",
+      "common tasks are dangerous to fake: every player has them, so faking one you do not have proves you are the impostor"
+    ]
+  },
+
+  "STRATEGY": {
+    "note": "the behaviour that actually wins. The non-verbal kill cycle matters more than talking, by a wide margin.",
+
+    "measured_evidence": {
+      "source": "MineAmongUs (2025), 1,344 matches, LLM/VLM agents playing Among Us",
+      "correlation_with_impostor_win": {
+        "fake-mission performance": 0.72,
+        "witness-aware kill": 0.434,
+        "post-kill flee": 0.414,
+        "strategic non-reporting": 0.270,
+        "co-opting the target's words": 0.21,
+        "stalking pre-kill": 0.208,
+        "mutual reinforcement (impostor pair)": 0.18,
+        "counter-accusation": 0.164
+      },
+      "headline": "winners fake tasks 6.6x more often than losers. losers instead talk defensively, accuse their own teammate, and wander without purpose",
+      "canonical_arc": "fake a task -> stalk a target -> kill with no witness -> flee -> do NOT report the body -> next meeting: alibi + counter-accusation"
+    },
+
+    "impostor_kill_cycle": [
+      "1. FAKE first. The kill is the easy part; the meeting afterwards is what loses rounds. A fake buys cover and moves you across the map.",
+      "2. STALK. Follow someone at a distance. Know who has already seen you before you commit.",
+      "3. WITNESS CHECK. Never kill with someone in line of sight. If someone is near, back off and wait - do not kill and hope.",
+      "4. KILL, then FLEE immediately. Use the vent if there is one, otherwise round a corner. Standing near your own body is the worst possible position.",
+      "5. DO NOT REPORT. Strategic non-reporting is one of the strongest win correlates. Let someone else find it."
+    ],
+
+    "door_and_kill_tricks": {
+      "close_doors_after_killing": "in Storage or a room with a door, kill, then close the door. when the doors open later the room is empty and any witness inside has been absorbed into the group. works because crew re-open doors in a clump and nobody counts who was behind them",
+      "why": "a closed door hides both the body and the killer, and the delay lets other players move the group away from the scene",
+      "maps_with_doors": {
+        "Skeld": ["Cafeteria", "Upper Engine", "MedBay", "Security", "Electrical", "Lower Engine", "Storage"],
+        "Polus": ["Office", "Admin", "Security", "Electrical", "MedBay", "Boiler Room", "Snowball", "Comms", "Oxygen", "Laboratory", "Vault", "Records", "Specimen"]
+      }
+    },
+
+    "detective_play": {
+      "who_to_interrogate": [
+        "anyone the game recorded as standing near a body you inspected - the notebook already lists them",
+        "the person who CHASED the victim. the 'who followed me' question catches more impostors than 'who was near the body'",
+        "anyone who was near the body and was ALREADY DEAD in the record - they were dead before the kill, so they were not the killer, but their last location matters",
+        "someone whose route does not connect their claimed task to where they were seen"
+      ],
+      "who_not_to_interrogate": [
+        "a random player with no connection to any body. this is the failure mode: interrogating strangers wastes the ability and teaches nothing",
+        "the victim",
+        "someone already confirmed dead"
+      ],
+      "how_to_use_it": "interrogate -> read the notebook -> report ONLY what the notebook says. a detective that invents a theory is worse than one that stays quiet"
+    },
+
+    "phantom_play": [
+      "ability 1 is vanish and is usable by ANY player, killer or not. using it as a crewmate is normal and buys you an alibi",
+      "ability 2 leaves a decoy arrow. as an impostor, decoy pulls crew toward a room you have already left",
+      "kill in a small room with a door, close the door, then vanish. the invisibility covers the window between the kill and the doors reopening",
+      "do not vanish while a witness is watching you do it - the animation is visible to anyone in vision"
+    ],
+
+    "crew_play": [
+      "the body is information. where it is, and who was near it, matters more than who 'felt' sus",
+      "walking with one other player is the single strongest survival action. two together is very hard to kill cleanly",
+      "if you did not see it, do not claim you did. a fabricated witness gets you ejected instead of the killer",
+      "skip the vote when you have no information. ejecting an innocent loses the round",
+      "the third-wheel play: if you see two people together, follow at a distance. if one kills, you are the witness. if nothing happens, both are probably fine"
+    ],
+
+    "voting": {
+      "early": "with no evidence, skip is usually correct",
+      "with_hard_evidence": "someone who was seen on camera, or an admin/vitals confirmation, is a safe vote",
+      "the_tie": "a tie voids the meeting. if you are the impostor and someone is tying you, creating a tie is a win"
+    }
+  },
+
+  "DECEPTION": {
+    "note": "the measured linguistics of Among Us meetings. Vague deixis defensively, specific reference offensively.",
+
+    "techniques": {
+      "vague_deixis": {
+        "what": "refer to people and places without naming them",
+        "why": "keeps you out of the crosshair; commits you to nothing checkable",
+        "phrases": ["someone was near the body", "they went that way", "over there", "that guy"]
+      },
+      "specific_reference": {
+        "what": "when you attack, be concrete: player, room, and time",
+        "why": "specificity reads as confidence, and confidence reads as truth",
+        "phrases": ["I saw blue in electrical just before the alarm", "green was in medbay a minute ago"]
+      },
+      "spatial_temporal_alibi": {
+        "what": "anchor yourself in a place and a time",
+        "why": "concrete detail mimics the reality monitoring that marks real memories",
+        "phrases": ["I was in cafeteria when the body was found", "I fixed lights before the reactor went off"],
+        "warning": "stay close to the truth. 'I was walking toward navigation' beats 'I was doing the upload in navigation', because if someone saw you in the hallway the bigger lie is instantly fatal"
+      },
+      "person_deixis": {
+        "what": "we/you/they manages who is in the group with you",
+        "why": "inclusive 'we' builds trust, exclusive 'they' redirects blame",
+        "phrases": ["we all saw red vent, right?", "if they keep ejecting randoms we're done"]
+      }
+    },
+
+    "impostor_tactics": {
+      "counter_accuse": "answer an accusation with an accusation: 'you're trying to eject me off, it could be you'",
+      "self_report_pressure": "'it could be a self-report'. works because the reporter is always slightly sus, but use it once or people notice you always suggest it",
+      "throw_under_the_bus": "accuse your own impostor partner to look credible and un-aligned. measurably common among winners",
+      "variation": "change your defence each time. 'it wasn't me' repeated is a tell on its own",
+      "the_hard_lie": "save 'I saw him vent' / 'I watched him kill' for when one eject ends the game. a vent claim is believed almost always - and if it is wrong, the person who made it is now the most suspicious person alive",
+      "emergency_button_as_weapon": "an impostor calling a meeting is deeply unexpected, so it buys you a whole discussion to plant a name",
+      "fake_grief": "complain about hard tasks, lag, or your card swipe glitching. you should sound bored, not nervous",
+      "go_quiet": "say less than you want to. one cover lie is recoverable, a pile of them is not"
+    },
+
+    "crew_tactics": {
+      "ask_who_saw": "'who did you see' is a better question than 'who is sus'",
+      "ask_about_routes": "'what task were you doing' beats 'are you sus', because tasks are verifiable and vibes are not",
+      "the_chase_question": "'who followed you' - this catches more impostors than any other single question",
+      "separate_the_accused": "stop the group from converging on one person before the evidence is in",
+      "do_not_doubt_too_early": "someone who let you live might be marinating you, building trust so you defend them at the end"
+    },
+
+    "real_player_moves": [
+      "claiming a role: 'I'm engineer, I was venting' is nearly unattackable if true, and a very good lie if you are not",
+      "faking tears, anger, or eerie calm in the 3-player endgame",
+      "the 'who vented' instant-win claim",
+      "deliberately not reporting a body to watch who else finds it"
+    ]
+  },
+
+  "SLANG": {
+    "note": "what players actually type. `say` arguments must read like these - short, lowercase, unpunctuated.",
+
+    "core": {
+      "sus": "suspicious. the central word of the game",
+      "sussy": "acting suspicious",
+      "vent": "to move through a vent",
+      "venting": "using a vent, usually seen",
+      "ejected": "voted out",
+      "eject": "vote someone out",
+      "gg": "good game",
+      "ggwp": "good game well played",
+      "afk": "away from keyboard",
+      "mods": "moderators, who can force a player to say a line",
+      "mod": "same",
+      "camping": "waiting at a vent to kill whoever comes out",
+      "camp": "same",
+      "kill": "a kill, or the act",
+      "dead": "dead, or a player who is dead",
+      "body": "a corpse",
+      "report": "calling a meeting by reporting a body",
+      "self-report": "reporting a body you killed yourself; also a jab at someone who always reports",
+      "hard lie": "a claim of direct evidence, e.g. 'I saw him vent'",
+      "soft lie": "a vague claim that cannot be checked",
+      "hard task": "a long task, used as small talk to look innocent",
+      "lights": "the lights sabotage",
+      "comms": "communications sabotage, and the room",
+      "o2": "the oxygen sabotage",
+      "reactor": "the reactor sabotage",
+      "crew": "crewmates",
+      "imp": "impostor",
+      "shapeshift": "to mimic, or the role",
+      "fake": "to pretend to do a task",
+      "faking": "same",
+      "dum": "a player who is definitely not the impostor, said ironically",
+      "likely": "a player who is probably the impostor",
+      "suspect": "same as likely",
+      "not sus": "probably innocent",
+      "confirmed": "proven guilty",
+      "vented": "seen entering a vent",
+      "scan": "Submit Scan, or the MedBay scanner",
+      "vitals": "the Admin vitals, or the O2 room task list",
+      "admin": "the Admin table, or the map on it",
+      "cams": "security cameras, or the Security room",
+      "cam": "a security camera",
+      "camping the cams": "watching cams all round",
+      "marinating": "letting a suspected impostor live on purpose to seem trusting",
+      "shy": "hiding, avoiding everyone",
+      "chilling": "standing still doing nothing on purpose",
+      "dashing": "moving fast between rooms",
+      "reactor hack": "killing when the reactor is sabotaged and nobody can see the lights",
+      "spamming buttons": "misclicking, a tell on some clients"
+    },
+
+    "phrases_that_sound_real": [
+      "red sus", "green sus", "who was near the body", "i was in medbay",
+      "i was doing tasks", "i have admin", "i was on cams",
+      "lights are out", "reactor's going", "someone vented",
+      "it could be a self report", "stop voting randoms", "vote red",
+      "skip", "i'll do it next round", "im gonna do the wires",
+      "who followed you", "you were near the body"
+    ],
+
+    "style_rules": [
+      "lowercase, no punctuation, 3-8 words",
+      "one claim per message, never a paragraph",
+      "no stage directions, no asterisks, no emoji",
+      "do not name-drop real-world players or use outside references",
+      "never write the impostor speaking in perfect prose - humans type fast and badly"
+    ]
+  },
+
+  "TROPEES_AND_CLICHES": {
+    "note": "recognised patterns. Using them makes generated dialogue sound played rather than written.",
+
+    "impostor": [
+      "the fake alibi that is one room too specific",
+      "accusing the person who accused you, immediately",
+      "the 'I have admin' claim with nothing behind it",
+      "the hard lie saved for the perfect moment, then spending it too early",
+      "killing in a two-vent room so there is always an escape",
+      "self-reporting because the reporter is always slightly sus",
+      "the partner who accuses the other impostor to look credible",
+      "going quiet after talking too much",
+      "killing during a lights sabotage so nobody can see"
+    ],
+    "crew": [
+      "the silent player everyone converges on by the third meeting",
+      "the overconfident eject that removes an innocent",
+      "the group trying to un-eject someone for the rest of the round",
+      "'who was near the body' said by three people at once",
+      "trusting the player who vouched for them last round",
+      "the final 1v1 where both players are silent",
+      "someone who was right once and is never believed again"
+    ],
+    "structural": [
+      "the first meeting is chaos, the second is the real one",
+      "the impostor's best round is the one nobody accuses anyone in",
+      "a tie vote is a guaranteed impostor win",
+      "the game is effectively decided by the third meeting"
+    ]
+  },
+
+  "AGENT_FAILURE_MODES": {
+    "note": "what the base model gets wrong, and what an entry must counteract. If you are writing an entry, you are fixing one of these.",
+
+    "known_failures": [
+      {
+        "failure": "self-disclosure",
+        "what_happens": "the impostor says 'I am the impostor and I am standing right here'",
+        "counter": "never write an entry where the impostor volunteers its own identity"
+      },
+      {
+        "failure": "hallucinated witnesses",
+        "what_happens": "the agent claims a witness who does not exist, wasting the turn",
+        "counter": "only name players present in the situation line"
+      },
+      {
+        "failure": "impostor coordination breakdown",
+        "what_happens": "two impostors vote for each other",
+        "counter": "in any entry with two impostors, write them voting to clear themselves"
+      },
+      {
+        "failure": "poor target selection",
+        "what_happens": "chases only crewmates who are never alone, so every kill ends in a retreat",
+        "counter": "write the stalk-then-abandon pattern explicitly"
+      },
+      {
+        "failure": "talking defensively instead of faking",
+        "what_happens": "an impostor that spends the whole round in meetings and never fakes a task loses, per the measured data",
+        "counter": "every impostor entry must contain at least one fake_task"
+      },
+      {
+        "failure": "fake wiring in the wrong colour order",
+        "what_happens": "visibly wrong to anyone who knows the pattern",
+        "counter": "see TASK_SEQUENCE.fix_wiring"
+      },
+      {
+        "failure": "detective interrogating strangers",
+        "what_happens": "wastes the ability on a random player",
+        "counter": "see STRATEGY.detective_play.who_to_interrogate"
+      },
+      {
+        "failure": "phantom killing in a room with an open door",
+        "what_happens": "a witness walks in during the kill animation",
+        "counter": "see STRATEGY.phantom_play and door_and_kill_tricks"
+      }
+    ]
+  }
+}

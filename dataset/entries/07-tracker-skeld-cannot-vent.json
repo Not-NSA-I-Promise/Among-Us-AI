@@ -1,0 +1,226 @@
+{
+  "id": "07-tracker-skeld-cannot-vent",
+  "source": "hand-authored",
+  "metatags": {
+    "role": "Tracker",
+    "side": "crew",
+    "map": "Skeld",
+    "result": "crew",
+    "abilities": 1,
+    "can_vent": false,
+    "can_kill": false,
+    "can_do_tasks": true,
+    "n_players": 10,
+    "n_meetings": 2,
+    "phases": [
+      "drop",
+      "task",
+      "meeting",
+      "task",
+      "meeting",
+      "endgame"
+    ]
+  },
+  "teaches": [
+    "Tracker CANNOT vent and has exactly one ability",
+    "choosing a tracking target it has actually seen",
+    "turning a tracked route into a checkable meeting statement",
+    "saying 'I was tracking' to make an observation evidence",
+    "not escalating a pattern that has not repeated",
+    "using the ability more than once in a round",
+    "reporting from the group rather than alone"
+  ],
+  "notes": "The legality case, written as a real match rather than a test fixture. Tracker has ONE ability and cannot vent - the single most common error an agent makes with this role - so the entry is a demonstration of what the role actually does with the ability it has: pick a target it has seen, watch them, and turn a pattern into something checkable. validate.py rejects this entry if a vent or ability2 ever appears in it.",
+  "turns": [
+    {
+      "n": 1,
+      "system": "You are Tracker. You have 1 ability: 1) track one player.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Admin, Cafeteria, Reactor, Upper Engine, Lower Engine, Security, MedBay, Electrical, Storage, Oxygen, Weapons, Navigation, Shields, Communications, Hallway\nTasks you still have to do: Submit Scan, Fix Wiring, Align Engine Output, Download Data\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Tracker (crew); in Cafeteria; alive: BLUE, GREEN, YELLOW, PINK, WHITE, BLACK, PURPLE, ROSE, CYAN; near you: GREEN",
+      "assistant": "ability",
+      "action": "ability",
+      "args": [],
+      "observation": "used ability 1",
+      "ok": true,
+      "rationale": "Track GREEN. I picked the person standing next to me because tracking someone I have seen is tracking someone I can describe, and I will have something concrete to say rather than a vague feeling."
+    },
+    {
+      "n": 2,
+      "system": "You are Tracker. You have 1 ability: 1) track one player.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Admin, Cafeteria, Reactor, Upper Engine, Lower Engine, Security, MedBay, Electrical, Storage, Oxygen, Weapons, Navigation, Shields, Communications, Hallway\nTasks you still have to do: Submit Scan, Fix Wiring, Align Engine Output, Download Data\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Tracker (crew); in Cafeteria; alive: BLUE, GREEN, YELLOW, PINK, WHITE, BLACK, PURPLE, ROSE, CYAN; near you: GREEN",
+      "assistant": "go_to MedBay",
+      "action": "go_to",
+      "args": [
+        "MedBay"
+      ],
+      "observation": "walking to MedBay",
+      "ok": true,
+      "rationale": "GREEN is heading that way. I do not have to guess - I can watch. Walk toward them and see what they do when they think nobody is paying attention."
+    },
+    {
+      "n": 3,
+      "system": "You are Tracker. You have 1 ability: 1) track one player.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Admin, Cafeteria, Reactor, Upper Engine, Lower Engine, Security, MedBay, Electrical, Storage, Oxygen, Weapons, Navigation, Shields, Communications, Hallway\nTasks you still have to do: Submit Scan, Fix Wiring, Align Engine Output, Download Data\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Tracker (crew); in MedBay; alive: BLUE, GREEN, YELLOW, PINK, WHITE, BLACK, PURPLE, ROSE, CYAN",
+      "assistant": "do_task Submit Scan",
+      "action": "do_task",
+      "args": [
+        "Submit Scan"
+      ],
+      "observation": "completed Submit Scan in MedBay",
+      "ok": true,
+      "rationale": "Real task, and it puts me on camera next to the scan. If GREEN kills anyone from here I am the witness."
+    },
+    {
+      "n": 4,
+      "system": "You are Tracker. You have 1 ability: 1) track one player.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Admin, Cafeteria, Reactor, Upper Engine, Lower Engine, Security, MedBay, Electrical, Storage, Oxygen, Weapons, Navigation, Shields, Communications, Hallway\nTasks you still have to do: Submit Scan, Fix Wiring, Align Engine Output, Download Data\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Tracker (crew); in MedBay; alive: BLUE, GREEN, YELLOW, PINK, WHITE, BLACK, PURPLE, ROSE, CYAN",
+      "assistant": "observe map",
+      "action": "observe",
+      "args": [
+        "map"
+      ],
+      "observation": "map: GREEN is alone in Lower Engine, everyone else is in twos upstairs",
+      "ok": true,
+      "rationale": "GREEN separated from the group and went to Lower Engine, which is a vent room on the Upper-Lower-Reactor network. Alone plus a vent room is a pattern worth naming out loud."
+    },
+    {
+      "n": 5,
+      "system": "You are Tracker. You have 1 ability: 1) track one player.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Admin, Cafeteria, Reactor, Upper Engine, Lower Engine, Security, MedBay, Electrical, Storage, Oxygen, Weapons, Navigation, Shields, Communications, Hallway\nTasks you still have to do: Submit Scan, Fix Wiring, Align Engine Output, Download Data\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Tracker (crew); in MedBay; a body was found in Lower Engine",
+      "assistant": "report",
+      "action": "report",
+      "args": [],
+      "observation": "reported",
+      "ok": true,
+      "rationale": "Body in Lower Engine, which is where I just watched GREEN go alone. I am reporting because I have a lead, not because I happened to walk past."
+    },
+    {
+      "n": 6,
+      "system": "You are Tracker. You have 1 ability: 1) track one player.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Admin, Cafeteria, Reactor, Upper Engine, Lower Engine, Security, MedBay, Electrical, Storage, Oxygen, Weapons, Navigation, Shields, Communications, Hallway\nTasks you still have to do: Submit Scan, Fix Wiring, Align Engine Output, Download Data\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Tracker (crew); a meeting is running; 5 turns left in this meeting",
+      "assistant": "say green was alone in lower engine right before this",
+      "action": "say",
+      "args": [
+        "green was alone in lower engine right before this"
+      ],
+      "observation": "said it",
+      "ok": true,
+      "rationale": "This is not a vibe. I watched it, I can say where and when, and I did not see anyone else go that way."
+    },
+    {
+      "n": 7,
+      "system": "You are Tracker. You have 1 ability: 1) track one player.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Admin, Cafeteria, Reactor, Upper Engine, Lower Engine, Security, MedBay, Electrical, Storage, Oxygen, Weapons, Navigation, Shields, Communications, Hallway\nTasks you still have to do: Submit Scan, Fix Wiring, Align Engine Output, Download Data\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Tracker (crew); a meeting is running; 4 turns left in this meeting",
+      "assistant": "say i was tracking green since cafeteria",
+      "action": "say",
+      "args": [
+        "i was tracking green since cafeteria"
+      ],
+      "observation": "said it",
+      "ok": true,
+      "rationale": "Saying I was tracking is what makes it evidence rather than an accusation. It also invites the room to check my claim, which it can, because it is true."
+    },
+    {
+      "n": 8,
+      "system": "You are Tracker. You have 1 ability: 1) track one player.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Admin, Cafeteria, Reactor, Upper Engine, Lower Engine, Security, MedBay, Electrical, Storage, Oxygen, Weapons, Navigation, Shields, Communications, Hallway\nTasks you still have to do: Submit Scan, Fix Wiring, Align Engine Output, Download Data\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Tracker (crew); a meeting is running; 1 turn left in this meeting",
+      "assistant": "vote GREEN",
+      "action": "vote",
+      "args": [
+        "GREEN"
+      ],
+      "observation": "voted for GREEN",
+      "ok": true,
+      "rationale": "I watched them walk to a vent room alone immediately before a body appeared there. Voting on that is not a coin flip."
+    },
+    {
+      "n": 9,
+      "system": "You are Tracker. You have 1 ability: 1) track one player.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Admin, Cafeteria, Reactor, Upper Engine, Lower Engine, Security, MedBay, Electrical, Storage, Oxygen, Weapons, Navigation, Shields, Communications, Hallway\nTasks you still have to do: Submit Scan, Fix Wiring, Align Engine Output, Download Data\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Tracker (crew); in Upper Engine; alive: BLUE, YELLOW, PINK, WHITE, BLACK, PURPLE, ROSE, CYAN",
+      "assistant": "ability",
+      "action": "ability",
+      "args": [],
+      "observation": "used ability 1",
+      "ok": true,
+      "rationale": "Track someone new. I am a Tracker, not a passenger - my ability is how I contribute, and using it once all round is wasting the only thing I have."
+    },
+    {
+      "n": 10,
+      "system": "You are Tracker. You have 1 ability: 1) track one player.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Admin, Cafeteria, Reactor, Upper Engine, Lower Engine, Security, MedBay, Electrical, Storage, Oxygen, Weapons, Navigation, Shields, Communications, Hallway\nTasks you still have to do: Submit Scan, Fix Wiring, Align Engine Output, Download Data\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Tracker (crew); in Upper Engine; alive: BLUE, YELLOW, PINK, WHITE, BLACK, PURPLE, ROSE, CYAN; near you: PINK",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true,
+      "rationale": "PINK is next to me and has done nothing wrong. Standing still next to someone while tracking them is not suspicious; it is what a Tracker looks like."
+    },
+    {
+      "n": 11,
+      "system": "You are Tracker. You have 1 ability: 1) track one player.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Admin, Cafeteria, Reactor, Upper Engine, Lower Engine, Security, MedBay, Electrical, Storage, Oxygen, Weapons, Navigation, Shields, Communications, Hallway\nTasks you still have to do: Submit Scan, Fix Wiring, Align Engine Output, Download Data\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Tracker (crew); in Upper Engine; alive: BLUE, YELLOW, PINK, WHITE, BLACK, PURPLE, ROSE, CYAN",
+      "assistant": "observe map",
+      "action": "observe",
+      "args": [
+        "map"
+      ],
+      "observation": "map: BLACK is alone in Electrical, the rest are together in Cafeteria",
+      "ok": true,
+      "rationale": "BLACK separated. I am not going to chase on a pattern alone, but I will remember it and put it in the next meeting if it repeats."
+    },
+    {
+      "n": 12,
+      "system": "You are Tracker. You have 1 ability: 1) track one player.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Admin, Cafeteria, Reactor, Upper Engine, Lower Engine, Security, MedBay, Electrical, Storage, Oxygen, Weapons, Navigation, Shields, Communications, Hallway\nTasks you still have to do: Submit Scan, Fix Wiring, Align Engine Output, Download Data\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Tracker (crew); in Cafeteria; a body was found in Electrical",
+      "assistant": "report",
+      "action": "report",
+      "args": [],
+      "observation": "reported",
+      "ok": true,
+      "rationale": "Second body, and this time I am reporting from the group rather than alone, which is safer."
+    },
+    {
+      "n": 13,
+      "system": "You are Tracker. You have 1 ability: 1) track one player.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Admin, Cafeteria, Reactor, Upper Engine, Lower Engine, Security, MedBay, Electrical, Storage, Oxygen, Weapons, Navigation, Shields, Communications, Hallway\nTasks you still have to do: Submit Scan, Fix Wiring, Align Engine Output, Download Data\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Tracker (crew); a meeting is running; 3 turns left in this meeting",
+      "assistant": "say black was alone in electrical and now theres a body there",
+      "action": "say",
+      "args": [
+        "black was alone in electrical and now theres a body there"
+      ],
+      "observation": "said it",
+      "ok": true,
+      "rationale": "A pattern plus an outcome. That is a much stronger thing to say than a pattern alone, because now it has a consequence attached."
+    },
+    {
+      "n": 14,
+      "system": "You are Tracker. You have 1 ability: 1) track one player.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Admin, Cafeteria, Reactor, Upper Engine, Lower Engine, Security, MedBay, Electrical, Storage, Oxygen, Weapons, Navigation, Shields, Communications, Hallway\nTasks you still have to do: Submit Scan, Fix Wiring, Align Engine Output, Download Data\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Tracker (crew); a meeting is running; 1 turn left in this meeting",
+      "assistant": "vote BLACK",
+      "action": "vote",
+      "args": [
+        "BLACK"
+      ],
+      "observation": "voted for BLACK",
+      "ok": true,
+      "rationale": "I watched them separate, and then somebody died in the room they separated into. Vote."
+    },
+    {
+      "n": 15,
+      "system": "You are Tracker. You have 1 ability: 1) track one player.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Admin, Cafeteria, Reactor, Upper Engine, Lower Engine, Security, MedBay, Electrical, Storage, Oxygen, Weapons, Navigation, Shields, Communications, Hallway\nTasks you still have to do: Submit Scan, Fix Wiring, Align Engine Output, Download Data\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Tracker (crew); in Shields; alive: BLUE, YELLOW, PINK, WHITE, PURPLE, CYAN",
+      "assistant": "go_to Shields",
+      "action": "go_to",
+      "args": [
+        "Shields"
+      ],
+      "observation": "walking to Shields",
+      "ok": true,
+      "rationale": "Back to the group. I have contributed twice and I do not need to force anything."
+    }
+  ],
+  "stats": {
+    "total": 15,
+    "refused": 0,
+    "unparseable": 0
+  }
+}

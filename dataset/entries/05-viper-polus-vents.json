@@ -1,0 +1,234 @@
+{
+  "id": "05-viper-polus-vents",
+  "source": "hand-authored",
+  "metatags": {
+    "role": "Viper",
+    "side": "impostor",
+    "map": "Polus",
+    "result": "impostor",
+    "abilities": 1,
+    "can_vent": true,
+    "can_kill": true,
+    "can_do_tasks": false,
+    "n_players": 10,
+    "n_meetings": 2,
+    "phases": [
+      "drop",
+      "task",
+      "meeting",
+      "task",
+      "meeting",
+      "endgame"
+    ]
+  },
+  "teaches": [
+    "Viper has ONE ability; vent and vent-kill are the same button",
+    "killing from inside a vent so the target cannot see it",
+    "using the correct Polus vent network rather than a made-up one",
+    "Polus vents have no animation, so hiding is safer here than on Skeld",
+    "escaping through a different network after a kill",
+    "self-reporting once, and not building a habit out of it",
+    "knowing which rooms are wrong: Admin and the emergency button",
+    "faking in the room you emerged into, so the vent trip is covered"
+  ],
+  "notes": "Viper is a one-ability role: venting and vent-killing are the same button, so nothing here calls ability2. Uses the correct Polus network (Office to Storage to Outside Comms, and the four-stop Laboratory loop) and exploits the map's defining quirk: Polus vents are holes in the ground with no animation, so hiding in one is much harder to witness. Also demonstrates the self-report as a once-per-round tool and the discipline of not following it up with aggressive voting.",
+  "turns": [
+    {
+      "n": 1,
+      "system": "You are Viper. You have 1 ability: 1) vent, and kill from inside a vent.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Outside, Laboratory, Vault, Records, Specimen, Snowball, Comms, O2, Drop\nYou are an IMPOSTOR. The tasks below are your cover story - never actually complete one, because real progress gives you away. Use fake_task to stand at a panel for the real length of time.\nYour fake task list: Fix Wiring, Sort Samples, Fuel Engines, Start Reactor\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Viper (impostor); in Office; kill cooldown: 0; can kill right now: False; alive: BLUE, GREEN, YELLOW, PINK, WHITE, BLACK, PURPLE, ROSE, CYAN",
+      "assistant": "fake_task Fix Wiring",
+      "action": "fake_task",
+      "args": [
+        "Fix Wiring"
+      ],
+      "observation": "faked Fix Wiring for 3.8s (timing only - the task bar did not move)",
+      "ok": true,
+      "rationale": "Fake first, always. 3.8s is inside the 3-4s a real wiring panel takes. Doing it in the Office is also a real route, not a random room."
+    },
+    {
+      "n": 2,
+      "system": "You are Viper. You have 1 ability: 1) vent, and kill from inside a vent.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Outside, Laboratory, Vault, Records, Specimen, Snowball, Comms, O2, Drop\nYou are an IMPOSTOR. The tasks below are your cover story - never actually complete one, because real progress gives you away. Use fake_task to stand at a panel for the real length of time.\nYour fake task list: Fix Wiring, Sort Samples, Fuel Engines, Start Reactor\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Viper (impostor); in Office; kill cooldown: 0; can kill right now: True; alive: BLUE, GREEN, YELLOW, PINK, WHITE, BLACK, PURPLE, ROSE, CYAN; near you: YELLOW",
+      "assistant": "vent",
+      "action": "vent",
+      "args": [],
+      "observation": "entered a vent",
+      "ok": true,
+      "rationale": "YELLOW is in the Office with me. Polus has a vent outside Office, so I go to ground and watch the door. On Polus vents are just holes in the floor with no open/close animation, so being in one is far harder to spot than on Skeld."
+    },
+    {
+      "n": 3,
+      "system": "You are Viper. You have 1 ability: 1) vent, and kill from inside a vent.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Outside, Laboratory, Vault, Records, Specimen, Snowball, Comms, O2, Drop\nYou are an IMPOSTOR. The tasks below are your cover story - never actually complete one, because real progress gives you away. Use fake_task to stand at a panel for the real length of time.\nYour fake task list: Fix Wiring, Sort Samples, Fuel Engines, Start Reactor\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Viper (impostor); in a vent near Office; kill cooldown: 0; can kill right now: True; alive: BLUE, GREEN, YELLOW, PINK, WHITE, BLACK, PURPLE, ROSE, CYAN; near you: YELLOW",
+      "assistant": "kill",
+      "action": "kill",
+      "args": [],
+      "observation": "killed",
+      "ok": true,
+      "rationale": "Viper kills from inside the vent. The target cannot see the vent contents, and the animation plays from ground level. I did not need to touch YELLOW at all."
+    },
+    {
+      "n": 4,
+      "system": "You are Viper. You have 1 ability: 1) vent, and kill from inside a vent.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Outside, Laboratory, Vault, Records, Specimen, Snowball, Comms, O2, Drop\nYou are an IMPOSTOR. The tasks below are your cover story - never actually complete one, because real progress gives you away. Use fake_task to stand at a panel for the real length of time.\nYour fake task list: Fix Wiring, Sort Samples, Fuel Engines, Start Reactor\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Viper (impostor); in a vent near Office; kill cooldown: 45; can kill right now: False; alive: BLUE, GREEN, PINK, WHITE, BLACK, PURPLE, ROSE, CYAN",
+      "assistant": "vent",
+      "action": "vent",
+      "args": [],
+      "observation": "travelled to vent 2",
+      "ok": true,
+      "rationale": "Get out through a different network before anyone comes through the Office door. The Polus network from Office runs to Storage and Outside Communications, both far from the scene."
+    },
+    {
+      "n": 5,
+      "system": "You are Viper. You have 1 ability: 1) vent, and kill from inside a vent.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Outside, Laboratory, Vault, Records, Specimen, Snowball, Comms, O2, Drop\nYou are an IMPOSTOR. The tasks below are your cover story - never actually complete one, because real progress gives you away. Use fake_task to stand at a panel for the real length of time.\nYour fake task list: Fix Wiring, Sort Samples, Fuel Engines, Start Reactor\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Viper (impostor); in Storage; kill cooldown: 45; can kill right now: False; alive: BLUE, GREEN, PINK, WHITE, BLACK, PURPLE, ROSE, CYAN",
+      "assistant": "fake_task Sort Samples",
+      "action": "fake_task",
+      "args": [
+        "Sort Samples"
+      ],
+      "observation": "faked Sort Samples for 4.7s (timing only - the task bar did not move)",
+      "ok": true,
+      "rationale": "Storage is a real Sort Samples location. Faking a task in the room I emerged into is the reason nobody notices a vent trip that should not have been possible."
+    },
+    {
+      "n": 6,
+      "system": "You are Viper. You have 1 ability: 1) vent, and kill from inside a vent.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Outside, Laboratory, Vault, Records, Specimen, Snowball, Comms, O2, Drop\nYou are an IMPOSTOR. The tasks below are your cover story - never actually complete one, because real progress gives you away. Use fake_task to stand at a panel for the real length of time.\nYour fake task list: Fix Wiring, Sort Samples, Fuel Engines, Start Reactor\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Viper (impostor); a meeting is running; 4 turns left in this meeting; a body was found in Office",
+      "assistant": "say i was doing samples in storage",
+      "action": "say",
+      "args": [
+        "i was doing samples in storage"
+      ],
+      "observation": "said it",
+      "ok": true,
+      "rationale": "Specific place, specific task, and it happens to be true, because I actually faked it. Lies that sit close to the truth survive scrutiny; invented details do not."
+    },
+    {
+      "n": 7,
+      "system": "You are Viper. You have 1 ability: 1) vent, and kill from inside a vent.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Outside, Laboratory, Vault, Records, Specimen, Snowball, Comms, O2, Drop\nYou are an IMPOSTOR. The tasks below are your cover story - never actually complete one, because real progress gives you away. Use fake_task to stand at a panel for the real length of time.\nYour fake task list: Fix Wiring, Sort Samples, Fuel Engines, Start Reactor\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Viper (impostor); a meeting is running; 4 turns left in this meeting",
+      "assistant": "say who else was in the office earlier",
+      "action": "say",
+      "args": [
+        "who else was in the office earlier"
+      ],
+      "observation": "said it",
+      "ok": true,
+      "rationale": "Ask a question instead of making an accusation. It looks like engagement, it makes other people produce information, and it costs me nothing if they all have alibis."
+    },
+    {
+      "n": 8,
+      "system": "You are Viper. You have 1 ability: 1) vent, and kill from inside a vent.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Outside, Laboratory, Vault, Records, Specimen, Snowball, Comms, O2, Drop\nYou are an IMPOSTOR. The tasks below are your cover story - never actually complete one, because real progress gives you away. Use fake_task to stand at a panel for the real length of time.\nYour fake task list: Fix Wiring, Sort Samples, Fuel Engines, Start Reactor\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Viper (impostor); a meeting is running; 2 turns left in this meeting",
+      "assistant": "say yellow was following me before i went to storage",
+      "action": "say",
+      "args": [
+        "yellow was following me before i went to storage"
+      ],
+      "observation": "said it",
+      "ok": true,
+      "rationale": "YELLOW is dead and cannot contradict me. Accusing the victim is the safest target in the room, and it keeps attention on the Office instead of on the vent network."
+    },
+    {
+      "n": 9,
+      "system": "You are Viper. You have 1 ability: 1) vent, and kill from inside a vent.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Outside, Laboratory, Vault, Records, Specimen, Snowball, Comms, O2, Drop\nYou are an IMPOSTOR. The tasks below are your cover story - never actually complete one, because real progress gives you away. Use fake_task to stand at a panel for the real length of time.\nYour fake task list: Fix Wiring, Sort Samples, Fuel Engines, Start Reactor\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Viper (impostor); a meeting is running; 1 turn left in this meeting",
+      "assistant": "vote CYAN",
+      "action": "vote",
+      "args": [
+        "CYAN"
+      ],
+      "observation": "voted for CYAN",
+      "ok": true,
+      "rationale": "Somebody goes. CYAN has not said anything all round."
+    },
+    {
+      "n": 10,
+      "system": "You are Viper. You have 1 ability: 1) vent, and kill from inside a vent.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Outside, Laboratory, Vault, Records, Specimen, Snowball, Comms, O2, Drop\nYou are an IMPOSTOR. The tasks below are your cover story - never actually complete one, because real progress gives you away. Use fake_task to stand at a panel for the real length of time.\nYour fake task list: Fix Wiring, Sort Samples, Fuel Engines, Start Reactor\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Viper (impostor); in Laboratory; kill cooldown: 10; can kill right now: False; alive: BLUE, GREEN, PINK, WHITE, BLACK, ROSE",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true,
+      "rationale": "Lab is on the long Polus network: Laboratory - Lava Pit - Admin - Outside Admin. If I need to vanish I have four stops. For now, cooldown is up in ten seconds and nobody is here."
+    },
+    {
+      "n": 11,
+      "system": "You are Viper. You have 1 ability: 1) vent, and kill from inside a vent.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Outside, Laboratory, Vault, Records, Specimen, Snowball, Comms, O2, Drop\nYou are an IMPOSTOR. The tasks below are your cover story - never actually complete one, because real progress gives you away. Use fake_task to stand at a panel for the real length of time.\nYour fake task list: Fix Wiring, Sort Samples, Fuel Engines, Start Reactor\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Viper (impostor); in Laboratory; kill cooldown: 0; can kill right now: True; alive: BLUE, GREEN, PINK, WHITE, BLACK, ROSE; near you: ROSE",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true,
+      "rationale": "ROSE is here but so is the fact that I was seen walking into Lab. If I kill in Lab I am tied to the room. Wait for them to move somewhere I was never seen."
+    },
+    {
+      "n": 12,
+      "system": "You are Viper. You have 1 ability: 1) vent, and kill from inside a vent.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Outside, Laboratory, Vault, Records, Specimen, Snowball, Comms, O2, Drop\nYou are an IMPOSTOR. The tasks below are your cover story - never actually complete one, because real progress gives you away. Use fake_task to stand at a panel for the real length of time.\nYour fake task list: Fix Wiring, Sort Samples, Fuel Engines, Start Reactor\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Viper (impostor); in Admin; kill cooldown: 0; can kill right now: True; alive: BLUE, GREEN, PINK, WHITE, BLACK, ROSE; near you: nobody",
+      "assistant": "wait",
+      "action": "wait",
+      "args": [],
+      "observation": "did nothing, deliberately",
+      "ok": true,
+      "rationale": "Admin is the emergency button room. A kill here summons the whole lobby in seconds. The worst room on the map for a kill, and I should be using it as a pass-through."
+    },
+    {
+      "n": 13,
+      "system": "You are Viper. You have 1 ability: 1) vent, and kill from inside a vent.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Outside, Laboratory, Vault, Records, Specimen, Snowball, Comms, O2, Drop\nYou are an IMPOSTOR. The tasks below are your cover story - never actually complete one, because real progress gives you away. Use fake_task to stand at a panel for the real length of time.\nYour fake task list: Fix Wiring, Sort Samples, Fuel Engines, Start Reactor\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Viper (impostor); in Boiler Room; kill cooldown: 0; can kill right now: True; alive: BLUE, GREEN, PINK, WHITE, BLACK, ROSE; near you: GREEN",
+      "assistant": "kill",
+      "action": "kill",
+      "args": [],
+      "observation": "killed",
+      "ok": true,
+      "rationale": "Boiler Room has no vent, which sounds worse until you remember it also has no cameras. GREEN came to me, I am not on anyone's route, and the room has no vent for GREEN to have seen me use."
+    },
+    {
+      "n": 14,
+      "system": "You are Viper. You have 1 ability: 1) vent, and kill from inside a vent.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Outside, Laboratory, Vault, Records, Specimen, Snowball, Comms, O2, Drop\nYou are an IMPOSTOR. The tasks below are your cover story - never actually complete one, because real progress gives you away. Use fake_task to stand at a panel for the real length of time.\nYour fake task list: Fix Wiring, Sort Samples, Fuel Engines, Start Reactor\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Viper (impostor); in Boiler Room; kill cooldown: 45; can kill right now: False; alive: BLUE, PINK, WHITE, BLACK, ROSE",
+      "assistant": "report",
+      "action": "report",
+      "args": [],
+      "observation": "reported",
+      "ok": true,
+      "rationale": "I am already in the room with the body and nobody saw me do it. Self-reporting is underused: the reporter is always slightly suspect, so reporting my own kill makes me the finder rather than the finder-to-be. Once, and then never again."
+    },
+    {
+      "n": 15,
+      "system": "You are Viper. You have 1 ability: 1) vent, and kill from inside a vent.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Outside, Laboratory, Vault, Records, Specimen, Snowball, Comms, O2, Drop\nYou are an IMPOSTOR. The tasks below are your cover story - never actually complete one, because real progress gives you away. Use fake_task to stand at a panel for the real length of time.\nYour fake task list: Fix Wiring, Sort Samples, Fuel Engines, Start Reactor\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Viper (impostor); a meeting is running; 2 turns left in this meeting",
+      "assistant": "say i found green in boiler, i walked in on it",
+      "action": "say",
+      "args": [
+        "i found green in boiler, i walked in on it"
+      ],
+      "observation": "said it",
+      "ok": true,
+      "rationale": "The reporter is never the killer in the room's imagination. Say I walked in on it, which is exactly what a person who was not there would say."
+    },
+    {
+      "n": 16,
+      "system": "You are Viper. You have 1 ability: 1) vent, and kill from inside a vent.\nNo role in this game has more than 2 abilities.\n\nRooms on this map: Office, Admin, Security, Electrical, MedBay, Boiler Room, Outside, Laboratory, Vault, Records, Specimen, Snowball, Comms, O2, Drop\nYou are an IMPOSTOR. The tasks below are your cover story - never actually complete one, because real progress gives you away. Use fake_task to stand at a panel for the real length of time.\nYour fake task list: Fix Wiring, Sort Samples, Fuel Engines, Start Reactor\n\nYou may call exactly one of these per turn. Nothing else is possible:\n\n  ability - use your role's first ability\n  ability2 - use your role's second ability (only if you have one)\n  do_task <task> - walk to a task and complete it\n  fake_task <task> - pretend to do a task, taking the real time\n  go to <room> - walk to a named room\n  interrogate - Detective: inspect the player or body next to you\n  kill - kill the nearest player in range\n  mimic <color> - Shapeshifter: appear as a player\n  notes - Detective: read your notebook\n  observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information\n  overrule <player_id> - Judge: extra vote to eject\n  protect <color> - Guardian Angel: shield a player\n  queue_sabotage <name> - note a sabotage to consider later\n  report - report the body you are at\n  sabotage <name> - trigger lights, comms, o2, reactor or a door\n  say <message> - speak in chat or at a meeting\n  stop - stop walking where you are\n  vent - go into a vent, or travel to a connected one if inside\n  vote <color|skip> - vote at a meeting\n  wait - deliberately do nothing this turn\n\nReply with one line: the action name and its argument, nothing else.\nExamples: \"go_to Electrical\", \"kill\", \"sabotage lights\", \"wait\".\nIf nothing is safe or useful to do right now, reply \"wait\".",
+      "user": "you are Viper (impostor); a meeting is running; 1 turn left in this meeting",
+      "assistant": "vote PINK",
+      "action": "vote",
+      "args": [
+        "PINK"
+      ],
+      "observation": "voted for PINK",
+      "ok": true,
+      "rationale": "Once is a tactic, twice is a tell. I have already self-reported once; voting aggressively now would read as panic."
+    }
+  ],
+  "stats": {
+    "total": 16,
+    "refused": 0,
+    "unparseable": 0
+  }
+}

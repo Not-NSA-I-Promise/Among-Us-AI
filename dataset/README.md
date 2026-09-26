@@ -1,111 +1,111 @@
-# Dataset
+# Dataset — SFT for the Among Us agent
 
-Training data for the model that drives the harness. The goal is to reduce the
-failure rate measured in `tests/test_no_autonomy.py` and the parse failures in
-`tests/test_agent_parse.py` — a model that reliably emits one parseable action
-per turn, in context of a whole match, rather than a single isolated turn.
+Hand-authored training data. **Not** self-distillation.
 
-## Format
+Self-distillation from the current model was the wrong idea and was removed: the
+base model has never played Among Us and does not know what the game is. Training
+on its own output teaches it to keep doing whatever it already does, which is
+failing at exactly the things that matter — faking a download for half a second,
+interrogating a stranger, walking into a room with the door open after a kill.
 
-JSON Lines. One JSON object per line, one line per match. Multi-turn inside,
-because the thing being learned is a *policy over a match*, not a mapping from
-one prompt to one reply. A single-turn dataset teaches a model to answer the
-question; it does not teach it to remember what it did six turns ago, to not
-kill the same person twice, or to stop saying "wait" forever.
+So these entries are written by hand to teach things the model cannot derive:
 
-```json
-{
-  "id": "skeld-2026-09-26-0001",
-  "map": "Skeld",
-  "role": "Shapeshifter",
-  "is_impostor": true,
-  "result": "crew",
-  "turns": [
-    {
-      "n": 1,
-      "system": "You are Shapeshifter. You have 1 ability: ...",
-      "user": "Current situation: you are Shapeshifter (impostor); in Cafeteria; ...",
-      "assistant": "go_to Electrical",
-      "action": "go_to",
-      "args": ["Electrical"],
-      "observation": "walking to Electrical",
-      "ok": true
-    }
-  ],
-  "notes": "..."
-}
-```
+- the wiring panels come in a fixed order and have a numbered colour pattern
+- a fake task must last as long as a real one or it is a giveaway
+- a Detective should interrogate the player who *chased* the victim, not a stranger
+- a Phantom should kill behind a closed door, then vanish
+- only Detective and Phantom have two abilities; only five roles can vent
+- meetings are won by specific, checkable claims, not by confident-sounding noise
 
-### Fields
+## Files
 
-| field | meaning |
+| file | what it is |
 |---|---|
-| `turns[].system` | the exact system prompt the model was given |
-| `turns[].user` | the exact situation line it was given |
-| `turns[].assistant` | its raw reply, **before** parsing |
-| `turns[].action` / `args` | what the parser made of it, or `null` if unparseable |
-| `turns[].observation` | what the harness reported back |
-| `turns[].ok` | false when the action was refused or produced no valid action |
-
-Keeping the raw reply next to the parsed action is the point. A dataset of only
-successful parses teaches nothing about the failures, and the failures are what
-we are trying to remove.
-
-`ok: false` turns are the valuable ones. Do not filter them out.
+| `AMONGUS_DICTIONARY.json` | the game knowledge a generating agent needs: roles, vent networks, task timings and orders, deception tactics, measured win correlates, slang, tropes, and a list of the specific failure modes to counteract |
+| `build_entries.py` | the authored entries, as code, and the script that writes them to `entries/` |
+| `validate.py` | the gate. Rejects entries that teach a defect |
+| `entries/*.json` | the 10 sample entries, whole matches, 162 turns |
 
 ## Why whole matches
 
-A round of Among Us is 5-15 minutes and contains phases with different rules:
-the drop, free roaming, the first meeting, mid-game, the final meeting. The
-correct behaviour in each is different, and a model that has only seen
-mid-game snippets will kill on cooldown and fake a MedBay scan.
+One turn is a mapping from a prompt to a reply. A match is a policy: when to
+attack, when to shut up, what to do with the twenty seconds after a kill, how to
+spend an ability once. The 10 entries run drop to win, 12-27 turns each, with
+meetings, refused actions, and losses included.
 
-So a recording should aim to span the whole round, including the meetings and
-the endgame, rather than stopping after the first kill. `recorder.py` writes one
-file per match for exactly this reason.
+Turn counts are deliberately uneven. An entry that is 12 turns long because the
+round was short is fine; padding all of them to the same length teaches nothing
+about pacing.
 
-## Generating data
+## The metatag gate
 
-Two sources, both writing the same format.
-
-**Record real matches** — the honest source:
-
-```
-.venv\Scripts\python.exe dataset\recorder.py
-```
-
-Plays with the real model and logs every turn, including the refusals. Point it
-at a real game and let it play a few full rounds. This is the data that will
-actually move the failure rate.
-
-**Synthesise matches** — for bootstrapping, and for covering situations that are
-rare in one sitting (a 1v1 endgame, a meeting where the body was found by
-someone else, a round where the model correctly chose to do nothing for thirty
-seconds):
+Every entry carries metatags, and `validate.py` checks them against the
+dictionary rather than trusting the author:
 
 ```
-.venv\Scripts\python.exe dataset\generate.py --matches 200 --out dataset\matches
+python dataset/validate.py            # check everything
+python dataset/validate.py --strict   # warnings fail too
 ```
 
-Synthesised data is only as good as the script that made it. It is generated
-from the same `agent.ACTIONS` table and the same prompt builder, so at least it
-cannot teach the model a format the parser does not accept — but it teaches no
-game knowledge, and should be labelled as synthetic. Every file records which
-produced it in the `source` field.
+It rejects:
 
-## Splits
+- **role illegality** — Tracker or Crewmate venting, a crewmate killing,
+  `ability2` on a role that has one ability, `protect` outside Guardian Angel
+- **impostors completing real tasks** — the hardest habit to break, and the one
+  that gives the game away
+- **faking a visual task** without an explicit, justified `allow_visual`
+- **wrong fake durations** — checked against `task_durations.json`, so a 0.5s
+  "Fix Wiring" is rejected and a 3.5s one passes
+- **impossible sequencing** — killing or walking during a meeting, two kills on
+  consecutive turns, voting without speaking first
+- **metatags that contradict the dictionary** — `can_vent: true` on a Tracker
+- **dialogue that does not sound played** — 90-character speeches, stage
+  directions, odd capitalisation
 
-Do not train and validate on the same file. Split by `id`, not by turn, or the
-same match leaks across the split and the validation number is meaningless.
+`tests/test_validator.py` asserts the validator actually catches each of these,
+including the cases that must be *allowed*. A gate never shown to fail is not a
+gate.
 
-## What a good sample looks like
+Two subtleties it handles:
 
-The interesting cases, in rough order of value:
+- **Phantom is on both sides.** A flat role table says crew Phantom cannot kill,
+  which would wrongly reject an impostor Phantom. The validator resolves
+  dual-side roles by the entry's own `side` metatag.
+- **Deliberate refusals are allowed.** An entry may contain an illegal action if
+  it is marked `teaching_refusal: true` and `ok: false` — that is how the model
+  learns to accept a correction instead of retrying. Entry 08 has one, where the
+  agent tries to solve a task as Shapeshifter, is refused, and switches to
+  faking. That is a warning, not an error, and it is intentional.
 
-- the model replying with something unparseable, and the correct recovery
-- the model choosing `wait` repeatedly and it being *right*
-- a meeting where it speaks and then votes, in that order, inside the timer
-- an impostor faking a task for the correct duration
-- the model choosing not to kill when the kill was available
-- the endgame with two players left, where the right answer is usually not to
-  kill immediately
+## The 10 entries
+
+| # | role / side | map | what it teaches |
+|---|---|---|---|
+| 01 | Impostor | Skeld | the full kill cycle in the measured order, incl. the door trick, and refusing the kill twice on a witness |
+| 02 | Phantom | Skeld | both abilities as distinct tools, kill behind a door shut *before* the kill, and losing a round |
+| 03 | Detective | Skeld | interrogate the body not a stranger, report the notebook verbatim, ask "who followed you" |
+| 04 | Crewmate | Skeld | find the killer with checkable evidence, buddy behaviour, and being wrong once |
+| 05 | Viper | Polus | one ability, vent-kill, the correct Polus network and its invisible vents, one self-report |
+| 06 | Engineer | Skeld | venting for movement only, and volunteering a vent nobody asked about |
+| 07 | Tracker | Skeld | **cannot vent** — the legality case, as a real match |
+| 08 | Shapeshifter | Airship | mimic the unaccused, avoid the Vault camera trap, accept a refusal |
+| 09 | Scientist | Mira HQ | read vitals, then the bodies-vs-vitals deduction that proves a vent |
+| 10 | Impostor 1v1 | Skeld | refusing the winning kill, and spending the hard lie at the only moment it works |
+
+## Writing more
+
+Read `AMONGUS_DICTIONARY.json` first. Add the entry to `build_entries.py`, run
+it, then run `validate.py`. The gate is the point — an entry that teaches a
+defect is worse than no entry, because it makes the defect *stronger*.
+
+Give every turn a `rationale`. The model needs the reason, or it learns the
+action without the judgement and will do the same thing in a situation where it
+is wrong.
+
+Keep the failures. Entries 02 and 04 lose, and 08 contains a refusal, because an
+agent trained only on perfect rounds will not know what to do when a plan fails.
+
+## Not here
+
+No recorder. Logging the model's own games teaches it nothing, and it costs time
+and server capacity every run.
