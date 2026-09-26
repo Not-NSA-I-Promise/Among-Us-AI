@@ -135,4 +135,33 @@ These are real and unresolved. Recorded so they are not rediscovered later.
 - `roleplay.decide_sabotage()` being consulted only sometimes while
   `maybe_do_sabotage` fires whenever it feels like it
 
-These currently still exist and are the remaining work.
+These are all done. `main.py`'s play loop now does exactly one thing:
+
+```python
+bot = agent_loop.Agent()
+while True:
+    if isInGame() and not keyboard.is_pressed('`'):
+        print(f"  model: {bot.step()}")
+    else:
+        return 0
+```
+
+## Decisions taken
+
+**Task routing.** The model picks which task and when, with
+`do_task <task>`; the harness walks there and works the minigame. The task list
+is in the prompt, so it can only ask for tasks that exist, and a refused request
+names the outstanding ones.
+
+**Reactivity.** The harness never auto-kills, not even on a proximity trigger.
+Real players have the same reaction latency, so the model decides with the
+information it has and lives with the delay. This was the explicit call.
+
+**Kills.** `agent.kill` is not gated on `should_I_kill()`. That gate was a
+harness-side decision the model could neither see nor override. The cooldown and
+`cankill` are published to the model instead, and the game itself refuses an
+unavailable kill.
+
+**Walking no longer kills.** `utility.move()` contained an autonomous kill block,
+and `roleplay.walk_to()` calls `move()` - so the model's `go_to` would have
+killed anyone nearby as a side effect of moving. Removed.

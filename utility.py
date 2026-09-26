@@ -985,20 +985,13 @@ def move(dest_list : list, G = None) -> int:
                     if player in nearby_players:
                         nearby_players.remove(player)
 
-            # Kill logic
-            if isImpostor():
-                # can_kill() probed a hardcoded pixel (width/1.08, height/1.49) which
-                # resolved to the middle of the room, not the USE button, so it always
-                # returned False. The plugin already publishes the kill cooldown in
-                # imposterData.txt, which is the real signal.
-                if is_KillTimer_0() and should_I_kill():
-                    # A is USE on the Xbox layout; X is the square button and did nothing.
-                    gamepad.press_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
-                    gamepad.update()
-                    time.sleep(1/30)
-                    gamepad.release_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
-                    gamepad.update()
-                    time.sleep(1/60)
+            # Kill logic used to live here:
+            #     if isImpostor() and is_KillTimer_0() and should_I_kill(): press USE
+            # That made WALKING kill people. roleplay.walk_to() calls move(), so the
+            # model's `go_to` action would murder anyone nearby as a side effect of
+            # moving - a harness decision the model never made and could not see.
+            # Killing is now only ever done by agent.kill(), when the model asks.
+            # The kill cooldown is still published to the model so it can decide.
 
             # Report check. Auto-reporting is OFF by default: it fired the instant the
             # bot walked past a body, which gave away an impostor kill instantly.

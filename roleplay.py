@@ -286,6 +286,58 @@ def _load_sabotage_module():
     return m
 
 
+def outstanding_tasks():
+    """The task names still to do, as the game reports them."""
+    try:
+        data = utility.getGameData()
+    except Exception:
+        return []
+    return [t for t in data.get("tasks", []) if t]
+
+
+def find_task(wanted):
+    """Find an outstanding task by name and where it is. (name, location) or None.
+
+    Matched loosely, because the model will say "fix wires" for "Fix Wiring" and
+    "calibrate distributor" for "Calibrate Distributor". Returns the first match
+    so the model still chooses when several are plausible.
+    """
+    tasks = outstanding_tasks()
+    if not tasks or not wanted:
+        return None
+    w = str(wanted).strip().lower()
+
+    data = None
+    try:
+        data = utility.getGameData()
+    except Exception:
+        pass
+    locations = {}
+    if data:
+        pairs = data.get("task_locations") or []
+        names = data.get("tasks") or []
+        for i, name in enumerate(names):
+            loc = ""
+            if i < len(pairs):
+                loc = pairs[i].split("|")[0]
+            locations[name] = loc
+
+    for name in tasks:
+        if name.lower() == w:
+            return name, locations.get(name, "")
+    for name in tasks:
+        n = name.lower()
+        if w in n or n in w:
+            return name, locations.get(name, "")
+    # last resort: match on the words, ignoring order ("wiring fix")
+    wwords = set(w.split())
+    for name in tasks:
+        nwords = set(name.lower().split())
+        if wwords and len(wwords & nwords) >= max(1, len(wwords) - 1):
+            return name, locations.get(name, "")
+    return None
+
+
 def admin_position():
     """A world position for the Admin table, taken from the task database.
 

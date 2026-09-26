@@ -20,6 +20,7 @@ class Agent:
         self.last_action = None
         self.last_outcome = None
         self.model = None
+        self._meeting_turns = 0
 
     # ------------------------------------------------------------------ prompt
     def system_prompt(self):
@@ -43,11 +44,39 @@ class Agent:
         if self.history:
             recent = "; ".join(h for h in self.history[-3:])
             parts.append(f"recent decisions: {recent}")
+        if self._meeting_turns:
+            parts.append(f"{self._meeting_turns} turns left in this meeting: "
+                         "you still need to speak and vote")
         return " | ".join(parts)
+
+    # A meeting has a time limit. The model gets told how many turns are left so
+    # it can budget speaking against voting, but it is still the model that
+    # decides to speak and to vote - nothing here chooses for it.
+    def _meeting_budget(self):
+        try:
+            import utility
+            if not utility.in_meeting():
+                self._meeting_turns = 0
+                return
+            # the plugin publishes the meeting clock; fall back to a nominal
+            # budget if the file is not there yet
+            remaining = 20
+            try:
+                import botlink
+                ui = botlink.read_ui_coords()
+                if ui.get("meetingtime"):
+                    remaining = int(float(ui["meetingtime"]))
+            except Exception:
+                pass
+            # roughly one turn per 2 seconds
+            self._meeting_turns = max(0, int(remaining // 2) - 1)
+        except Exception:
+            self._meeting_turns = 0
 
     # -------------------------------------------------------------------- think
     def decide(self):
         """Ask the model for one action. Returns (name, args) or (None, raw)."""
+        self._meeting_budget()
         messages = [
             {"role": "system", "content": self.system_prompt()},
             {"role": "user", "content":

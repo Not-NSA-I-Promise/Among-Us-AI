@@ -267,21 +267,18 @@ def main(G) -> int:
 
     dead = isDead()
 
-    ret = 0
+    # The model plays. This loop no longer decides anything: it asks the model
+    # for one action and executes exactly that. The previous version called
+    # role_turn(), move_and_complete_tasks() and idle() directly, which meant
+    # movement, tasks, kills, vents and every role ability were chosen by `if`
+    # statements in this file while the model only ever produced chat.
+    import agent_loop
+    bot = agent_loop.Agent()
+
     while True:
         if isInGame() and not keyboard.is_pressed('`'):
-            # Special roles get a real action (vent, tracker, protect, mimic, ...).
-            # Impostors are included: Impostor/Phantom/Shapeshifter/Viper all vent.
-            roleplay.role_turn(G)
-            # Begin gameplay loop
-            if not isImpostor():
-                ret = move_and_complete_tasks(G, move_list, tasks)
-            if dead != isDead() or ret == -1:
-                return -1
-            # Idly move around
-            idle(G)
-            if dead != isDead():
-                return -1
+            line = bot.step()
+            print(f"  model: {line}")
         else:
             return 0
 

@@ -78,15 +78,26 @@ def stop_moving():
 
 # ----------------------------------------------------------------- combat
 def kill():
-    """Kill the nearest player in range."""
-    if not utility.should_I_kill():
-        raise ActionError("no kill is available: cooldown, nobody in range, or not an impostor")
+    """Kill the nearest player in range.
+
+    Deliberately NOT gated on utility.should_I_kill(). That was a harness-side
+    decision the model could neither see nor override, which is exactly the kind
+    of autonomous choice this architecture forbids. The model is told the
+    cooldown and decides for itself; if the kill is not actually available the
+    game refuses it and the refusal is reported back.
+    """
+    if utility.isDead():
+        raise ActionError("you are dead")
+    if not utility.isImpostor():
+        raise ActionError("you are not an impostor")
     try:
         G = utility.load_G(utility.getGameData()["map_id"])
     except Exception as exc:
         raise ActionError(f"no map graph: {exc}")
     ok = roleplay_kill_nearest(G)
-    return "killed" if ok else "kill did not land"
+    if not ok:
+        raise ActionError("the kill did not land - cooldown, or nobody in range")
+    return "killed"
 
 
 def report_body():
@@ -185,12 +196,50 @@ def overrule(player_id):
 
 
 # ------------------------------------------------------------------ tasks
-def do_task():
-    """Do the task you are currently standing at."""
+def do_task(name=None):
+    """Do a named task: walk to where it is, then solve it.
+
+    The model chooses WHICH task and WHEN. The harness only does the mechanical
+    part - walking there and working the minigame - because a model cannot usefully
+    direct pixel-level dragging and asking it to would burn context for nothing.
+    """
+    import roleplay
+    if not name:
+        # no name given: just solve whatever is underfoot
+        try:
+            return utility.do_tasks() or "did the task here"
+        except Exception as exc:
+            raise ActionError(str(exc))
+
+    wanted = str(name).strip()
     try:
-        return utility.do_tasks() or "did the task here"
+        G = utility.load_G(utility.getGameData()["map_id"])
     except Exception as exc:
-        raise ActionError(str(exc))
+        raise ActionError(f"no map graph: {exc}")
+
+    task = roleplay.find_task(wanted)
+    if task is None:
+        available = roleplay.outstanding_tasks()
+        raise ActionError(
+            f"no outstanding task called {wanted!r}. "
+            f"Outstanding: {', '.join(available) if available else 'none'}")
+    task_name, location = task
+    if location:
+        pos = roleplay.room_position(G, location)
+        if pos is None:
+            raise ActionError(f"task {task_name!r} is in {location!r}, "
+                              f"which is not a room I recognise")
+        if not roleplay.walk_to(G, pos[0], pos[1]):
+            raise ActionError(f"could not walk to {location} for {task_name}")
+        # let the walk settle before the minigame is opened
+        time.sleep(0.4)
+    try:
+        ok = utility.do_tasks()
+    except Exception as exc:
+        raise ActionError(f"solving {task_name} failed: {exc}")
+    if not ok:
+        raise ActionError(f"the solver could not complete {task_name} at {location}")
+    return f"completed {task_name} in {location}"
 
 
 # ---------------------------------------------------------------- social
@@ -279,10 +328,26 @@ def _brief_state():
     ]
     if near:
         bits.append(f"near you: {', '.join(near)}")
+    # The cooldown is the model's business, not the harness's, so give it the
+    # number rather than deciding on its behalf that the kill is unavailable.
+    if ab.get("isimpostor") == "1":
+        try:
+            cd = utility.get_killCD()
+            bits.append(f"kill cooldown: {cd}")
+        except Exception:
+            pass
+        bits.append(f"can kill right now: {ab.get('cankill') == '1'}")
     if data.get("inMeeting") == "1":
         bits.append("a meeting is running")
     if ab.get("invent") == "1":
         bits.append("you are inside a vent")
+    if ab.get("isdead") == "1":
+        bits.append("you are dead")
+    try:
+        if utility.is_urgent_task():
+            bits.append(f"an urgent task is up: {utility.is_urgent_task()}")
+    except Exception:
+        pass
     return "; ".join(bits)
 
 
@@ -306,7 +371,7 @@ ACTIONS = {
     "interrogate": ((), interrogate, "interrogate - Detective: inspect the player or body next to you"),
     "notes": ((), read_notes, "notes - Detective: read your notebook"),
     "overrule": (("player_id",), overrule, "overrule <player_id> - Judge: extra vote to eject"),
-    "do_task": ((), do_task, "do_task - do the task you are standing at"),
+    "do_task": (("task",), do_task, "do_task <task> - walk to a task and complete it"),
     "say": (("message",), say, "say <message> - speak in chat or at a meeting"),
     "vote": (("color",), vote, "vote <color|skip> - vote at a meeting"),
     "observe": (("what",), observe, "observe <state|map|vitals|tracker|notes|memory|witnesses> - gather information"),
@@ -346,6 +411,11 @@ def tool_reference(role=None):
         rooms = _rp.known_rooms()
         if rooms:
             lines.append("Rooms on this map: " + ", ".join(rooms))
+        # likewise: it cannot do a task it has not been told about
+        tasks = _rp.outstanding_tasks()
+        if tasks:
+            lines.append("Tasks you still have to do: " + ", ".join(tasks))
+        if rooms or tasks:
             lines.append("")
     except Exception:
         pass
@@ -391,7 +461,12 @@ PHRASES = [
     (r"^interrogate(?:\s+.*)?$", "interrogate", None),
     (r"^(?:read|open|check)\s+(?:my\s+)?notes$", "notes", None),
     (r"^overrule\s+(\w+)$", "overrule", 1),
-    (r"^(?:do|complete|finish)\s+(?:a\s+|the\s+|my\s+)?task$", "do_task", None),
+    # "do the wiring task" -> the wiring. Must not swallow the article, hence the
+    # lookahead: without it "do a task" backtracks to capturing "a".
+    (r"^(?:do|complete|finish)\s+(?:(?:a|the|my)\s+)?(?!a\b|the\b|my\b)(.+?)\s+task$", "do_task", 1),
+    (r"^(?:do|complete|finish)\s+(?:a\s+|the\s+|my\s+)?task\s+(?:in\s+|at\s+)?(?:the\s+)?(.+)$", "do_task", 1),
+    (r"^(?:do|complete|finish)\s+(?:a\s+|the\s+|my\s+)?task$", "do_task", "here"),
+    (r"^go\s+(?:do|complete|finish)\s+(?:the\s+)?(.+?)(?:\s+task)?$", "do_task", 1),
     (r"^say\s+(?:to\s+(?:the\s+)?chat\s+)?[\"']?(.+?)[\"']?$", "say", 1),
     (r"^(?:vote\s+for\s+|vote\s+|eject\s+)(\w+)$", "vote", 1),
     (r"^skip(?:\s+(?:the\s+)?vote)?$", "vote", None),
@@ -410,6 +485,9 @@ def _normalise(line):
             if name == "vote":
                 return "vote", "skip"
             return name, None
+        if isinstance(group, str):
+            # a fixed argument, e.g. do_task with no name means "the one here"
+            return name, group
         arg = m.group(group)
         if not arg:
             # an optional capture that did not participate
