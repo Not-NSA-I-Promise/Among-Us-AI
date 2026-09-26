@@ -45,9 +45,11 @@ def check_ollama() -> bool:
     except requests.RequestException:
         return False
 
-if not check_ollama():
-    print(f"Cannot reach Ollama at {OLLAMA_HOST}. Automatic chatting disabled.")
-    raise SystemExit(0)
+# This used to raise SystemExit(0) here, at import time, when Ollama was
+# unreachable. That silently killed the whole bot: the model being down is a
+# degraded mode, not a reason to exit. Reachability is now checked lazily by
+# ask(), so the rest of the game keeps working without the model.
+OLLAMA_REACHABLE = None
 
 with open("sendDataDir.txt") as f:
     line = f.readline().rstrip()
@@ -184,160 +186,172 @@ def vote(color : str = "SKIP"):
         pyautogui.click(pos, duration=0.2)
         pyautogui.click(pos[0] + round(dimensions[2] / 8.07), pos[1], duration=0.2)
 
-data = getGameData()
+# Everything below used to sit at module level, which meant import chatGPT",
 
-color : str = data['color']
-role : str = data['status']
-tasks : str = ' '.join(data['tasks'])
-task_locations : str = ' '.join(data['task_locations'])
-G = load_G("SHIP")
-nearby_players = get_nearby_players(G)
+# vote area and voted. Importing a module must never do that. It is now the
+# explicit meeting_flow(), called by main.py, and the per-turn voting it did
+# is a decision the model makes through agent.py rather than a hardcoded loop.
 
-tasks_prompt : str = "You finished all your tasks" if allTasksDone() else f"Your last completed task was {get_last_task()}"
-dead_str : str = str(get_dead_players()).strip("][").replace("'", '')
-kill_prompt : str = ""
-kill_data = get_kill_list()
-for kill in kill_data:
-    if kill[0] == color:
-        kill_prompt += kill[1] + ", "
-if len(kill_prompt) > 0:
-    kill_prompt = kill_prompt[:-2]
-    kill_prompt = "You killed " + kill_prompt + " last round."
+def meeting_flow():
+    """Run one meeting: gather context, ask the model, act on its answer.
 
-found_prompt = f'You found the body in {get_last_room()}.' if get_caller_color() == color and len(dead_str) != 0 else ''
+    This is the only place in the codebase allowed to drive a meeting, and even
+    here the model chooses the vote - the code only executes what it says.
+    """
+    data = getGameData()
 
-# Specific role (Engineer/Scientist/Tracker/...) from the plugin, plus whoever was
-# standing near the victim when they died.
-role_name = botlink.get_role()
-role_prompt = f'Your specific role is {role_name} ({botlink.get_role_ability(role_name)}).' if role_name != "Unknown" else ''
+    color : str = data['color']
+    role : str = data['status']
+    tasks : str = ' '.join(data['tasks'])
+    task_locations : str = ' '.join(data['task_locations'])
+    G = load_G("SHIP")
+    nearby_players = get_nearby_players(G)
 
-presence = botlink.read_kill_presence()
-if presence:
-    witnesses = ", ".join(f"{c} was {d} tiles away" for c, d in presence.items())
-    presence_prompt = f'When the body was found, {witnesses}.'
-else:
-    presence_prompt = ''
+    tasks_prompt : str = "You finished all your tasks" if allTasksDone() else f"Your last completed task was {get_last_task()}"
+    dead_str : str = str(get_dead_players()).strip("][").replace("'", '')
+    kill_prompt : str = ""
+    kill_data = get_kill_list()
+    for kill in kill_data:
+        if kill[0] == color:
+            kill_prompt += kill[1] + ", "
+    if len(kill_prompt) > 0:
+        kill_prompt = kill_prompt[:-2]
+        kill_prompt = "You killed " + kill_prompt + " last round."
 
-meeting_start_time = time.time()
-time.sleep(4.5)
+    found_prompt = f'You found the body in {get_last_room()}.' if get_caller_color() == color and len(dead_str) != 0 else ''
 
-try:
-    location_prompt = f"Your tasks are in {task_locations}" if None not in task_locations else ""
-except TypeError:
-    location_prompt = ""
+    # Specific role (Engineer/Scientist/Tracker/...) from the plugin, plus whoever was
+    # standing near the victim when they died.
+    role_name = botlink.get_role()
+    role_prompt = f'Your specific role is {role_name} ({botlink.get_role_ability(role_name)}).' if role_name != "Unknown" else ''
 
-# Before the meeting, you were {"not near anyone" if len(nearby_players) == 0 else "near " + nearby_players}
-prompts =   [
-                {"role": "system", "content": 
-                 re.sub(' +', ' ', f'''You are playing the game Among Us in a meeting with your crewmates. Your color is {color}.
-                 {get_caller_color()} called the meeting. {"Nobody is" if len(dead_str) == 0 else dead_str + " are"} dead. {tasks_prompt}. The last room you were in was {get_last_room()}.
-                 Before the meeting, you were {"not near anyone" if len(nearby_players) == 0 else "near " + str(nearby_players).strip("][")}. {kill_prompt} {found_prompt} {presence_prompt}
-                 The prompts you see that are not from you, {color}, are messages from your crewmates. Your role is {role}. {role_prompt} Your tasks are {tasks}. 
-                 There are {get_num_alive_players()} players left alive.
-                 {location_prompt}. Your crewmates' and your messages are identified by their color in the prompt. 
-                 Reply to prompts with very few words and don't be formal. Try to only use 1 sentence, preferably an improper one. Never return more than 80 alphanumeric characters at a time.
-                 Try to win by voting the impostor out. If your crewmates are agreeing on someone, go along with it unless you are sus of someone else. 
-                 If your role is impostor, try to get other people voted off by calling them sus and suggesting the group vote them off.
-                 If you are imposter, do not vote out your fellow imposters'''.replace('\n', ' '))
-                },
+    presence = botlink.read_kill_presence()
+    if presence:
+        witnesses = ", ".join(f"{c} was {d} tiles away" for c, d in presence.items())
+        presence_prompt = f'When the body was found, {witnesses}.'
+    else:
+        presence_prompt = ''
 
-                 {"role": "system", "content": "If someone says 'where' without much context, they are asking where the body was found"},
-                 {"role": "system", "content": f"If someone says 'what' or '?' without much context, they are asking {get_caller_color()} why the meeting was called"},
-                 #{"role": "system", "content": "If you decide to vote, respond by saying 'VOTE: {COLOR to vote}' or 'VOTE: skip' to skip"},
-                 {"role": "system", "content": f"If people say {color} is sus or should be voted off, you need to defend youself."},
-                 {"role": "system", "content": f"If you are the imposter, try gaslighting people"}, 
-                 {"role": "system", "content": "Your responses MUST be of the form {YOUR COLOR}: {your message}. Do not respond in the form {OTHER PLAYER'S COLOR}: { message }."}
-            ]
-
-clear_chat()
-seen_chats = []
-
-dimensions = get_dimensions()
-
-# Open the chat through the game's own API (InGamePlayerList.SetActive) rather
-# than clicking a fixed pixel ratio, which was landing on the Settings button.
-# Falls back to a template-free coordinate from uiCoords.txt if the command
-# channel is unavailable.
-if not botlink.open_chat():
-    coords = botlink.read_ui_coords().get("chat")
-    if coords:
-        wake()
-        pyautogui.click(dimensions[0] + coords[0], dimensions[1] + coords[1], duration=0.3)
-time.sleep(0.5)
-
-x = dimensions[0] + round(dimensions[2] / 3)
-y = dimensions[1] + round(dimensions[3] / 1.28)
-
-pyautogui.click(x,y, duration=0.3)
-time.sleep(0.1)
-
-decided_to_vote : bool = False
-
-while in_meeting() and not decided_to_vote:
-    if time.time() - meeting_start_time > get_meeting_time() - 8:
-        break
-    is_new_chats = False
-    chat_history = get_chat_messages()
-    
-    for chat in chat_history:
-        if chat not in seen_chats:
-            if f"{color}: " in chat:
-                prompts.append({"role": "assistant", "content": chat})
-            else:
-                prompts.append({"role": "user", "content": chat})
-                is_new_chats = True
-            seen_chats.append(chat)
+    meeting_start_time = time.time()
+    time.sleep(4.5)
 
     try:
-        if is_new_chats:
-            pyautogui.click(x,y)
-            time.sleep(0.1)
-            response = ask_gpt(prompts)
-            new_response = " "
-            for line in response.splitlines():
-                if "VOTE: " in line:
-                    print("Decided to vote")
-                    if "skip" in line.lower():
+        location_prompt = f"Your tasks are in {task_locations}" if None not in task_locations else ""
+    except TypeError:
+        location_prompt = ""
+
+    # Before the meeting, you were {"not near anyone" if len(nearby_players) == 0 else "near " + nearby_players}
+    prompts =   [
+                    {"role": "system", "content": 
+                     re.sub(' +', ' ', f'''You are playing the game Among Us in a meeting with your crewmates. Your color is {color}.
+                     {get_caller_color()} called the meeting. {"Nobody is" if len(dead_str) == 0 else dead_str + " are"} dead. {tasks_prompt}. The last room you were in was {get_last_room()}.
+                     Before the meeting, you were {"not near anyone" if len(nearby_players) == 0 else "near " + str(nearby_players).strip("][")}. {kill_prompt} {found_prompt} {presence_prompt}
+                     The prompts you see that are not from you, {color}, are messages from your crewmates. Your role is {role}. {role_prompt} Your tasks are {tasks}. 
+                     There are {get_num_alive_players()} players left alive.
+                     {location_prompt}. Your crewmates' and your messages are identified by their color in the prompt. 
+                     Reply to prompts with very few words and don't be formal. Try to only use 1 sentence, preferably an improper one. Never return more than 80 alphanumeric characters at a time.
+                     Try to win by voting the impostor out. If your crewmates are agreeing on someone, go along with it unless you are sus of someone else. 
+                     If your role is impostor, try to get other people voted off by calling them sus and suggesting the group vote them off.
+                     If you are imposter, do not vote out your fellow imposters'''.replace('\n', ' '))
+                    },
+
+                     {"role": "system", "content": "If someone says 'where' without much context, they are asking where the body was found"},
+                     {"role": "system", "content": f"If someone says 'what' or '?' without much context, they are asking {get_caller_color()} why the meeting was called"},
+                     #{"role": "system", "content": "If you decide to vote, respond by saying 'VOTE: {COLOR to vote}' or 'VOTE: skip' to skip"},
+                     {"role": "system", "content": f"If people say {color} is sus or should be voted off, you need to defend youself."},
+                     {"role": "system", "content": f"If you are the imposter, try gaslighting people"}, 
+                     {"role": "system", "content": "Your responses MUST be of the form {YOUR COLOR}: {your message}. Do not respond in the form {OTHER PLAYER'S COLOR}: { message }."}
+                ]
+
+    clear_chat()
+    seen_chats = []
+
+    dimensions = get_dimensions()
+
+    # Open the chat through the game's own API (InGamePlayerList.SetActive) rather
+    # than clicking a fixed pixel ratio, which was landing on the Settings button.
+    # Falls back to a template-free coordinate from uiCoords.txt if the command
+    # channel is unavailable.
+    if not botlink.open_chat():
+        coords = botlink.read_ui_coords().get("chat")
+        if coords:
+            wake()
+            pyautogui.click(dimensions[0] + coords[0], dimensions[1] + coords[1], duration=0.3)
+    time.sleep(0.5)
+
+    x = dimensions[0] + round(dimensions[2] / 3)
+    y = dimensions[1] + round(dimensions[3] / 1.28)
+
+    pyautogui.click(x,y, duration=0.3)
+    time.sleep(0.1)
+
+    decided_to_vote : bool = False
+
+    while in_meeting() and not decided_to_vote:
+        if time.time() - meeting_start_time > get_meeting_time() - 8:
+            break
+        is_new_chats = False
+        chat_history = get_chat_messages()
+
+        for chat in chat_history:
+            if chat not in seen_chats:
+                if f"{color}: " in chat:
+                    prompts.append({"role": "assistant", "content": chat})
+                else:
+                    prompts.append({"role": "user", "content": chat})
+                    is_new_chats = True
+                seen_chats.append(chat)
+
+        try:
+            if is_new_chats:
+                pyautogui.click(x,y)
+                time.sleep(0.1)
+                response = ask_gpt(prompts)
+                new_response = " "
+                for line in response.splitlines():
+                    if "VOTE: " in line:
+                        print("Decided to vote")
+                        if "skip" in line.lower():
+                            decided_to_vote = True
+                            break
                         decided_to_vote = True
                         break
-                    decided_to_vote = True
-                    break
-                if f"{color}: " not in line:
-                    print(f"skipped: {line}")
-                    continue
-                new_response += line
+                    if f"{color}: " not in line:
+                        print(f"skipped: {line}")
+                        continue
+                    new_response += line
 
-            response = new_response.replace(f'{color}: ', '')
-            print("res: " + response)
-            if len(response) <= 100:
-                pyautogui.typewrite(f"{response.lower()}\n", interval=0.025)
-            is_new_chats = False
-            time.sleep(4)
-    except requests.RequestException as e:
-        print(f"Ollama request failed: {e}")
-        break
+                response = new_response.replace(f'{color}: ', '')
+                print("res: " + response)
+                if len(response) <= 100:
+                    pyautogui.typewrite(f"{response.lower()}\n", interval=0.025)
+                is_new_chats = False
+                time.sleep(4)
+        except requests.RequestException as e:
+            print(f"Ollama request failed: {e}")
+            break
 
-get_names_dict()
+    get_names_dict()
 
-while time.time() - meeting_start_time < get_meeting_time() - 12:
-    time.sleep(1/15)
+    while time.time() - meeting_start_time < get_meeting_time() - 12:
+        time.sleep(1/15)
 
-prompts.append({"role": "user", "content": "You have 10 seconds left to vote. How do you vote? Your response should be formatted as 'VOTE: {COLOR to vote}' or 'VOTE: skip' to skip"})
-res = ask_gpt(prompts)
-col_array = ["RED", "BLUE", "GREEN", "PINK",
-                "ORANGE", "YELLOW", "BLACK", "WHITE",
-                "PURPLE", "BROWN", "CYAN", "LIME",
-                "MAROON", "ROSE", "BANANA", "GRAY",
-                "TAN", "CORAL", "GREY"]
-c = "skip"
-for color1 in col_array:
-    if color1 in res.upper() and color1 != color:
-        c = color1
-if c == "skip":
-    for name in names_dict:
-        if name.lower() in res.lower() and translatePlayerColorID(names_dict[name]) != color:
-            c = translatePlayerColorID(names_dict[name])
-print("Vote: " + res)
-print(c)
-vote(c.upper())
-time.sleep(10)
+    prompts.append({"role": "user", "content": "You have 10 seconds left to vote. How do you vote? Your response should be formatted as 'VOTE: {COLOR to vote}' or 'VOTE: skip' to skip"})
+    res = ask_gpt(prompts)
+    col_array = ["RED", "BLUE", "GREEN", "PINK",
+                    "ORANGE", "YELLOW", "BLACK", "WHITE",
+                    "PURPLE", "BROWN", "CYAN", "LIME",
+                    "MAROON", "ROSE", "BANANA", "GRAY",
+                    "TAN", "CORAL", "GREY"]
+    c = "skip"
+    for color1 in col_array:
+        if color1 in res.upper() and color1 != color:
+            c = color1
+    if c == "skip":
+        for name in names_dict:
+            if name.lower() in res.lower() and translatePlayerColorID(names_dict[name]) != color:
+                c = translatePlayerColorID(names_dict[name])
+    print("Vote: " + res)
+    print(c)
+    vote(c.upper())
+    time.sleep(10)

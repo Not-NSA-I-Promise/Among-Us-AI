@@ -503,6 +503,56 @@ def a_sab_request(pre=None):
     print("  now press 'b' to fire it")
 
 
+def a_agent(steps=None):
+    """Hand control to the model: it picks each action, this only executes."""
+    banner("agent  (the model plays)")
+    if not wait_for_game():
+        return
+    import agent_loop
+    print("  The model now chooses every action. The harness only executes.")
+    print("  Anything outside the action table is impossible.")
+    print("  Ctrl+C to take control back.\n")
+    n = None
+    if steps:
+        n = int(steps)
+    try:
+        agent_loop.run_forever(interval=2.0, steps=n)
+    except KeyboardInterrupt:
+        print("\n  stopped; control returned to this menu.")
+    except Exception as exc:
+        print(f"\n  agent stopped: {type(exc).__name__}: {exc}")
+
+
+def a_agent_once():
+    """One model decision, printed but not executed, so you can see its reasoning."""
+    banner("agent: one decision (dry run)")
+    if not wait_for_game():
+        return
+    import agent_loop
+    a = agent_loop.Agent()
+    print("  system prompt the model will see:\n")
+    for line in a.system_prompt().splitlines():
+        print("   ", line)
+    print("\n  situation it will be given:\n    ", a.situation())
+    name, raw = a.decide()
+    print(f"\n  model replied: {raw!r}")
+    print(f"  parsed as    : {name}")
+
+
+def a_abilities():
+    banner("my abilities  (what the model is told it has)")
+    role = botlink.get_role()
+    ab = botlink.read_ability()
+    print(f"  role: {role}")
+    print(f"  ability buttons the HUD is showing: {ab.get('abilitycount', '?')}")
+    abilities = roleplay.my_abilities(role, ab.get("abilitycount"))
+    if not abilities:
+        print("  no abilities")
+    for i, a in enumerate(abilities, 1):
+        print(f"    {i}) {a}")
+    print(f"\n  the model is told: {roleplay.ability_brief()}")
+
+
 def a_detective():
     banner("detective  (two abilities: interrogate, and read notes)")
     role = botlink.get_role()
@@ -653,6 +703,9 @@ MENU = [
     ("sv", "scientist   - vitals: who is dead / disconnected", a_scientist),
     ("j", "judge       - overrule a player  e.g. 'j 3'", a_judge),
     ("rm", "role memory - facts the roles have learned", a_role_memory),
+    ("ag", "agent ON    - hand control to the model", a_agent),
+    ("ag1", "agent dry run - see one decision, not executed", a_agent_once),
+    ("ab", "abilities  - what the model thinks it can do", a_abilities),
     ("f", "fake / knock", a_fake),
     ("u", "ui coords", a_uicoords),
 ]

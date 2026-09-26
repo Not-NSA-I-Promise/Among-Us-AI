@@ -50,16 +50,68 @@ KNOWN_ABILITIES = {
 }
 
 
-def send_cmd(cmd: str) -> bool:
-    """Write a command for the plugin. Returns False if the plugin can't be reached."""
+RESULT_PATH = os.path.join(_GAME_DIR, "cmdResult.txt")
+
+
+class CommandFailed(RuntimeError):
+    """The game did not perform the command. Carries the plugin's reason."""
+
+    def __init__(self, reason):
+        super().__init__(reason)
+        self.reason = reason
+
+
+def last_result() -> str:
+    try:
+        with open(RESULT_PATH) as f:
+            return f.read().strip()
+    except OSError:
+        return ""
+
+
+def send_cmd(cmd: str, timeout: float = 2.0) -> bool:
+    """Send a command and WAIT for the game to confirm it.
+
+    This used to return True as soon as the command file was written, which is
+    not evidence the game did anything - a sabotage on a map with no matching
+    entry still reported success. The plugin now answers every command in
+    cmdResult.txt, so the return value reflects the game, not the write.
+
+    Raises CommandFailed when the game declined, so a caller cannot quietly
+    report an action that never happened.
+    """
+    try:
+        with open(RESULT_PATH, "w") as f:
+            f.write("")
+    except OSError:
+        pass
     for _ in range(3):
         try:
             with open(CMD_PATH, "w") as f:
                 f.write(cmd)
-            return True
+            break
         except OSError:
             time.sleep(0.2)
+    else:
+        return False
+
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        result = last_result()
+        if result:
+            if result.startswith("ok"):
+                return True
+            raise CommandFailed(result)
+        time.sleep(0.03)
     return False
+
+
+def try_cmd(cmd: str, timeout: float = 2.0):
+    """Like send_cmd but returns (ok, detail) instead of raising."""
+    try:
+        return True, send_cmd(cmd, timeout)
+    except CommandFailed as exc:
+        return False, exc.reason
 
 
 def open_chat() -> bool:

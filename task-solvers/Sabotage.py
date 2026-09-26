@@ -130,6 +130,8 @@ def sabotage(G=None):
     # the name to a room and calls SabotageDoors()/SabotageLights()/etc, which is
     # exactly what pressing the entry on the map does. Nothing here uses pixels,
     # so the resolution genuinely cannot break it.
+    # The plugin replies in cmdResult.txt; treat that as the only evidence. A
+    # successful file write is not a successful sabotage.
     try:
         import sys
         root = os.path.dirname(HERE)
@@ -137,14 +139,18 @@ def sabotage(G=None):
             sys.path.insert(0, root)
         import botlink
         if not botlink.open_sabotage_map():
-            print("Sabotage: the game did not accept opensabotage")
+            print(f"Sabotage: could not open the map "
+                  f"(plugin said: {botlink.last_result() or 'no reply'})")
             return False
         time.sleep(0.9)
         if botlink.click_sabotage(chosen):
             time.sleep(1 / 30)
-            print(f"Sabotage: triggered {chosen} ({describe(chosen)})")
+            print(f"Sabotage: CONFIRMED {chosen} ({describe(chosen)}) - "
+                  f"game replied '{botlink.last_result()}'")
             return True
-        print(f"Sabotage: the game refused {chosen!r} (not a map entry, or not allowed)")
+        print(f"Sabotage: the game did NOT do it: {botlink.last_result()}")
+    except botlink.CommandFailed as exc:
+        print(f"Sabotage: refused: {exc.reason}")
     except Exception as e:
         print(f"Sabotage: plugin path failed ({e})")
     return False
