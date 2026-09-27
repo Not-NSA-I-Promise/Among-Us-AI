@@ -17,36 +17,305 @@
     "Ranges, not fixed numbers, because real players vary. A bot that always takes",
     "exactly 8.5s on a download is as suspicious as one that takes 3s."
   ],
-
-  "Download Data":        { "seconds": [8, 10],     "visual": false, "fakeable": true,  "note": "fixed timer; the classic give-away" },
-  "Upload Data":          { "seconds": [8, 10],     "visual": false, "fakeable": true },
-  "Submit Scan":          { "seconds": [10, 10],    "visual": true,  "fakeable": false, "note": "MedBay scan; the scan is visible to others" },
-  "Start Reactor":        { "seconds": [15, 25],    "visual": true,  "fakeable": false, "note": "Simon sequence; varies hugely with player skill" },
-  "Inspect Sample":       { "seconds": [45, 60],    "visual": false, "fakeable": true,  "note": "timer keeps running if you walk away" },
-  "Fuel Engines":         { "seconds": [6, 6],      "visual": false, "fakeable": true,  "note": "per stage; four stages across the ship" },
-  "Clear Asteroids":      { "seconds": [8, 12],     "visual": true,  "fakeable": false },
-  "Chart Course":         { "seconds": [6, 10],     "visual": true,  "fakeable": false },
-  "Reboot Wifi":          { "seconds": [8, 12],     "visual": false, "fakeable": true },
-  "Fix Weather Node":     { "seconds": [10, 15],    "visual": false, "fakeable": true },
-  "Run Diagnostics":      { "seconds": [10, 15],    "visual": false, "fakeable": true },
-  "Water Plants":         { "seconds": [4, 6],      "visual": false, "fakeable": true },
-  "Prime Shields":        { "seconds": [8, 12],     "visual": false, "fakeable": true },
-  "Align Engine Output":  { "seconds": [2, 3],      "visual": false, "fakeable": true,  "note": "per stage" },
-  "Divert Power":         { "seconds": [4, 6],      "visual": false, "fakeable": true },
-  "Accept Diverted Power":{ "seconds": [4, 6],      "visual": false, "fakeable": true },
-  "Calibrate Distributor":{ "seconds": [6, 9],      "visual": false, "fakeable": true },
-  "Swipe Card":           { "seconds": [4, 7],      "visual": false, "fakeable": true,  "note": "hugely variable; 3s looks like a fake" },
-  "Insert Keys":          { "seconds": [3, 5],      "visual": false, "fakeable": true },
-  "Fix Wiring":           { "seconds": [3, 4],      "visual": false, "fakeable": true,  "note": "per panel, three panels" },
-  "Empty Garbage":        { "seconds": [3, 4],      "visual": false, "fakeable": true },
-  "Empty Chute":          { "seconds": [3, 4],      "visual": false, "fakeable": true },
-  "Unlock Manifolds":     { "seconds": [3, 5],      "visual": false, "fakeable": true },
-  "Clean O2 Filter":      { "seconds": [3, 5],      "visual": false, "fakeable": true },
-  "Clean Vent":           { "seconds": [3, 5],      "visual": false, "fakeable": true },
-  "Sort Samples":         { "seconds": [4, 6],      "visual": false, "fakeable": true },
-  "Record Temperature":   { "seconds": [4, 6],      "visual": false, "fakeable": true },
-  "Boarding Pass":        { "seconds": [3, 5],      "visual": false, "fakeable": true },
-  "Fuel Engines (HQ)":    { "seconds": [6, 6],      "visual": false, "fakeable": true },
-  "CCTV":                 { "seconds": [3, 5],      "visual": false, "fakeable": true },
-  "Configure Limits":     { "seconds": [3, 5],      "visual": false, "fakeable": true }
+  "_visual_note": [
+    "Corrected against the Among Us Wiki's Visual tasks page. The previous list",
+    "was wrong: it included Chart Course and Start Reactor, NEITHER of which is",
+    "visual, and it missed Prime Shields, Empty Garbage and Empty Chute.",
+    "",
+    "Visual-ness is per MAP, and for Empty Garbage/Empty Chute it is only the",
+    "SECOND stage (Storage) that shows anything to other players. The Cafeteria",
+    "lever of Empty Garbage has no visible effect at all, so faking THAT is fine.",
+    "",
+    "Airship and Fungle have no visual tasks whatsoever."
+  ],
+  "Download Data": {
+    "seconds": [
+      8,
+      10
+    ],
+    "visual": false,
+    "fakeable": true,
+    "note": "fixed timer; the classic give-away"
+  },
+  "Upload Data": {
+    "seconds": [
+      8,
+      10
+    ],
+    "visual": false,
+    "fakeable": true
+  },
+  "Submit Scan": {
+    "seconds": [
+      10,
+      10
+    ],
+    "visual": true,
+    "visual_maps": [
+      "SHIP",
+      "HQ",
+      "PB"
+    ],
+    "fakeable": false,
+    "note": "a hologram scans the player"
+  },
+  "Start Reactor": {
+    "seconds": [
+      15,
+      25
+    ],
+    "visual": false,
+    "fakeable": true,
+    "note": "NOT visual - corrected. Simon sequence, varies with skill"
+  },
+  "Chart Course": {
+    "seconds": [
+      6,
+      10
+    ],
+    "visual": false,
+    "fakeable": true,
+    "note": "NOT visual - corrected. drag the ship along the line"
+  },
+  "Inspect Sample": {
+    "seconds": [
+      45,
+      60
+    ],
+    "visual": false,
+    "fakeable": true,
+    "note": "timer keeps running if you walk away"
+  },
+  "Fuel Engines": {
+    "seconds": [
+      6,
+      6
+    ],
+    "visual": false,
+    "fakeable": true,
+    "note": "per stage; four stages across the ship"
+  },
+  "Clear Asteroids": {
+    "seconds": [
+      8,
+      12
+    ],
+    "visual": true,
+    "visual_maps": [
+      "SHIP",
+      "PB"
+    ],
+    "fakeable": false,
+    "note": "missiles fire outside the ship; NOT visual on Mira HQ"
+  },
+  "Chart Course (HQ)": {
+    "seconds": [
+      6,
+      10
+    ],
+    "visual": false,
+    "fakeable": true
+  },
+  "Reboot Wifi": {
+    "seconds": [
+      8,
+      12
+    ],
+    "visual": false,
+    "fakeable": true
+  },
+  "Fix Weather Node": {
+    "seconds": [
+      10,
+      15
+    ],
+    "visual": false,
+    "fakeable": true
+  },
+  "Run Diagnostics": {
+    "seconds": [
+      10,
+      15
+    ],
+    "visual": false,
+    "fakeable": true
+  },
+  "Water Plants": {
+    "seconds": [
+      4,
+      6
+    ],
+    "visual": false,
+    "fakeable": true
+  },
+  "Prime Shields": {
+    "seconds": [
+      8,
+      12
+    ],
+    "visual": true,
+    "visual_maps": [
+      "SHIP"
+    ],
+    "fakeable": false,
+    "note": "the shields light up; NOT visual on Mira HQ"
+  },
+  "Align Engine Output": {
+    "seconds": [
+      2,
+      3
+    ],
+    "visual": false,
+    "fakeable": true,
+    "note": "per stage"
+  },
+  "Divert Power": {
+    "seconds": [
+      4,
+      6
+    ],
+    "visual": false,
+    "fakeable": true,
+    "note": "NOT visual - corrected"
+  },
+  "Accept Diverted Power": {
+    "seconds": [
+      4,
+      6
+    ],
+    "visual": false,
+    "fakeable": true
+  },
+  "Calibrate Distributor": {
+    "seconds": [
+      6,
+      9
+    ],
+    "visual": false,
+    "fakeable": true
+  },
+  "Swipe Card": {
+    "seconds": [
+      4,
+      7
+    ],
+    "visual": false,
+    "fakeable": true,
+    "note": "hugely variable; 3s looks like a fake"
+  },
+  "Insert Keys": {
+    "seconds": [
+      3,
+      5
+    ],
+    "visual": false,
+    "fakeable": true
+  },
+  "Fix Wiring": {
+    "seconds": [
+      3,
+      4
+    ],
+    "visual": false,
+    "fakeable": true,
+    "note": "per panel, three panels"
+  },
+  "Empty Garbage": {
+    "seconds": [
+      3,
+      4
+    ],
+    "visual": true,
+    "visual_maps": [
+      "SHIP"
+    ],
+    "visual_stage": 2,
+    "fakeable": "stage1",
+    "note": "ONLY the Storage stage is visual. The Cafeteria lever shows nothing, so faking stage 1 is safe"
+  },
+  "Empty Chute": {
+    "seconds": [
+      3,
+      4
+    ],
+    "visual": true,
+    "visual_maps": [
+      "SHIP"
+    ],
+    "visual_stage": 2,
+    "fakeable": "stage1",
+    "note": "same as Empty Garbage - only the Storage stage is visible"
+  },
+  "Unlock Manifolds": {
+    "seconds": [
+      3,
+      5
+    ],
+    "visual": false,
+    "fakeable": true
+  },
+  "Clean O2 Filter": {
+    "seconds": [
+      3,
+      5
+    ],
+    "visual": false,
+    "fakeable": true
+  },
+  "Clean Vent": {
+    "seconds": [
+      3,
+      5
+    ],
+    "visual": false,
+    "fakeable": true
+  },
+  "Sort Samples": {
+    "seconds": [
+      4,
+      6
+    ],
+    "visual": false,
+    "fakeable": true
+  },
+  "Record Temperature": {
+    "seconds": [
+      4,
+      6
+    ],
+    "visual": false,
+    "fakeable": true
+  },
+  "Boarding Pass": {
+    "seconds": [
+      3,
+      5
+    ],
+    "visual": false,
+    "fakeable": true
+  },
+  "Fuel Engines (HQ)": {
+    "seconds": [
+      6,
+      6
+    ],
+    "visual": false,
+    "fakeable": true
+  },
+  "CCTV": {
+    "seconds": [
+      3,
+      5
+    ],
+    "visual": false,
+    "fakeable": true
+  },
+  "Configure Limits": {
+    "seconds": [
+      3,
+      5
+    ],
+    "visual": false,
+    "fakeable": true
+  }
 }

@@ -1007,15 +1007,35 @@ def clear_kill_data():
     open(KILL_DATA_PATH, "w").close()
     
 def focus():
-    """Focuses the among us window"""
+    """Focus the Among Us window.
 
-    window_title="Among Us"
-    hwnd = win32gui.FindWindow(None, window_title)
-    if hwnd:
+    Never raises. SetForegroundWindow fails with pywintypes.error whenever the
+    window already has focus, is minimised, or the desktop is locked, and an
+    uncaught error here killed the whole bot at startup - the game was running
+    and the log said "Bot exited (code 1)". Failing to focus is a warning, not a
+    reason to stop.
+    """
+    window_title = "Among Us"
+    try:
+        hwnd = win32gui.FindWindow(None, window_title)
+    except Exception as exc:
+        print(f"[WARN] could not look for the game window: {exc}")
+        return False
+    if not hwnd:
+        print("Window not found")
+        return False
+    try:
+        if win32gui.IsIconic(hwnd):
+            win32gui.ShowWindow(hwnd, win32gui.SW_RESTORE)
         win32gui.SetForegroundWindow(hwnd)
         time.sleep(1/60)
-    else:
-        print("Window not found")
+        return True
+    except Exception as exc:
+        # Almost always "already focused" or "cannot steal focus", both of which
+        # are harmless - the game is already the active window.
+        print(f"[WARN] could not focus the game window ({type(exc).__name__}); "
+              f"continuing, it is probably already focused")
+        return False
 
 def move(dest_list : list, G = None) -> int:
     # G used to be a default argument calling getGameData(), which ran at import

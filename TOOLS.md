@@ -43,7 +43,7 @@ harness says no.
 |---|---|
 | `kill` | you are dead, or you are not an impostor, or the kill misses |
 | `do_task` | **you are an impostor** — real task progress is proof of innocence |
-| `fake_task` | the task is visual (MedBay scan, Start Reactor, Asteroids, Chart Course) and `allow_visual` was not set |
+| `fake_task` | the task is visual on this map at this stage (Submit Scan, Clear Asteroids, Prime Shields, Skeld Empty Garbage/Chute at the Storage stage) and `allow_visual` was not set |
 | `vent` | `canvent` is not set, or you are dead, or no travel options exist |
 | `ability` | no ability button on screen, or you are dead |
 | `ability2` | your role has fewer than 2 abilities |

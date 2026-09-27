@@ -1068,9 +1068,10 @@ T08 = [
        "alive: BLUE, GREEN, YELLOW, PINK, WHITE, BLACK, PURPLE, ROSE, CYAN, LIME",
       "fake_task Download Data", "fake_task", ["Download Data"],
       "faked Download Data for 9.2s (timing only - the task bar did not move)",
-      "Airship has no visual tasks, so a fake here is judged purely on duration - and I am "
-      "deliberately NOT choosing Asteroids or Chart Course, because those are visual and a "
-      "fake of them is visibly wrong. Download is 8-10s and I take 9.2, inside the range."),
+      "Airship has no visual tasks at all, so a fake here is judged purely on duration. Download "
+      "Data is 8-10s and I take 9.2, inside the real range. Worth knowing though: Asteroids is "
+      "NOT visual on Airship (the missiles are a Skeld/Polus thing), and Chart Course was never "
+      "visual anywhere, so neither would have given me away here."),
     T(2, "you are Shapeshifter (impostor); in Cockpit; kill cooldown: 0; can kill right now: True; "
        "alive: BLUE, GREEN, YELLOW, PINK, WHITE, BLACK, PURPLE, ROSE, CYAN, LIME",
       "mimic ROSE", "mimic", ["ROSE"],

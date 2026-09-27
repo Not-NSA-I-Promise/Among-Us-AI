@@ -7,3 +7,6 @@ __pycache__/
 
 # compiled task templates are regenerated at runtime from the originals
 task-solvers/cv2-templates/* resized/
+
+# runtime state written by the bot on every move - not source
+last_area.txt

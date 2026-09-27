@@ -182,18 +182,31 @@
       "note": "the task bar only fills after the timer. leaving early is the tell",
       "Download Data": "8-10s",
       "Upload Data": "8-10s",
-      "Submit Scan": "10s, VISUAL",
-      "Start Reactor": "15s+, VISUAL",
+      "Submit Scan": "10s, VISUAL on SHIP/PB/HQ",
+      "Start Reactor": "15s+, NOT visual",
       "Inspect Sample": "~60s, timer keeps running if you walk away",
-      "Prime Shields": "8-12s",
-      "Clear Asteroids": "8-12s, VISUAL"
+      "Prime Shields": "8-12s, VISUAL on SHIP only",
+      "Clear Asteroids": "8-12s, VISUAL on SHIP/PB, not HQ",
+      "Empty Garbage": "two stages, VISUAL only at the Storage stage on SHIP",
+      "Chart Course": "NOT visual"
     },
 
     "visual_tasks": {
       "definition": "other players can SEE the task happening, so standing still does not imitate it",
-      "list": ["Submit Scan", "Start Reactor", "Clear Asteroids", "Chart Course"],
+      "not_visual": ["Chart Course", "Start Reactor", "Divert Power"],
+      "visual": {
+        "Submit Scan": ["SHIP", "PB", "HQ"],
+        "Clear Asteroids": ["SHIP", "PB"],
+        "Prime Shields": ["SHIP"],
+        "Empty Garbage": ["SHIP"],
+        "Empty Chute": ["SHIP"]
+      },
+      "stage_specific": {
+        "Empty Garbage": "only stage 2 (Storage) shows anything, so the Cafeteria lever stage is safe to fake",
+        "Empty Chute": "same - only stage 2 is visible"
+      },
       "rule": "never write an entry where the agent fakes a visual task by default. allow_visual only when the entry explains why the lesser evil was chosen",
-      "note": "Airship has NO visual tasks, which is why it is considered harder for crewmates"
+      "note": "Airship has NO visual tasks, which is why it is considered harder for crewmates. Check the map AND the stage - a task that is visual on one map is not on another, and a multi-stage task is often visual at only one stage"
     },
 
     "faking_rules": [

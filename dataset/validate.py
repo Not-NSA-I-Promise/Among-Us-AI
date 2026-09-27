@@ -38,8 +38,43 @@ DUAL_SIDE_ROLES = {r for r in D["ROLES"]["impostor_side"]
                    if r in D["ROLES"]["crew_side"]}
 
 VENT_NETWORKS = D["VENT_NETWORKS"]
-VISUAL_TASKS = set(D["TASK_SEQUENCE"]["visual_tasks"]["list"])
+# Visual is a property of (task, map, stage), not of the task alone - a flat set
+# both refused legitimate fakes and allowed giveaway ones. Prime Shields is only
+# visual on SHIP, and Skeld Empty Garbage only at its Storage stage, so the
+# entry's own map/stage have to be checked.
+_VISUAL = D["TASK_SEQUENCE"]["visual_tasks"]["visual"]
+NOT_VISUAL = set(D["TASK_SEQUENCE"]["visual_tasks"]["not_visual"])
+_STAGE_ONLY = D["TASK_SEQUENCE"]["visual_tasks"].get("stage_specific", {})
 WIRING_PANEL_ORDER = D["TASK_SEQUENCE"]["fix_wiring"]["panel_order"]
+
+
+def is_visual_task(name, map_name=None):
+    """Does the game show this task happening on this map?
+
+    Only the stage-1 visual-only tasks are special-cased: Empty Garbage and
+    Empty Chute are fakeable at the Cafeteria stage, so a stage-1 fake of them
+    is legal and the validator must not reject the entry for it.
+    """
+    if name in NOT_VISUAL:
+        return False
+    maps = _VISUAL.get(name)
+    if maps is None:
+        return False
+    if not map_name:
+        return True     # unknown map - treat as visual and demand justification
+    key = str(map_name).upper().replace("_", " ").strip()
+    aliases = {"SKELD": "SHIP", "POLUS": "PB", "MIRA HQ": "HQ", "MIRAHQ": "HQ"}
+    key = aliases.get(key, key)
+    if key not in [str(m).upper() for m in maps]:
+        return False
+    if name in _STAGE_ONLY and key == "SHIP":
+        return True     # visual at its Storage stage; a stage-1 fake is fine
+    return True
+
+
+def stage1_visual_only(name):
+    """True for tasks whose ONLY visual stage is stage 2, so stage 1 is safe."""
+    return name in _STAGE_ONLY
 
 # every room that appears in any vent network, for travel validation
 VENT_ROOMS = set()
@@ -219,10 +254,16 @@ def check_turns(entry, r):
                 r.err(w, "fake_task with no task name")
             else:
                 name = str(args[0])
-                if name in VISUAL_TASKS and not t.get("allow_visual"):
-                    r.err(w, f"{name} is a VISUAL task and cannot be faked by "
-                             f"standing still. Pass allow_visual and justify it "
-                             f"in the turn's rationale, or pick another task")
+                if is_visual_task(name, entry.get("map")) and not t.get("allow_visual"):
+                    if stage1_visual_only(name):
+                        # Empty Garbage / Empty Chute: only the Storage stage shows
+                        # anything, so faking the Cafeteria stage is legitimate.
+                        pass
+                    else:
+                        r.err(w, f"{name} is VISUAL on {entry.get('map') or 'this map'} and "
+                                f"cannot be faked by standing still. Pass allow_visual "
+                                f"and justify it in the turn's rationale, or pick "
+                                f"another task")
                 dur = t.get("seconds")
                 if dur is not None:
                     rec = _duration_for(name)
@@ -234,9 +275,9 @@ def check_turns(entry, r):
                                      f"tell this dataset is meant to prevent")
                     else:
                         r.warn(w, f"no timing data for {name!r} in task_durations.json")
-        if act == "do_task" and args and str(args[0]) in VISUAL_TASKS:
-            # completing a visual task is fine, it is only faking that is the problem
-            pass
+    if act == "do_task" and args and is_visual_task(str(args[0]), entry.get("map")):
+        # completing a visual task is fine, it is only faking that is the problem
+        pass
 
     # --- kill discipline: never two kills in a row with no reason ---
     kills = [i for i, t in enumerate(turns) if t.get("action") == "kill"]

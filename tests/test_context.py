@@ -134,10 +134,14 @@ print("=== 9. the role-specific judgement is in the prompt ===")
 for role, imp, needle in (
         ("Shapeshifter", True, "Do NOT shapeshift while a crewmate is near"),
         ("Detective", False, "Do NOT interrogate a random player"),
-        ("Judge", False, "Do NOT spend your overrule on a hunch"),
-        ("Viper", True, "kill from inside a vent"),
+        ("Judge", False, "Do NOT use it on a hunch"),
+        ("Viper", True, "kill THROUGH the vent"),
         ("Tracker", False, "CANNOT vent"),
         ("Scientist", False, "nobody is dead on vitals"),
+        ("Noisemaker", False, "decoy arrow"),
+        ("Engineer", False, "for movement"),
+        ("Guardian Angel", False, "protect <colour>"),
+        ("Phantom", True, "leaves a decoy"),
         ("Crewmate", False, "who followed you"),
         ("Impostor", True, "double kill")):
     botlink.get_role = lambda r=role: r

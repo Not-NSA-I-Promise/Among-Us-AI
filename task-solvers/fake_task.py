@@ -201,9 +201,88 @@ def lookup(name):
         return table[best_name]
     return None
 
-def is_visual(name):
+def is_visual(name, map_name=None, stage=None):
+    """Is this task visible to other players HERE, at THIS stage?
+
+    A flat per-task "visual" flag was wrong and the harness had to be corrected
+    for it, because the same task is not visual on every map and not visual at
+    every stage:
+
+      - Prime Shields lights up on Skeld but shows nothing on Mira HQ.
+      - Clear Asteroids fires missiles outside the ship, so it is visible on
+        Skeld and Polus but not Mira HQ.
+      - Skeld Empty Garbage / Empty Chute is only visual at the STORAGE stage
+        (stage 2). The Cafeteria lever stage shows nothing, so faking stage 1 is
+        perfectly safe.
+
+    Returns (is_visual, reason) so the caller can explain the refusal instead of
+    just failing.
+    """
     rec = lookup(name)
-    return bool(rec and rec.get("visual"))
+    if not rec:
+        return False, ""
+
+    maps = rec.get("visual_maps")
+    if maps and map_name:
+        # task_durations.json uses the repo's internal map keys (SHIP, PB, HQ),
+        # but accept the in-game names too rather than silently matching nothing.
+        _MAP_WORDS = {
+            "SHIP": ("SHIP", "SKELD"), "PB": ("PB", "POLUS"),
+            "AIRSHIP": ("AIRSHIP",), "HQ": ("HQ", "MIRA", "MIRAHQ"),
+            "FUNGLE": ("FUNGLE",),
+        }
+        want = set()
+        for m in maps:
+            key = str(m).upper().replace("_", " ").strip()
+            want.add(key)
+            want.update(_MAP_WORDS.get(key, ()))
+        have = str(map_name).upper().replace("_", " ").strip()
+        if have not in want and not any(w in have for w in want):
+            return False, (f"{name} is only visual on {'/'.join(maps)}, and you "
+                           f"are on {map_name}")
+
+    vis_stage = rec.get("visual_stage")
+    if vis_stage is not None and stage is not None:
+        if int(vis_stage) != int(stage):
+            return False, (f"{name} is only visual at stage {vis_stage}, and you "
+                           f"are on stage {stage} - this part is safe to fake")
+
+    if rec.get("visual") and not maps and not vis_stage:
+        return True, (f"{name} is a visual task - other players can see it "
+                      f"happening, so standing still does not look like doing it")
+
+    return bool(rec.get("visual")), ""
+
+
+def is_fakeable(name, map_name=None, stage=None):
+    """Can this task be faked HERE, at THIS stage?
+
+    The map- and stage-aware `is_visual` wins over the flat `fakeable` flag,
+    because the flag is only a summary. A task whose record says
+    `fakeable: false` because it is visual on one map is still fine to fake on
+    a map where it shows nothing - Prime Shields on Mira HQ, or Skeld Empty
+    Garbage at its Cafeteria stage. The flat flag is only consulted when we
+    genuinely do not know the map or stage.
+    """
+    rec = lookup(name)
+    if not rec:
+        return False, ""
+
+    if map_name or stage is not None:
+        vis, why = is_visual(name, map_name, stage)
+        if vis:
+            return False, ((why or f"{name} is visual here") +
+                           " - so standing still does not imitate it. Fake a "
+                           "different task instead.")
+        return True, ""
+
+    rule = rec.get("fakeable", rec.get("visual") is False)
+    if rule is True:
+        return True, ""
+    if rule == "stage1" and stage is not None and int(stage) == 1:
+        return True, ""
+    return False, (f"{name} is visual here, so standing still does not look like "
+                   f"doing it - fake a different task instead")
 
 
 def typical_seconds(name):
@@ -222,25 +301,30 @@ def known_task_names():
     return sorted(k for k in durations() if not k.startswith("_"))
 
 
-def fake_task(name, allow_visual=False, factor=1.0):
+def fake_task(name, allow_visual=False, factor=1.0, map_name=None, stage=None):
     """Stand at a task panel for as long a real one takes.
 
     Returns a dict describing what happened, so the caller can report honestly
     rather than claiming success.
+
+    `map_name` and `stage` are what make the visual check correct: Prime Shields
+    is visual on Skeld but not on Mira HQ, and Skeld Empty Garbage is only visual
+    at the Storage stage, so stage 1 can be faked.
     """
     rec = lookup(name)
     if rec is None:
         return {"ok": False, "reason": f"no timing data for {name!r}",
                 "known": known_task_names()}
 
-    if rec.get("visual") and not allow_visual:
-        return {
-            "ok": False,
-            "reason": (f"{name} is a visual task - other players can see it happening, "
-                       f"so standing still does not look like doing it. "
-                       f"Pass allow_visual=True if you still want to."),
-            "visual": True,
-        }
+    if not allow_visual:
+        ok, why = is_fakeable(name, map_name, stage)
+        if not ok:
+            return {
+                "ok": False,
+                "reason": (why or f"{name} is visual here") +
+                          ". Fake a different task instead.",
+                "visual": True,
+            }
 
     seconds = typical_seconds(name) * factor
 

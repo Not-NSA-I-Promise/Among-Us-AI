@@ -115,24 +115,66 @@ check("only one task is recorded as faked", len(agent._FAKED_ONCE) == 1,
       agent._FAKED_ONCE)
 
 print()
-print("=== 5. faking must happen AT the task ===")
+print("=== 5. faking walks the bot TO the task, and refuses if it cannot ===")
 agent._FAKED_ONCE.clear()
-set_state(imp=True, room="Weapons")   # no task here
+# stand in for movement, which would otherwise need a real game
+import roleplay as _rp
+_rp.walk_to = lambda G, x, y: True
+_rp.press_use = lambda *a, **k: True
+agent._walk_near = lambda G=None, target=None, task="": True
+agent._tasks_here_real = True
+
+# model the walk: _tasks_here reports "not there" until _walk_near is called,
+# then reports the panel, exactly as arriving at a room would
+_real_tasks_here = agent._tasks_here
+_arrived = {"at": False}
+
+
+def _fake_tasks_here():
+    return ["Divert Power"] if _arrived["at"] else []
+
+
+def _fake_walk(G=None, target=None, task=""):
+    _arrived["at"] = True
+    return True
+
+
+agent._tasks_here = _fake_tasks_here
+agent._walk_near = _fake_walk
+calls = []
+import importlib.util as _il
+spec = _il.spec_from_file_location(
+    "fk2", os.path.join(os.getcwd(), "task-solvers", "fake_task.py"))
+fk2 = _il.module_from_spec(spec)
+spec.loader.exec_module(fk2)
+fk2.fake_task = lambda name, allow_visual=False: (
+    calls.append(name) or {"ok": True, "task": name, "seconds": 6.0})
+out = agent.fake_task("Divert Power")
+check("faking walks there and then fakes", "faked Divert Power" in out, out)
+check("and reports that it walked", "walked to the panel" in out, out)
+
+print()
+print("=== 5b. it refuses when it cannot reach the panel ===")
+agent._FAKED_ONCE.clear()
+agent._tasks_here = _real_tasks_here
+agent._walk_near = lambda G=None, target=None, task="": False
+set_state(imp=True, room="Weapons")
 try:
     agent.fake_task("Divert Power")
-    check("faking away from the task is refused", False, "it was allowed")
+    check("faking away from the task is refused when it cannot walk", False,
+          "it was allowed")
 except agent.ActionError as exc:
-    check("faking away from the task is refused", "AT the task" in str(exc), exc)
-    # a not-started Divert Power is in Electrical, which is where it says to go
-    check("and it names the room to go to", "go_to Electrical" in str(exc), exc)
+    check("faking away from the task is refused when it cannot walk",
+          "could not walk" in str(exc), exc)
+
 set_state(imp=True, room="Storage")
 try:
     agent.fake_task("Divert Power")
-    check("faking from the wrong panel in the right room is still refused",
-          False, "it was allowed")
+    check("faking from the wrong panel is refused", False, "it was allowed")
 except agent.ActionError as exc:
-    check("faking from the wrong panel is refused", "AT the task" in str(exc)
-          or "not Divert Power" in str(exc), exc)
+    check("faking from the wrong panel is refused",
+          "could not walk" in str(exc) or "not Divert Power" in str(exc), exc)
+agent._walk_near = lambda G=None, target=None, task="": True
 
 print()
 print("=== 6. faking a task you do not have is refused ===")

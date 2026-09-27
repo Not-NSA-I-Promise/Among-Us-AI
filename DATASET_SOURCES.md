@@ -30,12 +30,14 @@ an impostor gets caught doing nothing.
 > "Submit Scan – Visual, 1 Part Task, Medbay. Let it scan yourself for 10 seconds."
 > — gameplay.tips
 
-**Start Reactor — 15s+, visual**
+**Start Reactor — 15s+, NOT visual**
 > "Start Reactor takes a minimum of 15 seconds."
 > — Indie Game Culture, *Among Us Tasks Guide*
 > Listed as a long task, one of the easiest to fake precisely because real times
 > vary greatly — which is also why a fixed-length fake is unreliable.
 > — ScreenRant, *How Long Tasks Take to Complete (For The Sneaky Imposter)*
+> **Corrected:** a long duration is not the same as visibility. Nothing shows for
+> Start Reactor, so it is a perfectly good fake. See `KNOWLEDGE_BASE.md`.
 
 **Inspect Sample — ~60s**
 > "Step away for a full minute. After the minute is over, interact with the

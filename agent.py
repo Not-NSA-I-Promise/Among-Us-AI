@@ -95,9 +95,10 @@ def kill():
     except Exception as exc:
         raise ActionError(f"no map graph: {exc}")
     ok = roleplay_kill_nearest(G)
-    if not ok:
-        raise ActionError("the kill did not land - cooldown, or nobody in range")
-    return "killed"
+    if ok:
+        return ok
+    raise ActionError("the kill did not happen - the game did not report a new "
+                      "body, so nothing was killed")
 
 
 def report_body():
@@ -208,16 +209,19 @@ def fake_task(name, visual=False):
 
     Two rules that make it actually convincing, and that were missing:
 
-    - You have to BE at the task. Faking Swipe Card from across Admin, or from
+    - You have to BE at the task, and the bot WALKS there for you, because the
+      panel coordinates are known. Faking Swipe Card from across Admin, or from
       the wrong end of Electrical, does not look like swiping a card - it looks
-      like someone loitering. So the room has to match.
+      like someone loitering. So it walks to the right panel and opens it.
     - Only fake a given task once. Standing at the same panel twice doing nothing
       is far more suspicious than doing nothing once, because the impostor task
       list is short and known.
 
-    Visual tasks (MedBay scan, Start Reactor, Asteroids, Chart Course) are
-    refused by default, because other players can see them and standing still
-    does not imitate them. Pass visual=True to override.
+    Visual tasks (Submit Scan, Clear Asteroids, Prime Shields, and Skeld Empty
+    Garbage/Chute at the Storage stage) are refused by default, because other
+    players can see them and standing still does not imitate them. Which tasks
+    are visual depends on the map and the stage, so that is checked against the
+    live map rather than a flat list. Pass visual=True to override.
     """
     import importlib.util
     ts = os.path.join(os.path.dirname(os.path.realpath(__file__)), "task-solvers")
@@ -241,25 +245,42 @@ def fake_task(name, visual=False):
             f"{wanted!r} is not on your fake task list, so faking it would give "
             f"you away. Outstanding: {', '.join(roleplay_outstanding()) or 'none'}")
 
-    # Must be at the task. Standing somewhere else and pretending is the tell.
+    # Walk to it first. The task database has the panel coordinates, so this is
+    # a normal go_to - refusing instead and making the model spend a turn on
+    # go_to wasted a whole round when the bot could simply walk there.
     here = _tasks_here()
     if real not in here:
-        room = roleplay_locations().get(real, "another room")
-        if here:
-            raise ActionError(
-                f"you are in a room with {', '.join(here)}, not {real}. "
-                f"{real} is in {room} - a fake has to be done AT the task, "
-                f"so use go_to {room} first")
-        raise ActionError(
-            f"{real} is in {room}, not where you are standing. A fake has to be "
-            f"done AT the task, so use go_to {room} first")
+        room = roleplay_locations().get(real, "")
+        note = f"{real} is in {room}" if room else f"{real} is elsewhere"
+        if not _walk_near(G=None, target=_panel_position(real), task=real):
+            raise ActionError(f"could not walk to the {real} panel to fake it")
+        walked = " (walked to the panel)"
+        time.sleep(0.3)
+        try:
+            import roleplay as _rp
+            _rp.press_use()
+            time.sleep(0.5)
+        except Exception:
+            pass
+        if real not in _tasks_here():
+            raise ActionError(f"walked to where {note} but the {real} panel is "
+                              f"not here - use go_to {room} and try again")
+    else:
+        walked = ""
 
-    result = mod.fake_task(real, allow_visual=bool(visual))
+    # The visual/fakeable rules are map- and stage-specific, so the live map and
+    # the stage we are actually standing at have to be passed in. A flat
+    # per-task flag was wrong: Prime Shields is visual on Skeld but not Mira HQ,
+    # and Skeld Empty Garbage is only visual at the Storage stage.
+    _map, _stage = _here_context(real)
+    result = mod.fake_task(real, allow_visual=bool(visual),
+                           map_name=_map, stage=_stage)
     if not result.get("ok"):
         raise ActionError(result.get("reason", "could not fake that"))
     _FAKED_ONCE.add(real)
-    # Report the honest caveat rather than claiming the task got done.
-    return (f"faked {result['task']} for {result['seconds']}s "
+    # Report the honest caveat rather than claiming the task got done, and say
+    # whether the bot had to walk there first.
+    return (f"faked {result['task']}{walked} for {result['seconds']}s "
             f"(timing only - the task bar did not move)")
 
 
@@ -486,7 +507,9 @@ def _stand_at_panel(task_name):
     except Exception:
         pass
 
-    route = roleplay.task_route(task_name)
+    # refresh=True: the plugin publishes only the CURRENT panel, and it moves
+    # between stages, so a cached route points at the panel we already finished.
+    route = roleplay.task_route(task_name, refresh=True)
     if route:
         target = route[0]
     else:
@@ -547,6 +570,37 @@ def _walk_near(G=None, target=None, task=""):
     except Exception as exc:
         print(f"  walk to {task} failed: {exc}")
         return False
+
+
+def _here_context(task_name=""):
+    """The live map key and the stage number of `task_name`.
+
+    Returns (map_key, stage). Both are needed for the fake-task rules, because
+    "is this visual" is not a property of the task alone: Prime Shields lights up
+    on Skeld but shows nothing on Mira HQ, and Skeld Empty Garbage is only
+    visual at the Storage stage, so its Cafeteria stage can be faked.
+
+    The map is the repo's internal key (SHIP/PB/AIRSHIP/HQ/FUNGLE) because that
+    is the vocabulary task_durations.json uses, and the stage comes from the
+    same _stage_info the do_task progress check uses, so those two can never
+    disagree.
+    """
+    map_key = ""
+    stage = None
+    try:
+        data = utility.getGameData() or {}
+        map_key = utility.normalize_map(data.get("map_id")) or ""
+    except Exception:
+        pass
+    if task_name:
+        try:
+            done, _total, _room = _stage_info(task_name)
+            if done is not None:
+                # completed stages, so the one being stood at is the next index
+                stage = (int(done) or 0) + 1
+        except Exception:
+            pass
+    return map_key, stage
 
 
 def _panel_position(task_name):
@@ -695,61 +749,75 @@ def _role_guidance(role, is_imp, ab):
     # impostor Shapeshifter and a Viper would only ever be told the generic
     # version and their own rules would be unreachable.
     if role == "Shapeshifter":
-        return ("Do NOT shapeshift while a crewmate is near you - they will see the "
-                "transformation and you are dead. Only do it when nobody is near, "
-                "and mimic someone who has not been accused yet.")
+        return ("YOUR ABILITY: appear as another player with `mimic <colour>`. "
+                "Do NOT shapeshift while a crewmate is near you - they will see "
+                "the transformation and you are dead. Only do it when nobody is "
+                "near, and mimic someone who has not been accused yet. If you "
+                "have not used it this round, you are wasting the one thing "
+                "that makes you hard to pin down.")
     if role == "Viper":
-        return ("You can kill from inside a vent. Vent when nobody can see you, and "
-                "kill from there rather than on foot.")
+        return ("YOUR ABILITY: vent, and kill THROUGH the vent at longer range. "
+                "A ground-level USE press is not a Viper kill - you must be "
+                "inside a vent. So: use `vent`, then `kill`. If you are playing "
+                "as a crewmate Viper, your vent is for movement and you cannot "
+                "kill at all.")
     if role == "Phantom":
-        return ("Ability 1 makes you invisible and is usable even as a crewmate, so "
-                "using it is never suspicious. Ability 2 leaves a decoy - place it "
-                "somewhere you have already left. If you are an impostor, kill "
-                "behind a closed door and then vanish to cover the discovery.")
-
-    if is_imp:
-        return ("As an impostor: fake a task before you do anything else, because "
-                "standing still doing nothing is what an impostor looks like. If "
-                "your fellow impostor has just killed and a crewmate is nearby, "
-                "kill that crewmate too - a double kill ends the round. Do not "
-                "shapeshift or stand in the open next to a witness.")
-    if role == "Detective":
-        return ("Do NOT interrogate a random player. Your ability is worth spending "
-                "on a body, or on someone who was near a body, or on someone who "
-                "was following or chasing a player. A player nobody can account "
-                "for is the right target; a player with a solid alibi is not. Read "
-                "your notes before you report and say only what they say.")
-    if role == "Judge":
-        return ("Do NOT spend your overrule on a hunch. Wait until you have real "
-                "information: you witnessed them near a kill, they vented, a body "
-                "was found where they were, or nobody can say where they were. A "
-                "vent-kill is enough. One bad overrule costs you the whole game.")
+        return ("YOUR TWO ABILITIES: `ability` makes you invisible and `ability2` "
+                "leaves a decoy of you somewhere you have already left. Ability 1 "
+                "works even as a crewmate, so using it is never suspicious and is "
+                "a free alibi. As an impostor, kill behind a closed door and then "
+                "vanish to cover the window before the doors open. If you are "
+                "still visible, do not use it - the animation is seen by anyone "
+                "in vision.")
     if role == "Engineer":
-        return ("You can vent for movement, and saying so is a good alibi rather "
-                "than a giveaway. Venting proves nothing on its own.")
-    if role == "Noisemaker":
-        return ("Your decoy arrow pulls players toward wherever you place it. Put "
-                "it somewhere you have already left, ideally near a body, so the "
-                "group walks away from where you actually are.")
+        return ("YOUR ABILITY: `vent` for movement anywhere on the ship. You "
+                "cannot kill. Venting is not a giveaway for an Engineer, and "
+                "saying so unprompted is a good alibi - so use it to get where "
+                "you need to be rather than walking.")
     if role == "Scientist":
-        return ("Vitals tell you who is dead and who is disconnected. If bodies have "
-                "been found but nobody is dead on vitals, a vent happened - that is "
-                "the strongest thing you can tell the room.")
+        return ("YOUR ABILITY: `ability` opens Admin vitals, which tell you who "
+                "is dead and who is disconnected. Read them, then say what you "
+                "saw - it is checkable, so it carries weight in a meeting. If "
+                "bodies have been found but nobody is dead on vitals, a vent "
+                "happened, and that is the strongest thing you can tell the room.")
     if role == "Tracker":
-        return ("You CANNOT vent. Track someone you have actually seen, and turn "
-                "where they went into a specific thing to say in the meeting.")
+        return ("YOUR ABILITY: `ability` tracks one player on the map. Pick "
+                "someone you have actually seen, and turn where they went into "
+                "one specific thing to say in the meeting. You CANNOT vent. If "
+                "you have not tracked anyone this round, you are contributing "
+                "nothing - use it.")
+    if role == "Noisemaker":
+        return ("YOUR ABILITY: `ability` places a decoy arrow that pulls players "
+                "toward wherever you put it. Place it somewhere you have already "
+                "left, ideally near a body, so the group walks away from where "
+                "you actually are.")
+    if role == "Detective":
+        return ("YOUR TWO ABILITIES: `interrogate` inspects the player or body "
+                "you are standing next to, and `notes` reads your notebook. Do "
+                "NOT interrogate a random player - spend it on a body, or on "
+                "someone near one, or someone nobody can account for. Then read "
+                "the notes and report ONLY what they say, without adding a "
+                "theory. Interrogating a stranger wastes the ability and teaches "
+                "you nothing.")
+    if role == "Judge":
+        return ("YOUR ABILITY: `overrule <player_id>` spends your one extra vote "
+                "to eject. Do NOT use it on a hunch. Wait until you have real "
+                "information - you witnessed them near a kill, they vented, a "
+                "body was found where they were, or nobody can say where they "
+                "were. A vent-kill is enough. One bad overrule costs the game.")
     if role == "Guardian Angel":
-        return ("Shield the player the evidence actually points at, not a random "
-                "one. Remember bodies and who was near them.")
+        return ("YOUR ABILITY: `protect <colour>` shields a player for the "
+                "round. Shield the player the evidence actually points at, not a "
+                "random one. You are a ghost, so you have seen things the living "
+                "have not - use that.")
     if role == "Crewmate":
-        return ("Ask 'who followed you' - that question catches more impostors than "
+        return ("You have no ability. Your job is tasks and information: do your "
+                "tasks to look innocent and to make progress, and use what you "
+                "actually saw - bodies, cameras, vitals, who was where. Ask "
+                "'who followed you'; that question catches more impostors than "
                 "asking who was near the body. If you did not see something, do "
                 "not claim you did. Skip the vote if you have no information.")
-    if role == "Impostor":
-        return ("As an impostor: fake a task before you do anything else, because "
-                "standing still doing nothing is what an impostor looks like. If "
-                "your fellow impostor has just killed and a crewmate is nearby, "
-                "kill that crewmate too - a double kill ends the round.")
+
     # An unknown or newly added role still gets the general impostor advice if it
     # is on that side, rather than nothing at all.
     if is_imp:

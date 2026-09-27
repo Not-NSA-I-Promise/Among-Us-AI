@@ -217,30 +217,76 @@ def walk_to(G, x, y):
 
 
 def kill_nearest(G):
-    """Walk up to the closest living player and press USE (the impostor kill)."""
+    """Walk up to the closest living player and press USE.
+
+    Returns a description on success and None on failure. Success is only
+    reported when the game confirms a new body appeared, because press_use() is
+    an ATTEMPT, not a kill.
+
+    It used to return True straight after press_use(). That is what produced
+    "killed" for a Viper whose kill never fired: a Viper kills THROUGH the vent,
+    so a single ground-level USE press is not the same action at all, and
+    nothing was checking whether anything had happened.
+    """
     if not utility.isImpostor() or utility.isDead():
         print("  kill: not a living impostor")
-        return False
-    data = utility.getGameData()
+        return None
+    try:
+        data = utility.getGameData()
+    except Exception as exc:
+        print(f"  kill: could not read the game state ({exc})")
+        return None
+    if not data:
+        print("  kill: no game data")
+        return None
     me = data["color"]
     living = [c for c, dead in data["playersDead"].items() if not dead and c != me]
     if not living:
         print("  kill: nobody alive nearby")
-        return False
+        return None
     pos = data["position"]
-    target = min(living, key=lambda c: utility.get_real_dist(G, data["playersDead"] and pos or pos))
-    # walk toward the target's last known position
     others = [c for c in living if c in data["nearbyPlayers"]]
     if not others:
         print(f"  kill: nobody within sensor range of {pos}")
-        return False
+        return None
     tgt = min(others, key=lambda c: utility.get_real_dist(G, data["nearbyPlayers"][c]))
     print(f"  kill: closing on {tgt}")
     dest = data["nearbyPlayers"][tgt]
     if not walk_to(G, dest[0], dest[1]):
-        return False
+        return None
+
+    # A Viper's kill goes through the vent, so USE has to be pressed from inside
+    # one. Pressing it on the ground does nothing that resembles a kill.
+    try:
+        import botlink
+        role = botlink.get_role()
+        if role == "Viper":
+            if botlink.read_ability().get("invent") != "1":
+                print("  kill: Viper kills from inside a vent and we are not in "
+                      "one. Use `vent` first, then kill.")
+                return None
+    except Exception:
+        pass
+
+    before = _body_count()
     press_use()
-    return True
+    time.sleep(0.9)
+    if _body_count() > before:
+        return f"killed {tgt}"
+    print("  kill: pressed USE but no body appeared - the kill did NOT happen")
+    return None
+
+
+def _body_count():
+    """How many bodies the game currently reports."""
+    try:
+        import botlink
+        presence = botlink.read_kill_presence()
+        if isinstance(presence, dict):
+            return len(presence)
+    except Exception:
+        pass
+    return 0
 
 
 def request_sabotage(name):
@@ -393,9 +439,15 @@ def task_routes(refresh=False):
     return TASK_ROUTES
 
 
-def task_route(name):
-    """The ordered stage positions for a task, or [] if unknown."""
-    return list(task_routes().get(name, []))
+def task_route(name, refresh=False):
+    """The ordered stage positions for a task, or [] if unknown.
+
+    `refresh=True` matters for multi-stage tasks. The plugin publishes only the
+    CURRENT panel, and it changes between stages, so a route cached before the
+    first stage points at a panel the bot has already finished with - which is
+    how Fix Wiring looked stuck while it walked back to a solved panel.
+    """
+    return list(task_routes(refresh=refresh).get(name, []))
 
 
 def stage_rooms(task_name):
