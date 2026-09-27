@@ -55,15 +55,20 @@ def endpoint_pos(color, confidences=(0.8, 0.7, 0.6, 0.5, 0.4)):
 def endpoint_still_present(color):
     """Is this wire's loose end still on screen?
 
-    Checked at HIGH confidence only, and deliberately. A connected wire is still
-    drawn between the two sides of the panel, so the low-confidence rungs used
-    for finding an endpoint in the first place will happily match the middle of
-    the connected wire and make a successful connection look like a failure. That
-    would send the solver round again, dragging an already-connected wire onto
-    whatever is nearest - which the game's own wiki warns is possible, so it
-    would be a wrong connection.
+    Uses the SAME confidence ladder as finding the endpoint in the first place,
+    and that is not a detail: the wire templates in this repo do not match above
+    about 0.74 - the original code even discarded a 0.738 match as a failure. A
+    stricter ladder here therefore finds NOTHING, ever, so "not present" is always
+    true, every wire is instantly declared already-connected, no drag ever runs,
+    and the panel just opens and closes. That is exactly what a live run did after
+    this was briefly set to 0.9/0.85/0.8.
+
+    The worry that motivated a stricter check - a connected wire is still drawn,
+    so a loose match would treat a finished wire as pending and drag it onto a
+    neighbour - is not what happens: the template is the loose END, and the end is
+    what disappears on connection.
     """
-    return endpoint_pos(color, confidences=(0.9, 0.85, 0.8)) is not None
+    return endpoint_pos(color) is not None
 
 
 # Open the panel. The harness does NOT open it for us: it used to press USE here

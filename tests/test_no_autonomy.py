@@ -10,6 +10,15 @@ import types
 import agent
 import agent_loop
 
+# The invented-verb case below is "sudo destroy the reactor", and parse_action
+# falls back to matching a bare task name against the bot's REAL outstanding
+# list. With Start Reactor actually assigned to the player, that reply parsed as
+# a real do_task and this test failed - not because the harness grew autonomy, but
+# because it was reading live sendData.txt. Fixed list, so the result does not
+# depend on which tasks happen to be in the current round.
+agent._match_outstanding_task = lambda text: (
+    "Fix Wiring" if "wir" in str(text).lower() else None)
+
 executed = []
 
 

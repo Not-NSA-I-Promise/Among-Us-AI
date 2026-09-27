@@ -1,6 +1,25 @@
 import _path  # noqa: F401
 import agent
 
+# These tests must not depend on the live game. `parse_action` falls back to
+# matching a bare task name against the bot's REAL outstanding list, so a reply
+# like "sudo destroy the reactor" was accepted or rejected depending on whether
+# the player happened to have Start Reactor outstanding at that moment. It was
+# rejected in one run and accepted in the next with no code change at all.
+# The bare-name behaviour is tested below with a fixed list instead.
+_OUTSTANDING = ["Fix Wiring", "Swipe Card"]
+
+
+def _fixed_match(text):
+    t = str(text).lower()
+    for name in _OUTSTANDING:
+        if name.split()[-1].lower() in t:
+            return name
+    return None
+
+
+agent._match_outstanding_task = _fixed_match
+
 # The exact replies the real model produced in the failing session, plus the
 # phrasings a small local model is likely to reach for.
 cases = [

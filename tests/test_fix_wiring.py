@@ -36,11 +36,13 @@ def check(name, cond, detail=""):
 # mirrors the game's own rule: a wire the bot dropped anywhere disappears, which
 # is why a visible result is not proof and the harness checks the task bar.
 class Screen:
-    def __init__(self, colors, left_rows, right_rows):
+    def __init__(self, colors, left_rows, right_rows, best_confidence=0.738):
         self.loose = {c: (left_rows[i], right_rows[i]) for i, c in enumerate(colors)}
         self.drags = []
         self.closed = False
         self.opens = 0
+        # the best match the templates in this repo can actually achieve
+        self.best_confidence = best_confidence
 
     # where a loose endpoint is drawn, or None if it is already connected
     def endpoint(self, color, side):
@@ -69,7 +71,17 @@ def install_fake_toolkit():
             pass
         which = "l" if region[0] < 1000 else "r"
         pos = SCREEN.endpoint(color, which)
-        return None if pos is None else (pos, pos)
+        if pos is None:
+            return None
+        # REALITY: the wire templates in this repo do not match above about 0.74.
+        # The original code even discarded a 0.738 match. So a template only
+        # matches if the ladder actually reaches that low - and if some code
+        # raises the floor above it, every lookup returns None and the solver
+        # does nothing at all.
+        if SCREEN.best_confidence is not None:
+            if not any(c <= SCREEN.best_confidence for c in confidences):
+                return None
+        return (pos, pos)
     tu.find_template = find_template
 
     def click_use():
@@ -127,10 +139,10 @@ def make_drag():
     return dragTo
 
 
-def run_solver(colors, left_rows, right_rows):
+def run_solver(colors, left_rows, right_rows, best_confidence=0.738):
     """Run the real Fix Wiring solver against a fake screen."""
     global SCREEN
-    SCREEN = Screen(colors, left_rows, right_rows)
+    SCREEN = Screen(colors, left_rows, right_rows, best_confidence)
     install_fake_toolkit()
 
     pg = FakePyautogui()
@@ -191,6 +203,25 @@ install_fake_toolkit()
 check("with no wires visible, nothing was dragged", not SCREEN.drags, SCREEN.drags)
 check("and the panel was not falsely reported as done", not SCREEN.closed,
       SCREEN.closed)
+
+print()
+print("=== templates only match at ~0.74, so the ladder must reach that low ===")
+# This is the regression that broke a live run. The "is this wire still loose?"
+# check was briefly raised to a 0.9/0.85/0.8 floor, which is above what these
+# templates can ever reach. Every lookup then returned None, so every wire was
+# declared already-connected, no drag ever happened, and the panel opened and
+# closed having done nothing.
+screen = run_solver(["red", "blue", "yellow", "pink"],
+                    [100, 200, 300, 400], [1500, 1400, 1300, 1200],
+                    best_confidence=0.738)
+check("a 0.738-matching template is still found",
+      len(screen.drags) == 4, f"{len(screen.drags)} drags: {screen.drags}")
+check("so the panel is actually wired, not just opened and closed",
+      not screen.loose, screen.loose)
+
+# and a stricter floor would silently disable the whole task
+check("a 0.9 floor finds nothing, which is why it must not be used",
+      not any(c <= 0.738 for c in (0.9, 0.85, 0.8)), "ladder is reachable")
 
 print()
 print("=== the solver source itself must not bail out after one wire ===")
