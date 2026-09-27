@@ -36,22 +36,48 @@ def check(name, cond, detail=""):
 # mirrors the game's own rule: a wire the bot dropped anywhere disappears, which
 # is why a visible result is not proof and the harness checks the task bar.
 class Screen:
-    def __init__(self, colors, left_rows, right_rows, best_confidence=0.738):
+    def __init__(self, colors, left_rows, right_rows, best_confidence=0.738,
+                 bright_when_open=True, open_on_first_click=True):
         self.loose = {c: (left_rows[i], right_rows[i]) for i, c in enumerate(colors)}
         self.drags = []
+        self.clicks = 0
         self.closed = False
         self.opens = 0
+        self.open_state = False
         # the best match the templates in this repo can actually achieve
         self.best_confidence = best_confidence
+        self.bright_when_open = bright_when_open
+        # a panel that is already up before the solver runs, and one that
+        # toggles on each click, like the real USE button does
+        self.open_on_first_click = open_on_first_click
 
-    # where a loose endpoint is drawn, or None if it is already connected
+    def click_use(self):
+        """The game's USE button TOGGLES the minigame once a panel is up."""
+        self.clicks += 1
+        if self.open_state:
+            self.open_state = False
+            self.loose = dict(self._all_colors())
+        else:
+            self.open_state = True
+            self.opens += 1
+
+    def _all_colors(self):
+        return self._original_loose.items()
+
+    def panel_open(self):
+        if not self.open_state:
+            return False
+        if self.bright_when_open:
+            return True
+        # brightness is useless here: fall back to the wires themselves
+        return any(endpoint for _, endpoint in self.loose.values())
+
     def endpoint(self, color, side):
+        if not self.open_state:
+            return None
         if color not in self.loose:
             return None
         return self.loose[color][0 if side == "l" else 1]
-
-    def panel_open(self):
-        return self.opens > 0 and bool(self.loose)
 
 
 SCREEN = None
@@ -85,7 +111,7 @@ def install_fake_toolkit():
     tu.find_template = find_template
 
     def click_use():
-        SCREEN.opens += 1
+        SCREEN.click_use()
         return True
     tu.click_use = click_use
 
@@ -100,6 +126,22 @@ def install_fake_toolkit():
 
     sys.modules["task_utility"] = tu
     return tu
+
+
+# The solver asks for a screenshot of the panel region to decide open vs closed.
+def install_screenshot():
+    class FakeShot(list):
+        def __init__(self, bright):
+            super().__init__([bright] * 4)
+
+    pg = sys.modules.get("pyautogui")
+
+    def screenshot(region=None, *a, **k):
+        # a closed panel is a dark room, an open one a pale box
+        bright = 200 if SCREEN.panel_open() else 10
+        return FakeShot(bright)
+
+    pg.screenshot = screenshot
 
 
 # fake pyautogui that records drags and makes the wire disappear
@@ -139,10 +181,15 @@ def make_drag():
     return dragTo
 
 
-def run_solver(colors, left_rows, right_rows, best_confidence=0.738):
+def run_solver(colors, left_rows, right_rows, best_confidence=0.738,
+               bright_when_open=True, start_open=False):
     """Run the real Fix Wiring solver against a fake screen."""
     global SCREEN
-    SCREEN = Screen(colors, left_rows, right_rows, best_confidence)
+    SCREEN = Screen(colors, left_rows, right_rows, best_confidence,
+                    bright_when_open)
+    SCREEN._original_loose = dict(SCREEN.loose)
+    if start_open:
+        SCREEN.open_state = True
     install_fake_toolkit()
 
     pg = FakePyautogui()
@@ -150,6 +197,7 @@ def run_solver(colors, left_rows, right_rows, best_confidence=0.738):
     sys.modules["pyautogui"] = pg
     for m in ("numpy", "cv2"):
         sys.modules.setdefault(m, types.ModuleType(m))
+    install_screenshot()
 
     path = os.path.join(ROOT, "task-solvers", "Fix Wiring.py")
     src = open(path, encoding="utf-8").read()
@@ -203,6 +251,61 @@ install_fake_toolkit()
 check("with no wires visible, nothing was dragged", not SCREEN.drags, SCREEN.drags)
 check("and the panel was not falsely reported as done", not SCREEN.closed,
       SCREEN.closed)
+
+print()
+print("=== USE is a TOGGLE: the panel must only ever be clicked while closed ===")
+# This is what a live run did, and it was confirmed by hand. A duplicated
+# open_panel() call meant the first opened the panel and the second clicked it
+# shut, and every drag after that was into empty space. The panel appeared to
+# open and close while nothing was connected.
+screen = run_solver(["red", "blue", "yellow", "pink"],
+                    [100, 200, 300, 400], [1500, 1400, 1300, 1200])
+check("USE is clicked exactly once, not once to open and once to close",
+      screen.clicks == 1, f"{screen.clicks} clicks")
+check("and the panel is left open for the drags",
+      screen.open_state, "the panel was closed again")
+check("so the wires really were connected", not screen.loose, screen.loose)
+check("all four were dragged", len(screen.drags) == 4, screen.drags)
+
+print()
+print("=== a panel that is ALREADY open is never clicked ===")
+# Even a stray second call to open_panel() must be a no-op, not a click that
+# closes the panel.
+screen = run_solver(["red", "blue", "yellow", "pink"],
+                    [100, 200, 300, 400], [1500, 1400, 1300, 1200],
+                    start_open=True)
+check("an already-open panel is not clicked at all",
+      screen.clicks == 0, f"{screen.clicks} clicks")
+check("and is still wired", len(screen.drags) == 4, screen.drags)
+
+print()
+print("=== open_panel() must be called exactly once in the source ===")
+src = open(os.path.join(ROOT, "task-solvers", "Fix Wiring.py"),
+           encoding="utf-8").read()
+check("there is a single call to open_panel()",
+      src.count("if not open_panel():") == 1,
+      f"{src.count('if not open_panel():')} calls")
+check("and it checks the panel state before every click",
+      "if panel_is_open():" in src,
+      "the loop clicks without checking first")
+
+print()
+print("=== no solver may click USE before checking the panel is closed ===")
+# USE is a toggle once a minigame is up, so click-then-check closes the panel.
+# This bit Fix Wiring twice, in two different ways.
+for solver in ("Fix Wiring", "Inspect Sample", "Fix Communications"):
+    text = open(os.path.join(ROOT, "task-solvers", solver + ".py"),
+                encoding="utf-8").read()
+    body = text[text.find("def open_panel"):]
+    body = body[:body.find("\ndef ", 5)] if "\ndef " in body[5:] else body
+    first_click = body.find("click_use()")
+    first_check = body.find("if panel_is_open():")
+    check(f"{solver} checks the panel before it clicks USE",
+          first_check != -1 and first_check < first_click,
+          f"check at {first_check}, click at {first_click}")
+    check(f"{solver} opens its panel exactly once",
+          text.count("if not open_panel():") == 1,
+          f"{text.count('if not open_panel():')} calls")
 
 print()
 print("=== templates only match at ~0.74, so the ladder must reach that low ===")

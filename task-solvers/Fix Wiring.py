@@ -29,6 +29,20 @@ right_dimensions = [
     SEARCH_HEIGHT,
 ]
 
+# The middle of the screen, which is where the open panel is drawn. Used to tell
+# "the panel is open" from "the panel is closed" by brightness, so a click is
+# never spent on a panel that is already up.
+PANEL_REGION = [
+    dimensions[0] + round(dimensions[2] * 0.25),
+    dimensions[1] + round(dimensions[3] * 0.15),
+    round(dimensions[2] * 0.50),
+    round(dimensions[3] * 0.70),
+]
+# The panel is a pale box on a darker room. A closed panel leaves the room's
+# average well below this; a generous threshold, because a false "closed" only
+# costs one more click while a false "open" would mean dragging at nothing.
+PANEL_BRIGHTNESS = 60.0
+
 wire_colors = ["red", "blue", "yellow", "pink"]
 
 
@@ -74,26 +88,51 @@ def endpoint_still_present(color):
 # Open the panel. The harness does NOT open it for us: it used to press USE here
 # and then this click_use() clicked the on-screen USE button a second time, and
 # with a minigame already open that second click CLOSES it.
+def panel_is_open():
+    """Is the Fix Wiring panel on screen?
+
+    Two independent signals, because getting this wrong is expensive in both
+    directions. A false "closed" costs another click, which is fine. A false
+    "open" is not: we would go on to drag wires that are not there.
+    """
+    for color in wire_colors:
+        if endpoint_pos(color):
+            return True
+    # Second signal: the open panel is a bright box; closed, you see the room
+    # behind it. This is what lets the loop below tell "the click did nothing"
+    # apart from "the panel is open but the wires are not legible yet", which is
+    # the difference between clicking again and clicking on an open panel, which
+    # CLOSES it.
+    try:
+        shot = pyautogui.screenshot(region=PANEL_REGION)
+        return float(np.array(shot).mean()) > PANEL_BRIGHTNESS
+    except Exception:
+        return False
+
+
 def open_panel():
-    """Open the panel and confirm it is really open. Returns True if it is."""
+    """Open the panel and confirm it is really open. Returns True if it is.
+
+    Never clicks a panel that is already open. The USE button is a TOGGLE while a
+    minigame is up, so an extra click does not fail to do anything - it closes
+    the panel. That is not hypothetical: a duplicated call to this function in the
+    source meant the first call opened the panel, the second clicked it shut, and
+    the solver then dragged wires into empty space while reporting that it could
+    not find the panel.
+
+    So the state is checked BEFORE every click, and the click is only issued when
+    the panel is known to be closed.
+    """
     for attempt in range(3):
-        click_use()
-        time.sleep(0.8)
-        for color in wire_colors:
-            if endpoint_pos(color):
-                return True
-        # No endpoint on any wire. Either the panel did not open, or we are
-        # looking at the wrong panel - try opening again rather than dragging
-        # blind.
-        print(f"Fix Wiring: panel not open after opening it "
-              f"(attempt {attempt + 1})")
+        if panel_is_open():
+            return True
+        click_use()          # only ever issued while the panel is closed
+        time.sleep(0.9)
+        if panel_is_open():
+            return True
+        print(f"Fix Wiring: the panel did not open on attempt {attempt + 1}")
     return False
 
-
-if not open_panel():
-    print("Fix Wiring: could not open the panel - the wire endpoints were never "
-          "visible, so no wire was dragged")
-    raise SystemExit(0)
 
 if not open_panel():
     print("Fix Wiring: could not open the panel - the wire endpoints were never "

@@ -91,6 +91,31 @@ Note that `click_use()` is a *mouse click on the on-screen USE button*, while
 `roleplay.press_use()` is the *gamepad A button*. They are not the same thing, and
 that difference is what made the double-open invisible.
 
+### USE is a toggle: never click a panel that is already open
+
+Once a minigame is up, the USE button **closes** it. So an extra click is not
+harmless — it undoes the open. Every `open_panel()` therefore checks the panel
+state *before* it clicks, and only ever spends a click on a panel known to be
+closed. That makes it safe to call more than once, which matters because it has
+been called twice by accident and the result was a panel that opened and closed
+while every drag went into empty space.
+
+"Panel is open" is checked with two independent signals, because the two failure
+directions are not symmetric:
+
+- a false **closed** costs one more click, which is harmless;
+- a false **open** means the solver goes on to drag wires that are not there.
+
+So the signal is the panel's own artwork (a wire endpoint, an anomaly tube) *or*
+the brightness of the panel region, which distinguishes an open pale box from the
+darker room behind it. Brightness alone is what makes this work before the
+artwork is legible.
+
+This bit Fix Wiring twice, in two unrelated ways: a duplicated `open_panel()`
+call, and a `click_use()` that ran before the state check. Both are now covered by
+`tests/test_fix_wiring.py`, which models USE as a toggle and asserts the solver
+clicks exactly once, and never at all when the panel is already up.
+
 ## Abilities: two is the maximum
 
 Verified against the IL2CPP dump by listing every class that overrides

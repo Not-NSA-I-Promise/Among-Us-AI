@@ -28,21 +28,55 @@ import pyautogui
 dimensions = get_dimensions()
 
 
-def panel_is_open():
-    """True if an anomaly tube is on screen, i.e. the panel is really open."""
+def _tube_pos():
+    """Where an anomaly tube is, or None."""
     return find_template(
         f"{get_dir()}\\task-solvers\\cv2-templates\\Inspect Sample\\anomaly.png",
-        confidences=(0.5, 0.4, 0.3), verbose=False) is not None
+        confidences=(0.5, 0.4, 0.3), verbose=False)
+
+
+# The middle of the screen, where the open panel is drawn.
+PANEL_REGION = [
+    dimensions[0] + round(dimensions[2] * 0.25),
+    dimensions[1] + round(dimensions[3] * 0.15),
+    round(dimensions[2] * 0.50),
+    round(dimensions[3] * 0.70),
+]
+
+
+def panel_is_open():
+    """True if the Inspect Sample panel is up.
+
+    Two signals. The tube template is the specific one, but it is a weak one: if
+    the tubes only appear after START is pressed, this is false while the panel is
+    plainly open, and a caller that acted on it would click USE - which CLOSES an
+    open minigame rather than doing nothing. The brightness check covers that case,
+    so a panel that is up is never mistaken for a panel that is not.
+    """
+    if _tube_pos() is not None:
+        return True
+    try:
+        shot = pyautogui.screenshot(region=PANEL_REGION)
+        return float(np.array(shot).mean()) > 60.0
+    except Exception:
+        return False
 
 
 def open_panel():
+    """Open the panel. The state is checked BEFORE every click.
+
+    USE is a toggle while a minigame is up, so clicking a panel that is already
+    open closes it. Checking first means a click is only ever spent on a panel
+    known to be closed, which makes this safe to call more than once.
+    """
     for attempt in range(3):
-        click_use()
-        time.sleep(0.8)
         if panel_is_open():
             return True
-        print(f"Inspect Sample: panel not open after opening it "
-              f"(attempt {attempt + 1})")
+        click_use()
+        time.sleep(0.9)
+        if panel_is_open():
+            return True
+        print(f"Inspect Sample: the panel did not open on attempt {attempt + 1}")
     return False
 
 
@@ -65,9 +99,7 @@ print("Inspect Sample: clicked START")
 tube = None
 for _ in range(30):
     time.sleep(0.25)
-    tube = find_template(
-        f"{get_dir()}\\task-solvers\\cv2-templates\\Inspect Sample\\anomaly.png",
-        confidences=(0.5, 0.4, 0.3), verbose=False)
+    tube = _tube_pos()
     if tube:
         break
 

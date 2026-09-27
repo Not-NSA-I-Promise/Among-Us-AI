@@ -44,13 +44,22 @@ def panel_is_open():
 
 
 def open_panel():
+    """Open the panel. The state is checked BEFORE every click.
+
+    USE is a toggle while a minigame is up, so clicking a panel that is already
+    open closes it rather than doing nothing. Checking first means a click is
+    only ever spent on a panel known to be closed, which makes this safe to call
+    more than once and impossible to turn into a close.
+    """
     for attempt in range(3):
-        click_use()
-        time.sleep(0.8)
         if panel_is_open():
             return True
-        print(f"Fix Communications: panel not open after opening it "
-              f"(attempt {attempt + 1})")
+        click_use()
+        time.sleep(0.9)
+        if panel_is_open():
+            return True
+        print(f"Fix Communications: the panel did not open on attempt "
+              f"{attempt + 1}")
     return False
 
 
