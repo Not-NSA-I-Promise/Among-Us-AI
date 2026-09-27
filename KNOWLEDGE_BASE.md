@@ -123,6 +123,45 @@ Consequence: a bot that fakes wiring in alphabetical or arbitrary order is
 visibly incorrect to anyone who knows the pattern, and a model trained on that
 will repeat it every time.
 
+### All four wires on a panel must be connected
+
+This is the single most important fact about the task, and the harness had it
+wrong. The wiki states that "at each panel, 4 wires are assigned one of the
+default colors: red, blue, yellow, and magenta", and that "the background behind
+the four colored wires is eleven wires for aesthetics". **[high]**
+
+So a single Fix Wiring panel has **four real wires**, and **all four** must be
+connected before the panel counts as done. Only then does the task move to the
+next of its three panels.
+
+The solver used to connect one wire and close the panel, on a mistaken belief
+that a Skeld panel has only one wire. In a live game that produced: drag red,
+close, and the task bar never moved — because a panel with one of four wires
+connected is not finished. Confirmed in game, and the fix is in
+`task-solvers/Fix Wiring.py`.
+
+Two more facts that matter for automating it:
+
+- **A drag can connect to the wrong wire.** "Wires can connect to the incorrect
+  wire, but they must be connected to the correct wire to complete the task", and
+  "multiple wires can be connected to the same wire". **[high]** So the visual
+  result of a drag is not proof of a correct connection - the task's own stage
+  counter is the only real evidence, which is what the harness checks.
+- **Connected wires stay on screen.** They are still drawn between the two sides
+  after connecting. **[med]** So a solver that checks "is this colour still
+  visible?" must look for the loose *endpoint* at high confidence, not for the
+  colour anywhere, or it will think a completed wire is still waiting and drag it
+  again.
+
+### The Polus 8-wire panel is not supported
+
+On Polus the final panel, in Electrical, has **eight** wires: the four standard
+colours plus light green, white, cyan and gray. **[high]** There are no templates
+for those four extra colours in this repo, so that panel cannot be completed
+here. The solver connects what it can and says how many wires it managed, rather
+than claiming the panel is done. Templates for the four extra colours would be
+needed to close this gap.
+
 ---
 
 ## Venting

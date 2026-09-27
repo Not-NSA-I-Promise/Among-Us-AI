@@ -166,10 +166,16 @@
     ],
 
     "fix_wiring": {
-      "panel_order": ["Electrical", "Storage", "Admin", "Navigation", "Cafeteria", "Security"],
-      "note": "you get 3 of these 6 panels per game, in this fixed relative order. upper number to lower number on every panel",
-      "wire_numbers": "colours are ordered by a hidden number 1-7; connect lowest number to lowest",
-      "correct_fake": "stand at the panel for 3-4s per panel, in panel_order, connecting in number order"
+    "panel_order": ["Electrical", "Storage", "Admin", "Navigation", "Cafeteria", "Security"],
+    "wires_per_panel": 4,
+    "wires_per_panel_note": "ALL FOUR must be connected before the panel counts as done, and only then does the task move to the next panel. The eleven wires drawn behind them are decoration and must be ignored. Connecting one wire and closing the panel does nothing - the task bar will not move.",
+    "wire_colors": ["red", "blue", "yellow", "pink"],
+    "note": "you get 3 of these 6 panels per game, in this fixed relative order. upper number to lower number on every panel",
+    "wire_numbers": "colours are ordered by a hidden number 1-7; connect lowest number to lowest",
+    "wrong_connections_allowed": "a wire CAN be dropped on the wrong colour and the game will accept the drag, but the task only completes when every wire is on the correct colour. So a drag that looks successful is not proof - the task bar is the only real evidence.",
+    "connected_wires_stay_visible": "a connected wire is still drawn across the panel, so check for the loose END of the wire, not for the colour being visible, before assuming it still needs connecting",
+    "polus_exception": "the final Polus panel, in Electrical, has EIGHT wires - the four standard colours plus light green, white, cyan and gray. Those four have no templates in this repo, so that panel cannot be completed here.",
+    "correct_fake": "stand at the panel for 3-4s per panel, in panel_order, connecting in number order"
     },
 
     "multi_stage_tasks": {

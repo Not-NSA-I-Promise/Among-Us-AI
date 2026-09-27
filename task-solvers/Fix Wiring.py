@@ -32,7 +32,7 @@ right_dimensions = [
 wire_colors = ["red", "blue", "yellow", "pink"]
 
 
-def endpoint_pos(color):
+def endpoint_pos(color, confidences=(0.8, 0.7, 0.6, 0.5, 0.4)):
     """Where a wire's endpoints are, or None if that colour is not on the panel.
 
     Finding an endpoint is also how we know the panel is actually OPEN. Dragging
@@ -41,13 +41,29 @@ def endpoint_pos(color):
     """
     template = (f"{get_dir()}\\task-solvers\\cv2-templates\\"
                 f"Fix Wiring resized\\{color}Wire.png")
-    left = find_template(template, region=left_dimensions, verbose=False)
+    left = find_template(template, region=left_dimensions,
+                         confidences=confidences, verbose=False)
     if not left:
         return None
-    right = find_template(template, region=right_dimensions, verbose=False)
+    right = find_template(template, region=right_dimensions,
+                          confidences=confidences, verbose=False)
     if not right:
         return None
     return left, right
+
+
+def endpoint_still_present(color):
+    """Is this wire's loose end still on screen?
+
+    Checked at HIGH confidence only, and deliberately. A connected wire is still
+    drawn between the two sides of the panel, so the low-confidence rungs used
+    for finding an endpoint in the first place will happily match the middle of
+    the connected wire and make a successful connection look like a failure. That
+    would send the solver round again, dragging an already-connected wire onto
+    whatever is nearest - which the game's own wiki warns is possible, so it
+    would be a wrong connection.
+    """
+    return endpoint_pos(color, confidences=(0.9, 0.85, 0.8)) is not None
 
 
 # Open the panel. The harness does NOT open it for us: it used to press USE here
@@ -74,37 +90,71 @@ if not open_panel():
           "visible, so no wire was dragged")
     raise SystemExit(0)
 
-# Wires in numeric order, which is the order the game's hidden numbers run in
-# (red 1, blue 2, yellow 3, pink 4). Connecting them out of order is visibly
-# wrong to anyone who knows the pattern, so this order matters.
-connected = 0
-for color in wire_colors:
-    # find_template catches ImageNotFoundException at each rung. The previous
-    # loop here called pyautogui directly, which RAISES rather than returning
-    # None, so the very first attempt at confidence=0.8 killed the script and
-    # the lower rungs were never reached - a 0.738 match was discarded.
-    #
-    # A colour that is not on this panel must be SKIPPED, not treated as the end.
-    # The old `break` stopped the whole loop on the first miss, so a panel whose
-    # wire was not red did nothing at all.
-    ends = endpoint_pos(color)
-    if not ends:
-        continue
-    left, right = ends
+if not open_panel():
+    print("Fix Wiring: could not open the panel - the wire endpoints were never "
+          "visible, so no wire was dragged")
+    raise SystemExit(0)
 
-    pyautogui.moveTo(left[0] + round(dimensions[2] / 32), left[1])
-    pyautogui.dragTo(right[0] - round(dimensions[2] / 19.2), right[1],
-                      duration=0.2, tween=pyautogui.easeOutQuad)
-    time.sleep(0.2)
-    # Deliberately not "connected". A drag that misses still completes the code
-    # path, and this line is what the harness reads as the solver having worked.
-    # The stage counter is the only real evidence, and the harness checks that.
-    print(f"Fix Wiring: dragged the {color} wire across - unverified")
-    connected += 1
-    break   # one wire per panel on Skeld; a second would be a wrong click
+# Which colours are actually on THIS panel, decided once while everything is
+# still loose. It has to be a snapshot, because the test for "is this wire still
+# loose?" is the same test that returns nothing for a colour that is not on the
+# panel at all - so asking per wire would quietly report absent colours as
+# connected and claim 4 of 4 on a two-wire panel.
+panel_colors = [c for c in wire_colors if endpoint_pos(c)]
 
-if connected == 0:
-    print("Fix Wiring: no wire endpoint found on either side of this panel")
+if not panel_colors:
+    print("Fix Wiring: the panel is open but none of the four wires could be "
+          "found on it, so no wire was dragged")
+    try:
+        print(f"Fix Wiring: {click_close()}")
+    except TypeError:
+        pass
+    raise SystemExit(0)
+
+print(f"Fix Wiring: this panel has {len(panel_colors)} wire(s): "
+      f"{', '.join(panel_colors)}")
+
+connected = []
+failed = []
+
+for color in panel_colors:
+    # Order within the panel: the game's own numbers run red 1, blue 2, yellow 3,
+    # pink 4, and connecting them visibly out of order is wrong to anyone who
+    # knows the pattern, so they are done in that order.
+    done = False
+    for attempt in range(3):
+        if not endpoint_still_present(color):
+            # the loose end is gone, so this wire is connected
+            done = True
+            break
+        ends = endpoint_pos(color)
+        if not ends:
+            break
+        left, right = ends
+        pyautogui.moveTo(left[0] + round(dimensions[2] / 32), left[1])
+        pyautogui.dragTo(right[0] - round(dimensions[2] / 19.2), right[1],
+                          duration=0.25, tween=pyautogui.easeOutQuad)
+        # The wire needs a moment to snap into place. Closing the panel after 0.2s
+        # was cancelling the connection before the game registered it, which is
+        # the other half of why the stage never completed.
+        time.sleep(0.7)
+    if done:
+        connected.append(color)
+        print(f"Fix Wiring: connected the {color} wire")
+    else:
+        failed.append(color)
+        print(f"Fix Wiring: the {color} wire did not stay connected after 3 tries")
+
+# Honest summary. A panel is only finished when every wire on it is connected, so
+# this line is what lets the harness tell the difference between "did the panel"
+# and "moved one wire and gave up" - which is what it used to report.
+print(f"Fix Wiring: {len(connected)} of {len(panel_colors)} wires connected"
+      + (f" (unconnected: {', '.join(failed)})" if failed else ""))
+
+if failed:
+    # Leave the panel open. Closing it would throw away the wires that DID
+    # connect, and the retry would start the whole panel from scratch.
+    print("Fix Wiring: leaving the panel open because some wires are unconnected")
 else:
     try:
         how = click_close()
