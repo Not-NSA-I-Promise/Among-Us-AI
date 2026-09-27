@@ -74,14 +74,14 @@ def wires_visible():
 def open_panel():
     """Open the panel with AT MOST ONE click, then wait for it to appear.
 
-    Clicking more than once is what caused this task to fail twice, in two
-    different ways: a duplicated call closed the panel it had just opened, and a
-    loop that re-clicked while waiting for a slow panel did the same thing. Both
-    look identical from outside - the panel opens and closes having done nothing.
+    The harness opens the panel and confirms it from Minigame.Instance before
+    running this, so normally the panel is ALREADY open and no click happens at
+    all. That matters because USE is a toggle once a minigame is up: an extra
+    click does not fail harmlessly, it closes the panel, and the task then
+    appeared to "open and close without connecting anything".
 
-    So the rule is simply: check, click once if the panel is not up, then wait.
-    Never click again. If it does not appear, say so honestly and let the harness
-    retry the whole panel from outside, which is a safe place to do that from.
+    This fallback exists only for running the solver on its own. It checks before
+    it clicks, and never clicks twice.
     """
     if wires_visible():
         return True              # already up: do not touch it

@@ -141,6 +141,13 @@ def _fake_walk(G=None, target=None, task=""):
 
 agent._tasks_here = _fake_tasks_here
 agent._walk_near = _fake_walk
+# The harness now opens the panel and confirms it from the GAME's own state
+# (Minigame.Instance), not from a screenshot. Report it open for this scenario.
+botlink.read_minigame = lambda *a, **k: {"open": True, "task": "DivertPower"}
+botlink.minigame_is = lambda name=None, timeout=0, poll=0: (
+    {"open": True, "task": "DivertPower"})
+import roleplay as _rp0  # noqa: E402
+_rp0.press_use = lambda *a, **k: None
 calls = []
 import importlib.util as _il
 spec = _il.spec_from_file_location(
@@ -209,26 +216,64 @@ finally:
     agent._FAKED_ONCE.clear()
 
 print()
-print("=== 5b. it refuses when it cannot reach the panel ===")
+print("=== 5b. it refuses when the GAME says the panel did not open ===")
+# The harness confirms the panel from Minigame.Instance rather than from a
+# screenshot. If the game says no minigame, the solver must not be run against a
+# closed panel - that is what made "opens and closes, nothing connected" happen.
+import botlink  # noqa: E402
+
 agent._FAKED_ONCE.clear()
-agent._tasks_here = _real_tasks_here
+agent._tasks_here = lambda: []
+agent._walk_near = lambda G=None, target=None, task="": True
+_real_match2 = agent._match_outstanding_task
+_real_locs2 = agent.roleplay_locations
+_real_route2 = _rp2.task_route
+agent._match_outstanding_task = lambda t: "Divert Power"
+agent.roleplay_locations = lambda: {"Divert Power": "Electrical"}
+_rp2.task_route = lambda n, refresh=False: [(5.0, -5.0)]
+botlink.read_minigame = lambda *a, **k: {"open": False, "task": ""}
+botlink.minigame_is = lambda name=None, timeout=0, poll=0: None
+agent.utility.in_meeting = lambda: False
+try:
+    agent.fake_task("Divert Power")
+    check("faking is refused when the panel never opened", False, "it was allowed")
+except agent.ActionError as exc:
+    check("faking is refused when the panel never opened", True)
+    check("and it says the game reported no minigame",
+          "no minigame" in str(exc), exc)
+finally:
+    agent._match_outstanding_task = _real_match2
+    agent.roleplay_locations = _real_locs2
+    _rp2.task_route = _real_route2
+
+print()
+print("=== 5c. a panel the game says is already open is not clicked again ===")
+# USE toggles a minigame, so a second click closes the panel.
+_clicked = []
+_real_press = _rp2.press_use
+_rp2.press_use = lambda *a, **k: _clicked.append(1)
+botlink.read_minigame = lambda *a, **k: {"open": True, "task": "DivertPower"}
+botlink.minigame_is = lambda name=None, timeout=0, poll=0: (
+    {"open": True, "task": "DivertPower"})
+try:
+    agent._stand_at_panel("Divert Power")
+    check("an already-open panel is not pressed USE again",
+          not _clicked, f"{len(_clicked)} presses")
+finally:
+    _rp2.press_use = _real_press
+
+print()
+print("=== 5d. it refuses when it cannot walk there at all ===")
+agent._FAKED_ONCE.clear()
+agent._tasks_here = lambda: []
 agent._walk_near = lambda G=None, target=None, task="": False
-set_state(imp=True, room="Weapons")
 try:
     agent.fake_task("Divert Power")
     check("faking away from the task is refused when it cannot walk", False,
           "it was allowed")
 except agent.ActionError as exc:
     check("faking away from the task is refused when it cannot walk",
-          "could not walk" in str(exc), exc)
-
-set_state(imp=True, room="Storage")
-try:
-    agent.fake_task("Divert Power")
-    check("faking from the wrong panel is refused", False, "it was allowed")
-except agent.ActionError as exc:
-    check("faking from the wrong panel is refused",
-          "could not walk" in str(exc) or "not Divert Power" in str(exc), exc)
+          "could not walk" in str(exc) or "could not get to" in str(exc), exc)
 agent._walk_near = lambda G=None, target=None, task="": True
 
 print()

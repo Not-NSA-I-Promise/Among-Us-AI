@@ -558,6 +558,29 @@ def _stand_at_panel(task_name):
         target = pos
     if not _walk_near(G=None, target=target, task=task_name):
         return f"could not walk to the {task_name} panel"
+
+    # Open the panel HARNESS-side, and confirm it from the game's own state rather
+    # than from a screenshot. Minigame.Instance is the authority; every pixel-based
+    # "is it open" check that came before was a guess and each one was wrong in a
+    # different way.
+    #
+    # The solver still has its own single click as a fallback, because it may be
+    # run on its own, but when the panel is already up the solver must not click
+    # again - USE is a toggle and that closes the panel.
+    if botlink.read_minigame().get("open"):
+        return ""                       # already open: do not touch it
+    if utility.in_meeting():
+        return "a meeting started before the panel could be opened"
+    try:
+        import roleplay
+        roleplay.press_use()
+    except Exception as exc:
+        return f"could not press USE to open the {task_name} panel ({exc})"
+
+    state = botlink.minigame_is(task_name, timeout=4.0)
+    if not state:
+        return (f"the {task_name} panel did not open - the game still reports no "
+                f"minigame, so the solver was not run against a closed panel")
     return ""
 
 

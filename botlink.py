@@ -217,6 +217,66 @@ def read_kill_presence() -> dict:
 
 ABILITY_PATH = os.path.join(_GAME_DIR, "abilityData.txt")
 VENT_PATH = os.path.join(_GAME_DIR, "ventData.txt")
+MINIGAME_PATH = os.path.join(_GAME_DIR, "minigameState.txt")
+
+
+def read_minigame(retries=4):
+    """What the GAME says about the task panel: is it open, and which one.
+
+    This is read from Minigame.Instance in the game itself, not inferred from a
+    screenshot. The screenshot heuristics were the source of a long run of
+    defects - claiming a panel was open when it was closed, closed when it was
+    open, and unable to tell a wiring panel from a lights panel - because they
+    were guesses about pixels standing in for a fact the game already knows.
+
+    Returns {"open": bool, "task": str} where `task` is the game's own name for
+    the panel, e.g. "FixWiring". Returns open=False when no panel is up, or when
+    the plugin is not running.
+    """
+    out = {"open": False, "task": ""}
+    for _ in range(retries):
+        try:
+            with open(MINIGAME_PATH) as f:
+                text = f.read()
+        except OSError:
+            time.sleep(0.05)
+            continue
+        out = {"open": False, "task": ""}
+        for line in text.splitlines():
+            line = line.strip()
+            if line.startswith("open "):
+                out["open"] = line[5:].strip() == "1"
+            elif line.startswith("task "):
+                out["task"] = line[5:].strip()
+        return out
+    return out
+
+
+def minigame_is(task_name=None, timeout=3.0, poll=0.1):
+    """Wait for a panel to be open. Optionally require a specific task.
+
+    `task_name` is matched leniently: the game calls it "FixWiring" and the
+    harness calls it "Fix Wiring", so compare with the spaces and case removed.
+
+    Returns the state dict, or None on timeout. Callers must not treat None as
+    "closed" without saying so - that is what turned a slow panel into a panel
+    that was believed shut.
+    """
+    deadline = time.time() + max(0.0, timeout)
+    want = _norm_task(task_name) if task_name else None
+    state = {"open": False, "task": ""}
+    while True:
+        state = read_minigame()
+        if state["open"] and (want is None or _norm_task(state["task"]) == want):
+            return state
+        if time.time() >= deadline:
+            return None
+        time.sleep(poll)
+
+
+def _norm_task(name):
+    """'Fix Wiring', 'FixWiring' and 'fix_wiring' all become 'fixwiring'."""
+    return "".join(ch for ch in str(name).lower() if ch.isalnum())
 
 
 def read_ability(retries=4):
