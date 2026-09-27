@@ -3,6 +3,7 @@ import cv2
 from task_utility import *
 import time
 import copy
+import os
 import pyautogui
 
 dimensions = get_dimensions()
@@ -52,25 +53,6 @@ def endpoint_pos(color, confidences=(0.8, 0.7, 0.6, 0.5, 0.4)):
     return left, right
 
 
-def endpoint_still_present(color):
-    """Is this wire's loose end still on screen?
-
-    Uses the SAME confidence ladder as finding the endpoint in the first place,
-    and that is not a detail: the wire templates in this repo do not match above
-    about 0.74 - the original code even discarded a 0.738 match as a failure. A
-    stricter ladder here therefore finds NOTHING, ever, so "not present" is always
-    true, every wire is instantly declared already-connected, no drag ever runs,
-    and the panel just opens and closes. That is exactly what a live run did after
-    this was briefly set to 0.9/0.85/0.8.
-
-    The worry that motivated a stricter check - a connected wire is still drawn,
-    so a loose match would treat a finished wire as pending and drag it onto a
-    neighbour - is not what happens: the template is the loose END, and the end is
-    what disappears on connection.
-    """
-    return endpoint_pos(color) is not None
-
-
 # Open the panel. The harness does NOT open it for us: it used to press USE here
 # and then this click_use() clicked the on-screen USE button a second time, and
 # with a minigame already open that second click CLOSES it.
@@ -116,11 +98,32 @@ if not open_panel():
           "visible, so no wire was dragged")
     raise SystemExit(0)
 
+def _save_debug(why):
+    """Save the panel to a PNG so a failure can be looked at.
+
+    Every attempt to get this task right has been a guess about where the wire
+    ends are, and each guess was wrong differently. The templates were measured
+    rather than guessed, but the panel's layout in the live game has not been,
+    and until somebody looks at a real panel the guesses keep coming.
+    """
+    try:
+        region = [
+            dimensions[0] + round(dimensions[2] * 0.15),
+            dimensions[1] + round(dimensions[3] * 0.05),
+            round(dimensions[2] * 0.70),
+            round(dimensions[3] * 0.90),
+        ]
+        path = os.path.join(get_dir(), f"fix_wiring_debug_{why}.png")
+        pyautogui.screenshot(region=region).save(path)
+        print(f"Fix Wiring: saved the panel to {path} ({why})")
+    except Exception as exc:
+        print(f"Fix Wiring: could not save a debug image ({exc})")
+
+
 # Which colours are actually on THIS panel, decided once while everything is
-# still loose. It has to be a snapshot, because the test for "is this wire still
-# loose?" is the same test that returns nothing for a colour that is not on the
-# panel at all - so asking per wire would quietly report absent colours as
-# connected and claim 4 of 4 on a two-wire panel.
+# still loose. It has to be a snapshot: the "is this wire still loose?" test
+# returns nothing for a colour that is not on the panel at all, so asking per
+# wire would report absent colours as connected.
 panel_colors = [c for c in wire_colors if endpoint_pos(c)]
 
 if not panel_colors:
@@ -135,48 +138,55 @@ if not panel_colors:
 print(f"Fix Wiring: this panel has {len(panel_colors)} wire(s): "
       f"{', '.join(panel_colors)}")
 
-connected = []
-failed = []
-
+# The templates were MEASURED to be 34x39 and 37x38 pixels, fully opaque, so the
+# centre of a match is the centre of the wire's end nub. That means the centre is
+# the right place to grab and the right place to drop.
+#
+# The old code dragged from left+width/32 to right-width/19.2. On a 1920 window
+# that is +60px to -100px, which is one and a half to three whole template-widths
+# AWAY from a nub that is only 34px wide. It happened to work because the drag
+# kept the same y and the game snaps to whatever is nearest, but it is not
+# targeting the wire.
+#
+# And the wire is not verified visually here. A per-wire "is it gone?" check was
+# added and had to be removed: a 34x39 template on a confidence ladder that
+# reaches 0.4, searched over a region containing the ELEVEN decorative background
+# wires, produces false matches almost every time. So a wire that had connected
+# correctly still read as present, and the solver dragged it three more times
+# before giving up on a wire that was already done. That check was the reason a
+# live run reported wires refusing to stay connected.
+#
+# The harness already owns the real verdict: the task's stage counter. If the
+# panel really was wired, the stage advances. If it was not, do_task says so and
+# retries the panel from outside, which is a safe place to retry from.
+dragged = []
 for color in panel_colors:
-    # Order within the panel: the game's own numbers run red 1, blue 2, yellow 3,
-    # pink 4, and connecting them visibly out of order is wrong to anyone who
-    # knows the pattern, so they are done in that order.
-    done = False
-    for attempt in range(3):
-        if not endpoint_still_present(color):
-            # the loose end is gone, so this wire is connected
-            done = True
-            break
-        ends = endpoint_pos(color)
-        if not ends:
-            break
-        left, right = ends
-        pyautogui.moveTo(left[0] + round(dimensions[2] / 32), left[1])
-        pyautogui.dragTo(right[0] - round(dimensions[2] / 19.2), right[1],
-                          duration=0.25, tween=pyautogui.easeOutQuad)
-        # The wire needs a moment to snap into place. Closing the panel after 0.2s
-        # was cancelling the connection before the game registered it, which is
-        # the other half of why the stage never completed.
-        time.sleep(0.7)
-    if done:
-        connected.append(color)
-        print(f"Fix Wiring: connected the {color} wire")
-    else:
-        failed.append(color)
-        print(f"Fix Wiring: the {color} wire did not stay connected after 3 tries")
+    ends = endpoint_pos(color)
+    if not ends:
+        print(f"Fix Wiring: the {color} wire could not be located when it came "
+              f"to connecting it")
+        continue
+    left, right = ends
+    pyautogui.moveTo(left[0], left[1])
+    pyautogui.dragTo(right[0], right[1], duration=0.25,
+                     tween=pyautogui.easeOutQuad)
+    # The wire needs a moment to settle into place. Closing faster than this was
+    # cancelling the connection before the game registered it.
+    time.sleep(0.5)
+    dragged.append(color)
+    print(f"Fix Wiring: dragged the {color} wire across")
 
-# Honest summary. A panel is only finished when every wire on it is connected, so
-# this line is what lets the harness tell the difference between "did the panel"
-# and "moved one wire and gave up" - which is what it used to report.
-print(f"Fix Wiring: {len(connected)} of {len(panel_colors)} wires connected"
-      + (f" (unconnected: {', '.join(failed)})" if failed else ""))
+print(f"Fix Wiring: dragged {len(dragged)} of {len(panel_colors)} wire(s)")
 
-if failed:
-    # Leave the panel open. Closing it would throw away the wires that DID
-    # connect, and the retry would start the whole panel from scratch.
-    print("Fix Wiring: leaving the panel open because some wires are unconnected")
+if len(dragged) < len(panel_colors):
+    # Leave it open rather than throwing away the wires that did land.
+    _save_debug("some-wires-not-connected")
+    print("Fix Wiring: leaving the panel open because some wires were not "
+          "connected")
 else:
+    # Still capture it: the harness only sees the task bar, so this is the only
+    # record of what the drags actually looked like.
+    _save_debug("dragged")
     try:
         how = click_close()
         print(f"Fix Wiring: {how}")

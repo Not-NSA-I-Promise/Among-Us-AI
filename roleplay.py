@@ -41,8 +41,26 @@ VENT_BUTTON = vg.XUSB_BUTTON.XUSB_GAMEPAD_RIGHT_SHOULDER
 
 
 def press_vent(duration=0.15):
-    """Tap RT to enter/leave a vent."""
+    """Enter or leave a vent.
+
+    Tries USE first, then the right shoulder. Which one is correct was measured
+    from the game binary rather than guessed: `Vent` is declared as
+    `public class Vent : MonoBehaviour, IUsable`, with `UsableDistance` and a
+    `UseIcon`, and `VentButton : ActionButton` with a `currentTarget` field. In
+    this game a vent is an ordinary *usable* - the same category as a task
+    console - so it is entered with the interact button, and the on-screen vent
+    button is one of the HUD's action buttons.
+
+    That makes the dedicated RIGHT_SHOULDER binding used until now the suspect for
+    "cannot get into a vent". Both are tried, in that order, because a button the
+    game is not listening for costs nothing while guessing wrong costs a whole
+    round.
+    """
+    press_button(USE_BUTTON, duration)
+    if botlink.read_ability().get("invent") == "1":
+        return True
     press_button(VENT_BUTTON, duration)
+    return botlink.read_ability().get("invent") == "1"
 
 
 def _pad():

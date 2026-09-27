@@ -344,7 +344,34 @@ check("all four colours are in the work list",
       all(f'"{c}"' in src for c in ("red", "blue", "yellow", "pink")))
 
 print()
+print("=== the drag targets the wire end, which the templates MEASURED ===")
+# The templates are 34x39 and 37x38 pixels and fully opaque, so the centre of a
+# match is the centre of the nub. The old code dragged from left+width/32 to
+# right-width/19.2 - on 1920 that is +60px to -100px, one and a half to three
+# whole template-widths away from a 34px nub.
+check("no arbitrary grab offset is added to the left endpoint",
+      "dimensions[2] / 32" not in src, "the +width/32 grab offset is back")
+check("no arbitrary drop offset is subtracted from the right endpoint",
+      "dimensions[2] / 19.2" not in src, "the -width/19.2 drop offset is back")
+check("it drags to the centre of both ends",
+      "pyautogui.dragTo(right[0], right[1]" in src,
+      "the drop is not aimed at the endpoint centre")
+
+print()
+print("=== the solver must not verify a wire visually ===")
+# A 34x39 template on a ladder reaching 0.4, over a region containing the eleven
+# decorative background wires, false-matches almost every time. A wire that had
+# connected correctly still read as present, so it was dragged three more times
+# and reported as a failure.
+check("there is no per-wire 'is it still connected' check",
+      "endpoint_still_present" not in src and
+      "did not stay connected" not in src,
+      "the false-positive verification is back")
+check("it saves the panel instead, so a failure is inspectable",
+      "fix_wiring_debug_" in src, "no debug capture")
+
+print()
 if fails:
     print("FAILURES:", ", ".join(fails))
     raise SystemExit(1)
-print("all checks passed: all four wires, in order, verified before closing")
+print("all checks passed: all four wires, one click to open, no false verdicts")
