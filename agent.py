@@ -264,22 +264,29 @@ def vent():
 
 # ------------------------------------------------------------------ tasks
 def do_task(name=None):
-    """Do a named task: walk to where it is, then solve it.
+    """Do a task in the room you are standing in.
 
-    The model chooses WHICH task and WHEN. The harness only does the mechanical
-    part - walking there and working the minigame - because a model cannot usefully
-    direct pixel-level dragging and asking it to would burn context for nothing.
+    Deliberately NOT a "go there and do it" action. Offering every outstanding
+    task at all times led the model to ask for a task in a room it was not in -
+    it would try to empty garbage while standing in Cafeteria - which is both a
+    wasted turn and a dead giveaway. The model is told the tasks underfoot, and
+    gets go_to when it wants one from somewhere else.
     """
     import roleplay
     import solver
-    if not utility.isImpostor() or utility.isDead():
-        # Crewmates do real tasks. Impostors do not: real progress on a task is
-        # proof of innocence, so an imp asking to do one is asking for the
-        # opposite of what it wants.
+
+    # This was inverted. `not isImpostor()` is true for a CREWMATE, so a
+    # crewmate got refused with "you are an impostor" and then idled for the
+    # whole round. The condition and the message had to agree.
+    if utility.isImpostor() and not utility.isDead():
         raise ActionError("you are an impostor - do not complete real tasks, "
                           "use fake_task instead to look busy")
+
+    if utility.isDead():
+        raise ActionError("you are dead - ghosts cannot do tasks")
+
     if not name:
-        # no name given: just solve whatever is underfoot
+        # no name given: solve whatever is underfoot
         try:
             ok = solver.solve_task()
         except Exception as exc:
@@ -288,35 +295,34 @@ def do_task(name=None):
             raise ActionError(f"the solver returned {ok}")
         return "did the task here"
 
+    here = _tasks_here()
     wanted = str(name).strip()
-    try:
-        G = utility.load_G(utility.getGameData()["map_id"])
-    except Exception as exc:
-        raise ActionError(f"no map graph: {exc}")
-
-    task = roleplay.find_task(wanted)
-    if task is None:
+    match = roleplay.find_task(wanted)
+    if match is None:
         available = roleplay.outstanding_tasks()
         raise ActionError(
-            f"no outstanding task called {wanted!r}. "
-            f"Outstanding: {', '.join(available) if available else 'none'}")
-    task_name, location = task
-    if location:
-        pos = roleplay.room_position(G, location)
-        if pos is None:
-            raise ActionError(f"task {task_name!r} is in {location!r}, "
-                              f"which is not a room I recognise")
-        if not roleplay.walk_to(G, pos[0], pos[1]):
-            raise ActionError(f"could not walk to {location} for {task_name}")
-        # let the walk settle before the minigame is opened
-        time.sleep(0.4)
+            f"you do not have a task called {wanted!r}. "
+            f"You still have: {', '.join(available) if available else 'nothing'}")
+
+    task_name, location = match
+    if not here:
+        raise ActionError(
+            f"there is no task in this room to do. "
+            f"{task_name} is in {location or 'another room'} - use go_to first")
+    if task_name not in here:
+        # the model named a real task, just not one that is underfoot
+        raise ActionError(
+            f"{task_name} is not in this room. "
+            f"Tasks in this room: {', '.join(here) or 'none'}. "
+            f"{task_name} is in {location or 'another room'} - use go_to first")
+
     try:
         ok = solver.solve_task(task_name=task_name)
     except Exception as exc:
         raise ActionError(f"solving {task_name} failed: {exc}")
     if ok != 0:
-        raise ActionError(f"the solver returned {ok} for {task_name} at {location}")
-    return f"completed {task_name} in {location}"
+        raise ActionError(f"the solver returned {ok} for {task_name}")
+    return f"completed {task_name}"
 
 
 # ---------------------------------------------------------------- social
@@ -397,13 +403,37 @@ def _color_index(color):
                           f"valid: {', '.join(botlink.COLOR_NAMES)}")
 
 
+def roleplay_outstanding():
+    import roleplay
+    return roleplay.outstanding_tasks()
+
+
+def roleplay_locations():
+    """Task name -> the room it is in, so a refusal can say where to go."""
+    import roleplay
+    out = {}
+    try:
+        data = utility.getGameData()
+    except Exception:
+        return out
+    names = data.get("tasks") or []
+    locs = data.get("task_locations") or []
+    for i, n in enumerate(names):
+        if i < len(locs):
+            out[n] = locs[i].split("|")[0].strip()
+    return out
+
+
 def _role_guidance(role, is_imp, ab):
     """Role-specific judgement, as advice in the prompt.
 
     Not enforced by the harness - it is the model's decision, which is the point.
     But the model has no way to know these rules unless it is told them, and a
     base model will happily shapeshift next to a witness or interrogate a
-    random player. The rules come from dataset/AMONGUS_DICTIONARY.json.
+    random player.
+
+    Every role in the game has an entry. A missing one is a role playing blind,
+    so an unknown role gets the generic fallback rather than nothing.
     """
     # Specific role advice is checked BEFORE the generic impostor advice, or an
     # impostor Shapeshifter and a Viper would only ever be told the generic
@@ -441,6 +471,10 @@ def _role_guidance(role, is_imp, ab):
     if role == "Engineer":
         return ("You can vent for movement, and saying so is a good alibi rather "
                 "than a giveaway. Venting proves nothing on its own.")
+    if role == "Noisemaker":
+        return ("Your decoy arrow pulls players toward wherever you place it. Put "
+                "it somewhere you have already left, ideally near a body, so the "
+                "group walks away from where you actually are.")
     if role == "Scientist":
         return ("Vitals tell you who is dead and who is disconnected. If bodies have "
                 "been found but nobody is dead on vitals, a vent happened - that is "
@@ -455,11 +489,29 @@ def _role_guidance(role, is_imp, ab):
         return ("Ask 'who followed you' - that question catches more impostors than "
                 "asking who was near the body. If you did not see something, do "
                 "not claim you did. Skip the vote if you have no information.")
-    return ""
+    if role == "Impostor":
+        return ("As an impostor: fake a task before you do anything else, because "
+                "standing still doing nothing is what an impostor looks like. If "
+                "your fellow impostor has just killed and a crewmate is nearby, "
+                "kill that crewmate too - a double kill ends the round.")
+    # An unknown or newly added role still gets the general impostor advice if it
+    # is on that side, rather than nothing at all.
+    if is_imp:
+        return ("As an impostor: fake a task before you do anything else, because "
+                "standing still doing nothing is what an impostor looks like. Never "
+                "kill or vote your fellow impostor.")
+    return ("Stay with a group if you can - two players together is very hard to "
+            "kill cleanly. Do not claim you saw something you did not see.")
 
 
 def _brief_state():
     data = utility.getGameData()
+    if not data:
+        # getGameData() returns None when the plugin has not written a complete
+        # snapshot yet - which is exactly the "get INTO a match first" state.
+        # Indexing into it raised TypeError and killed the loop.
+        return ("no game data yet - you are not in a match, or the plugin has not "
+                "published a snapshot. Do nothing until this changes.")
     role = botlink.get_role()
     ab = botlink.read_ability()
     living = _living_players()
@@ -486,13 +538,28 @@ def _brief_state():
             pass
 
     # Tasks in this room. Without this the model has no idea it is standing at a
-    # panel, which is most of why it walked the map doing nothing.
+    # panel, which is most of why it walked the map doing nothing. Only the tasks
+    # underfoot are offered, because a task in another room is a `go_to`, not a
+    # `do_task` - asking for it wastes the turn and looks like guessing.
     try:
         here = _tasks_here(data)
     except Exception:
         here = []
     if here:
-        bits.append("tasks in THIS room you can do right now: " + ", ".join(here))
+        if is_imp:
+            bits.append("tasks you could FAKE in THIS room: " + ", ".join(here))
+        else:
+            bits.append("tasks you can do in THIS room right now: " + ", ".join(here))
+    else:
+        bits.append("no task in this room")
+        try:
+            outstanding = roleplay_outstanding()
+        except Exception:
+            outstanding = []
+        if outstanding:
+            where = roleplay_locations()
+            hints = ", ".join(f"{t} ({where.get(t, '?')})" for t in outstanding[:3])
+            bits.append(f"your remaining tasks are elsewhere: {hints} - use go_to")
 
     # The cooldown is the model's business, not the harness's, so give it the
     # number rather than deciding on its behalf that the kill is unavailable.
@@ -540,7 +607,9 @@ def _tasks_here(data=None):
         data = data or utility.getGameData()
     except Exception:
         return []
-    room = str(data.get("room", "")).strip().lower()
+    if not data:
+        return []
+    room = str(data.get("room", "") or "").strip().lower()
     if not room:
         return []
     names = data.get("tasks") or []
@@ -549,11 +618,11 @@ def _tasks_here(data=None):
     for i, name in enumerate(names):
         if i >= len(locs):
             continue
-        loc = locs[i].split("|")[0].strip().lower()
-        # a location can be a list of equivalent rooms, e.g. "Admin | Cafeteria"
-        if not loc:
+        raw = locs[i]
+        if not isinstance(raw, str):
             continue
-        if room in [p.strip() for p in locs[i].lower().split("|")]:
+        parts = [p.strip() for p in raw.lower().split("|")]
+        if room in parts:
             here.append(name)
     return here
 

@@ -130,10 +130,16 @@ class Agent:
     def decide(self):
         """Ask the model for one action. Returns (name, args) or (None, raw)."""
         self._meeting_budget()
+        try:
+            situation = self.situation()
+        except Exception as exc:
+            # A failure building the prompt must not take the bot down. Say what
+            # happened and produce no action.
+            return None, f"<could not read the game state: {type(exc).__name__}: {exc}>"
         messages = [
             {"role": "system", "content": self.system_prompt()},
             {"role": "user", "content":
-                "Current situation: " + self.situation() +
+                "Current situation: " + situation +
                 "\nWhat is your single next action? Reply with one line only."},
         ]
         try:
@@ -198,11 +204,21 @@ def run_forever(interval=2.0, steps=None, on_step=None):
     `interval` is the gap between decisions. It is not a frame rate: a local
     model round trip is the bottleneck, so this is one decision per interval,
     not per frame.
+
+    A turn that raises is reported and the loop continues. One bad read of the
+    game state must not end the round, because the bot stopping is the same
+    thing as the bot standing still, which is what got it suspected in the first
+    place.
     """
     a = Agent()
     n = 0
     while steps is None or n < steps:
-        line = a.step()
+        try:
+            line = a.step()
+        except KeyboardInterrupt:
+            raise
+        except Exception as exc:
+            line = f"harness error: {type(exc).__name__}: {exc}"
         if on_step:
             on_step(line)
         else:

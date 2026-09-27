@@ -120,7 +120,7 @@ state = agent._brief_state() if False else None
 fake_state(room="Electrical")
 state = agent._brief_state()
 check("the state line names the tasks in this room",
-      "tasks in THIS room" in state, state)
+      "in THIS room" in state, state)
 
 print()
 print("=== 8. the model is told about fellow impostors ===")
