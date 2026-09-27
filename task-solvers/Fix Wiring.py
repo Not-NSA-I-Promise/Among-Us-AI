@@ -29,18 +29,56 @@ right_dimensions = [
     SEARCH_HEIGHT,
 ]
 
-click_use()
-time.sleep(0.8)
+wire_colors = ["red", "blue", "yellow", "pink"]
+
+
+def endpoint_pos(color):
+    """Where a wire's endpoints are, or None if that colour is not on the panel.
+
+    Finding an endpoint is also how we know the panel is actually OPEN. Dragging
+    at coordinates on a closed panel just moves the mouse over the game, which
+    is what made a live run report a drag that could not possibly have worked.
+    """
+    template = (f"{get_dir()}\\task-solvers\\cv2-templates\\"
+                f"Fix Wiring resized\\{color}Wire.png")
+    left = find_template(template, region=left_dimensions, verbose=False)
+    if not left:
+        return None
+    right = find_template(template, region=right_dimensions, verbose=False)
+    if not right:
+        return None
+    return left, right
+
+
+# Open the panel. The harness does NOT open it for us: it used to press USE here
+# and then this click_use() clicked the on-screen USE button a second time, and
+# with a minigame already open that second click CLOSES it.
+def open_panel():
+    """Open the panel and confirm it is really open. Returns True if it is."""
+    for attempt in range(3):
+        click_use()
+        time.sleep(0.8)
+        for color in wire_colors:
+            if endpoint_pos(color):
+                return True
+        # No endpoint on any wire. Either the panel did not open, or we are
+        # looking at the wrong panel - try opening again rather than dragging
+        # blind.
+        print(f"Fix Wiring: panel not open after opening it "
+              f"(attempt {attempt + 1})")
+    return False
+
+
+if not open_panel():
+    print("Fix Wiring: could not open the panel - the wire endpoints were never "
+          "visible, so no wire was dragged")
+    raise SystemExit(0)
 
 # Wires in numeric order, which is the order the game's hidden numbers run in
 # (red 1, blue 2, yellow 3, pink 4). Connecting them out of order is visibly
 # wrong to anyone who knows the pattern, so this order matters.
-wire_colors = ["red", "blue", "yellow", "pink"]
-
 connected = 0
 for color in wire_colors:
-    template = f"{get_dir()}\\task-solvers\\cv2-templates\\Fix Wiring resized\\{color}Wire.png"
-
     # find_template catches ImageNotFoundException at each rung. The previous
     # loop here called pyautogui directly, which RAISES rather than returning
     # None, so the very first attempt at confidence=0.8 killed the script and
@@ -49,13 +87,10 @@ for color in wire_colors:
     # A colour that is not on this panel must be SKIPPED, not treated as the end.
     # The old `break` stopped the whole loop on the first miss, so a panel whose
     # wire was not red did nothing at all.
-    left = find_template(template, region=left_dimensions, verbose=False)
-    if not left:
+    ends = endpoint_pos(color)
+    if not ends:
         continue
-
-    right = find_template(template, region=right_dimensions, verbose=False)
-    if not right:
-        continue
+    left, right = ends
 
     pyautogui.moveTo(left[0] + round(dimensions[2] / 32), left[1])
     pyautogui.dragTo(right[0] - round(dimensions[2] / 19.2), right[1],
@@ -76,4 +111,3 @@ else:
         print(f"Fix Wiring: {how}")
     except TypeError:
         pass
-

@@ -61,6 +61,36 @@ Actions, grouped:
 - **social** - say something, vote
 - **observe** - read the map, read the tracker, read the vitals, read notes
 
+## Task panel convention: the solver opens it, the harness only walks
+
+**A task solver opens its own panel. The harness must not open it for them.**
+
+This is not a style preference, it was a live bug. `do_task` walked to the panel
+*and* pressed USE to open it, and then the solver's own `click_use()` clicked the
+on-screen USE button a second time. With a minigame already open, that second
+click **closes** it. So every solver was driving a closed panel: Fix Wiring moved
+the cursor across the screen dragging wires that were not there, and Inspect
+Sample clicked into empty space. From outside it looked like the bot was
+clicking and nothing was happening, which is why both tasks looped forever.
+
+So:
+
+- `_stand_at_panel()` walks to the live route position and **stops there**.
+- The solver calls `click_use()` to open, and `click_close()` to finish.
+- A solver that only makes sense with the panel already open does not exist any
+  more; `Fix Communications.py` was literally `# Do nothing lol` and relied on
+  the harness opening for it.
+
+Every solver that opens a panel must also **confirm it opened** before working on
+it, and must say so when it did not. Dragging wires or clicking tubes on an
+unopened panel is indistinguishable, from the harness's point of view, from doing
+the task correctly, so the solver has to check. `Fix Wiring` looks for a wire
+endpoint; `Inspect Sample` looks for the anomaly tube.
+
+Note that `click_use()` is a *mouse click on the on-screen USE button*, while
+`roleplay.press_use()` is the *gamepad A button*. They are not the same thing, and
+that difference is what made the double-open invisible.
+
 ## Abilities: two is the maximum
 
 Verified against the IL2CPP dump by listing every class that overrides

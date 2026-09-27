@@ -42,23 +42,40 @@ STATE = {
 
 utility.isImpostor = lambda: STATE["imp"]
 utility.isDead = lambda: STATE["dead"]
-utility.get_real_dist = lambda G, p: 0.0
+utility.get_real_dist = lambda G, p: (
+    0.0 if p == (12.0, 10.0) else 99.0)
 
 
-def _install_data():
-    STATE["data"] = {
+def _make_data():
+    """A fresh snapshot: PINK alive, only BLUE already dead."""
+    return {
         "color": "RED",
         "position": (10.0, 10.0),
         "map_id": "SHIP",
         "playersDead": {"RED": False, "PINK": False, "BLUE": True},
         "nearbyPlayers": {"PINK": (12.0, 10.0)},
     }
-    return STATE["data"]
 
 
-utility.getGameData = _install_data
+def _reset():
+    """A new scenario: PINK alive again, nobody dead but BLUE.
+
+    This must be separate from the getGameData stub. When the getter rebuilt the
+    data on every call, every body count reset the death it was meant to detect,
+    so a real kill could never be confirmed - which is exactly the bug this test
+    exists to catch, reintroduced by the stub.
+    """
+    STATE["data"] = _make_data()
+    STATE["bodies"] = 0
+
+
+_reset()
+
+# the getter returns the CURRENT state, like the real file does
+utility.getGameData = lambda: STATE["data"]
 utility.load_G = lambda name: object()
 roleplay.walk_to = lambda G, x, y: True
+roleplay.creep_to = lambda *a, **k: True
 
 
 def _fake_press_use(*a, **k):
@@ -66,6 +83,8 @@ def _fake_press_use(*a, **k):
     which is the whole point: a press is not a kill."""
     STATE["pressed"] = True
     if STATE.get("use_kills"):
+        # the game marks the victim dead, which is the ONLY evidence of a kill
+        STATE["data"]["playersDead"]["PINK"] = True
         STATE["bodies"] += 1
 
 
@@ -81,8 +100,8 @@ botlink.read_kill_presence = lambda *a, **k: {
 print()
 print("=== a kill is only reported when a new body actually appears ===")
 # the press misses: the game does nothing
-STATE.update(imp=True, dead=False, bodies=0, role="Impostor", in_vent="0",
-             use_kills=False)
+_reset()
+STATE.update(imp=True, dead=False, role="Impostor", in_vent="0", use_kills=False)
 STATE.pop("pressed", None)
 out = roleplay.kill_nearest(None)
 check("USE was actually pressed", STATE.get("pressed") is True)
@@ -95,8 +114,8 @@ check("a real kill is reported", out == "killed PINK", out)
 
 print()
 print("=== a Viper must be inside a vent, or the harness refuses instead ===")
-STATE.update(imp=True, dead=False, bodies=1, role="Viper", in_vent="0",
-             use_kills=True)
+_reset()
+STATE.update(imp=True, dead=False, role="Viper", in_vent="0", use_kills=True)
 STATE.pop("pressed", None)
 out = roleplay.kill_nearest(None)
 check("a Viper on the ground does not 'kill'", out is None, out)
@@ -126,10 +145,13 @@ STATE.update(dead=False, imp=False)
 check("a crewmate does not kill", roleplay.kill_nearest(None) is None)
 
 print()
-print("=== nobody nearby is a refusal, not a kill ===")
-STATE.update(imp=True, dead=False, bodies=0)
-d = _install_data()
-d["nearbyPlayers"] = {}
+print("=== nobody in range is a refusal, not a cross-map hike ===")
+_reset()
+STATE.update(imp=True, dead=False, use_kills=True)
+# PINK is alive and present, but far away
+STATE["data"]["nearbyPlayers"]["PINK"] = (900.0, 900.0)
+check("a player too far away is not killed", roleplay.kill_nearest(None) is None)
+STATE["data"]["nearbyPlayers"] = {}
 check("with nobody in range there is no kill", roleplay.kill_nearest(None) is None)
 
 

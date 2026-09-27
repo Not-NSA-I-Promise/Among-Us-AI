@@ -216,17 +216,27 @@ def walk_to(G, x, y):
     return not utility.in_meeting() and not utility.isDead()
 
 
+# How close a player has to be for a kill to be possible. A kill is a press of
+# the interact button while standing next to them, so "in range" is a couple of
+# tiles at most.
+KILL_RANGE = 1.6
+
+
 def kill_nearest(G):
-    """Walk up to the closest living player and press USE.
+    """Kill the closest living player who is actually in range.
 
     Returns a description on success and None on failure. Success is only
-    reported when the game confirms a new body appeared, because press_use() is
-    an ATTEMPT, not a kill.
+    reported when the game confirms a new player died, because press_use() is an
+    ATTEMPT, not a kill.
 
-    It used to return True straight after press_use(). That is what produced
-    "killed" for a Viper whose kill never fired: a Viper kills THROUGH the vent,
-    so a single ground-level USE press is not the same action at all, and
-    nothing was checking whether anything had happened.
+    Two things were wrong here:
+
+    - It used `nearbyPlayers` as if it were the players next to us. That key is
+      the whole roster with positions, so it used to pick the closest person on
+      the entire map and walk to them, then report a failed kill.
+    - It returned True straight after press_use(). A Viper kills THROUGH a vent,
+      so a ground-level press is not the same action at all, and nothing was
+      checking whether anything had actually happened.
     """
     if not utility.isImpostor() or utility.isDead():
         print("  kill: not a living impostor")
@@ -245,15 +255,30 @@ def kill_nearest(G):
         print("  kill: nobody alive nearby")
         return None
     pos = data["position"]
-    others = [c for c in living if c in data["nearbyPlayers"]]
-    if not others:
-        print(f"  kill: nobody within sensor range of {pos}")
+    roster = data["nearbyPlayers"]
+
+    # "nearbyPlayers" is the whole roster with positions, NOT the players next to
+    # us - the old code used it as if it were, so `kill` would pick the closest
+    # person on the entire map and walk to them. A kill needs someone actually in
+    # range; if there is nobody, say so instead of starting a marathon and then
+    # reporting a failed kill.
+    in_range = [c for c in living
+                if c in roster and utility.get_real_dist(G, roster[c]) <= KILL_RANGE]
+    if not in_range:
+        others = [c for c in living if c in roster]
+        if not others:
+            print(f"  kill: nobody within sensor range of {pos}")
+            return None
+        closest = min(others,
+                      key=lambda c: utility.get_real_dist(G, roster[c]))
+        print(f"  kill: nobody within kill range - {closest} is "
+              f"{utility.get_real_dist(G, roster[closest]):.1f} tiles away. "
+              f"Use go_to to get closer first.")
         return None
-    tgt = min(others, key=lambda c: utility.get_real_dist(G, data["nearbyPlayers"][c]))
-    print(f"  kill: closing on {tgt}")
-    dest = data["nearbyPlayers"][tgt]
-    if not walk_to(G, dest[0], dest[1]):
-        return None
+    tgt = min(in_range, key=lambda c: utility.get_real_dist(G, roster[c]))
+    dest = roster[tgt]
+    print(f"  kill: {tgt} is {utility.get_real_dist(G, dest):.2f} tiles away, "
+          f"in range")
 
     # A Viper's kill goes through the vent, so USE has to be pressed from inside
     # one. Pressing it on the ground does nothing that resembles a kill.
@@ -269,7 +294,13 @@ def kill_nearest(G):
         pass
 
     before = _body_count()
-    press_use()
+    # Facing matters: the kill only lands when the impostor is looking at the
+    # target. Creep onto them rather than arriving at an angle.
+    try:
+        creep_to(G, dest[0], dest[1], tolerance=0.3, timeout=1.5)
+    except Exception:
+        pass
+    press_use(duration=0.12)
     time.sleep(0.9)
     if _body_count() > before:
         return f"killed {tgt}"
@@ -278,15 +309,29 @@ def kill_nearest(G):
 
 
 def _body_count():
-    """How many bodies the game currently reports."""
+    """How many players are dead, as the game currently reports it.
+
+    Read from sendData.txt's `playersDead`, NOT from killPresence.txt. The
+    verification added to stop the harness claiming kills that never happened
+    originally used killPresence.txt - and that file is not refreshed during a
+    match, so it stayed at its last value. The count was therefore pinned and a
+    kill could never look confirmed, so every genuine kill was reported as
+    "nothing was killed" and the model learned that killing never works.
+
+    `playersDead` is rewritten on every plugin tick, so it is the only one of the
+    two that is actually live.
+    """
     try:
-        import botlink
-        presence = botlink.read_kill_presence()
-        if isinstance(presence, dict):
-            return len(presence)
+        data = utility.getGameData()
     except Exception:
-        pass
-    return 0
+        return 0
+    if not data:
+        return 0
+    dead = data.get("playersDead") or {}
+    try:
+        return sum(1 for is_dead in dead.values() if is_dead)
+    except (AttributeError, TypeError):
+        return 0
 
 
 def request_sabotage(name):
@@ -780,26 +825,53 @@ def creep_to(G, x, y, tolerance=0.45, timeout=4.0):
 
 
 def enter_vent(G, vent):
-    """Walk to a vent, creep onto it, then press RT. Returns True if in the vent.
+    """Walk to a vent, creep onto it, then press the vent button.
 
-    Used to need two invocations because the first RT press fired before the
-    creep had actually landed on the vent, so the button was out of range. Now it
-    cycles creep+press and re-checks `invent` after each attempt, and reports the
-    final distance so a failure says how far off it was.
+    Returns True only if the game says we are actually in the vent (`invent`).
+
+    Two things made this look broken in a live game:
+
+    - It gave up entirely if a single walk_to failed. walk_to can fail for a
+      moment - a meeting starting, a door, a path that needed another pass - and
+      the old code returned False on the first one instead of trying the next of
+      its four attempts. So a transient failure was reported as "cannot get into
+      a vent".
+    - The creep tolerance was tight and the button press short, so a vent that
+      was reached but not quite stood on would silently refuse the press.
+
+    It now keeps trying, holds the button longer, and reports how far off it
+    ended up so a real failure says why.
     """
-    _, vx, vy = vent
-    for attempt in range(4):
+    vid, vx, vy = vent
+    best = None
+    for attempt in range(6):
+        # A failed walk is not a reason to stop: go round again.
         if not walk_to(G, vx, vy):
-            return False
-        creep_to(G, vx, vy, tolerance=0.35, timeout=2.5)
-        press_vent()
-        time.sleep(0.5)
+            print(f"  vent: walk to vent {vid} failed on attempt "
+                  f"{attempt + 1}, retrying")
+            time.sleep(0.4)
+            continue
+        creep_to(G, vx, vy, tolerance=0.45, timeout=3.0)
+        # longer hold: a short tap on a vent the player is only just standing on
+        # is often ignored by the game
+        press_vent(duration=0.18)
+        time.sleep(0.6)
         if botlink.read_ability().get("invent") == "1":
+            print(f"  vent: entered vent {vid} on attempt {attempt + 1}")
             return True
-    pos = utility.getGameData()["position"] if utility.getGameData() else None
-    if pos:
-        d = math.hypot(vx - pos[0], vy - pos[1])
-        print(f"  vent: RT did not take after 4 attempts, {d:.2f} tiles from vent {vent[0]}")
+        data = utility.getGameData() or {}
+        pos = data.get("position")
+        if pos:
+            d = math.hypot(vx - pos[0], vy - pos[1])
+            best = d
+            if d > 1.0:
+                # we are not even near it, so creeping on the spot will not help
+                print(f"  vent: {d:.2f} tiles from vent {vid}, walking again")
+    if best is not None:
+        print(f"  vent: RT did not take after 6 attempts, ended {best:.2f} tiles "
+              f"from vent {vid}")
+    else:
+        print(f"  vent: could not walk to vent {vid} at all")
     return False
 
 

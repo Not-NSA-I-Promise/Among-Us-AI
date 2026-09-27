@@ -318,19 +318,35 @@ def vent():
         raise ActionError(f"no map graph: {exc}")
 
     if ability.get("invent") == "1":
-        # already in a vent: travel to one of the connected ones
-        options = botlink.read_vent_options()
+        # already in a vent: travel to one of the connected ones. The plugin only
+        # writes ventOptions.txt while we are inside a vent, and only on its own
+        # tick, so reading it the instant we get in races that write and comes
+        # back empty - which is why travelling looked broken while entering
+        # worked. Poll briefly for it instead of giving up on the first miss.
+        options = []
+        for _ in range(10):
+            options = botlink.read_vent_options()
+            if options:
+                break
+            time.sleep(0.25)
         if not options:
             raise ActionError(
-                "you are in a vent but the game reported no travel options. "
-                "Nothing is in range to travel to.")
-        target = options[0][0]
+                "you are in a vent but the game never reported any travel "
+                "options after waiting. You may be in a vent with nothing "
+                "connected to it - leave it with `go_to` to somewhere else.")
+        # travel to a DIFFERENT vent, not back to the one we are in
+        here = options[0][0]
+        target = None
         for vid, _x, _y in options:
-            if vid != options[0][0]:
+            if vid != here:
                 target = vid
                 break
+        if target is None:
+            raise ActionError(
+                f"vent {here} has nothing connected to it, so there is nowhere "
+                f"to travel to. Leave it with `go_to`.")
         if botlink.vent_travel(target):
-            return f"travelled to vent {target}"
+            return f"travelled to vent {target} (from vent {here})"
         raise ActionError(f"the game refused to travel to vent {target}: "
                           f"{botlink.last_result()}")
 
@@ -507,7 +523,18 @@ def _current_task_room(task_name):
 
 
 def _stand_at_panel(task_name):
-    """Walk to the current panel and open it. Returns a note, or a refusal."""
+    """Walk to the current panel. Returns a note, or a refusal.
+
+    It deliberately does NOT open the panel. Pressing USE here opened the
+    minigame, and then the solver's own click_use() clicked the on-screen USE
+    button again - and with a minigame already open, that click CLOSES it. So
+    the solver then dragged wires on a closed panel, which is exactly what was
+    seen in a live game: the cursor crossed the screen while the Fix Wiring
+    panel was gone.
+
+    Almost every solver already calls click_use() itself, which is the
+    convention. So this walks, confirms arrival, and leaves the opening to them.
+    """
     try:
         import roleplay
     except Exception as exc:
@@ -531,12 +558,6 @@ def _stand_at_panel(task_name):
         target = pos
     if not _walk_near(G=None, target=target, task=task_name):
         return f"could not walk to the {task_name} panel"
-    time.sleep(0.3)
-    try:
-        roleplay.press_use()
-        time.sleep(0.6)
-    except Exception:
-        pass
     return ""
 
 
