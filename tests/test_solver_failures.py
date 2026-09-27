@@ -67,8 +67,43 @@ for path in SOLVERS:
     if "locateCenterOnScreen" not in src:
         continue
     uses_helper = "find_template" in src
-    # the only remaining direct calls should be inside task_utility's own helper
     check("{} routes through find_template".format(name), uses_helper, src[:200])
+
+print()
+print("=== 1b. task_utility has no unguarded call OUTSIDE find_template ===")
+# This hole let click_close through. It is called at the end of nearly every
+# solver, so an exception there turned a COMPLETED task into a reported failure
+# - the live log showed exactly that: "connected the red wire", then a crash.
+tu = open(os.path.join("task-solvers", "task_utility.py"),
+          encoding="utf-8", errors="replace").read()
+_hs = tu.find("def find_template(")
+_he = tu.find("\ndef ", _hs + 10)
+outside = tu[:_hs] + tu[_he:]
+check("no direct locateCenterOnScreen outside find_template",
+      "pyautogui.locateCenterOnScreen" not in outside,
+      outside[:0] if "pyautogui.locateCenterOnScreen" not in outside
+      else "still present outside the helper")
+
+import re as _re
+_m = _re.search(r"def click_close\(\):(.*?)(?=\ndef |\Z)", tu, _re.S)
+_body = _m.group(1) if _m else ""
+check("click_close is defined", bool(_body))
+check("no bare locateCenterOnScreen in click_close",
+      "pyautogui.locateCenterOnScreen" not in _body)
+check("click_close uses find_template", "find_template" in _body)
+check("click_close has an escape fallback", "escape" in _body)
+try:
+    if os.path.join(os.getcwd(), "task-solvers") not in sys.path:
+        sys.path.insert(0, os.path.join(os.getcwd(), "task-solvers"))
+    import task_utility as _tu
+    _tu.wake = lambda: None
+    _tu.get_dimensions = lambda: None        # force the fallback path
+    out = _tu.click_close()
+    check("click_close survives with no dimensions and no template",
+          isinstance(out, str), repr(out))
+except Exception as exc:
+    check("click_close survives with no dimensions and no template", False,
+          f"it raised {type(exc).__name__}: {exc}")
 
 print()
 print("=== 2. every solver that uses find_template imports it ===")
@@ -151,8 +186,10 @@ src = agent.__file__
 with open(src, encoding="utf-8") as f:
     a = f.read()
 check("handles rc == 3 as a crash", "rc == 3" in a)
-check("says the task was not attempted successfully",
-      "was not attempted successfully" in a)
+check("but still verifies the task actually went away after a crash",
+      "crashed in its cleanup" in a and "the task itself is done" in a)
+check("only calls a crash a failure if the task is really still outstanding",
+      "crashed and the task is still" in a and "NOT completed" in a)
 check("still verifies the task actually went away",
       "still showing as" in a)
 

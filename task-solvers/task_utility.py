@@ -173,13 +173,44 @@ def get_dir():
     return os.getcwd()
 
 def click_close():
-    wake()
-    dim = get_dimensions()
-    resize_images(dim, "close")
-    center = pyautogui.locateCenterOnScreen(f"{get_dir()}\\task-solvers\\cv2-templates\\close resized\\closeX.png", confidence=0.7, grayscale=True)
-    pydirectinput.moveTo(center[0], center[1])
-    pydirectinput.click()
-    return
+    """Close the open task panel.
+
+    This must never raise. It is called at the end of nearly every solver, often
+    straight after the task succeeded - so if the close button cannot be found,
+    killing the solver with an exception turned a completed task into a reported
+    failure. The task panel closes on Escape anyway, so that is the fallback.
+    """
+    try:
+        wake()
+    except Exception:
+        pass
+    try:
+        dim = get_dimensions()
+    except Exception:
+        dim = None
+    if dim:
+        try:
+            resize_images(dim, "close")
+        except Exception:
+            pass
+    center = find_template(
+        f"{get_dir()}\\task-solvers\\cv2-templates\\close resized\\closeX.png",
+        confidences=(0.7, 0.6, 0.5, 0.4), grayscale=True, verbose=False)
+    if center:
+        try:
+            pydirectinput.moveTo(center[0], center[1])
+            pydirectinput.click()
+            return "closed with the X button"
+        except Exception as exc:
+            print(f"  close: click failed ({exc}); using escape")
+    # The panel closes on Escape whether or not the X was found. Trying this
+    # costs nothing and is far better than raising.
+    try:
+        pyautogui.press("escape")
+        return "closed with escape"
+    except Exception as exc:
+        print(f"  close: could not close the panel ({exc})")
+        return "could not close the panel"
 
 def get_screen_coords():
     while True:

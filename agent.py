@@ -361,18 +361,25 @@ def do_task(name=None):
         raise ActionError(f"solving {task_name} failed: {exc}")
     if rc == 1:
         raise ActionError(f"a meeting interrupted {task_name}")
-    if rc == 3:
-        raise ActionError(f"the {task_name} solver crashed - see the traceback "
-                          f"above. The task was not attempted successfully.")
     if rc == 2:
         return f"started {task_name}{walked} - it finishes later (it is timed)"
 
-    # Verify. solve_task returns 0 when the subprocess exited, which says nothing
-    # about whether anything was solved.
+    # Verify. solve_task returns 0 when the subprocess exits, which says nothing
+    # about whether anything was solved - and a crash (rc 3) can also happen in
+    # cleanup, AFTER the work was done. So the task list is re-read either way and
+    # a crash is only reported as a failure if the task really is still there.
     time.sleep(0.4)
     after = roleplay_outstanding()
     if task_name not in after:
+        if rc == 3:
+            return (f"completed {task_name}{walked}, although the solver then "
+                    f"crashed in its cleanup - the task itself is done")
         return f"completed {task_name}{walked}"
+
+    if rc == 3:
+        raise ActionError(f"the {task_name} solver crashed and the task is still "
+                          f"outstanding, so it was NOT completed. See the "
+                          f"traceback above.")
     if len(after) < before:
         return f"partly did {task_name}{walked} - still outstanding"
     return (f"attempted {task_name}{walked} but the task is still showing as "
