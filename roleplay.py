@@ -289,6 +289,65 @@ def _load_sabotage_module():
 TASK_ROUTES = None
 
 
+def task_progress():
+    """Per-task stage progress, from the plugin's task_steps field.
+
+    Returns [(name, done_steps, total_steps, next_room), ...]. This is the thing
+    that was missing: the model was told a task was or was not outstanding, which
+    for a two-stage task like Divert Power stays "outstanding" after stage one is
+    finished. So the bot would complete Electrical, be told it had not completed
+    anything, walk to Communications, and then refuse to do it again because the
+    panel it needed was not there - a loop, while the task was in fact half done.
+    """
+    try:
+        data = utility.getGameData()
+    except Exception:
+        return []
+    names = data.get("tasks") or []
+    steps = data.get("task_steps") or []
+    locs = data.get("task_locations") or []
+    out = []
+    for i, name in enumerate(names):
+        done = total = None
+        if i < len(steps):
+            try:
+                a, b = str(steps[i]).split("/")
+                done, total = int(a), int(b)
+            except (ValueError, AttributeError):
+                pass
+        room = locs[i].split("|")[0].strip() if i < len(locs) else ""
+        out.append((name, done, total, room))
+    return out
+
+
+def task_is_complete(name):
+    """Is this task fully done, counting every stage?
+
+    Deliberately uses task_steps rather than "is the name still in the list":
+    the list keeps a multi-stage task until its LAST stage, so a presence check
+    reports half-finished work as not done.
+    """
+    try:
+        return bool(utility.is_task_done(name))
+    except Exception:
+        return False
+
+
+def progress_summary():
+    """One short line of overall task-bar progress.
+
+    No per-task list: the state line already prints that in full, and saying it
+    twice made the prompt long enough that the useful parts got lost.
+    """
+    prog = task_progress()
+    if not prog:
+        return ""
+    total = sum(p[2] or 0 for p in prog)
+    done = sum(p[1] or 0 for p in prog)
+    finished = sum(1 for p in prog if (p[2] or 0) and (p[1] or 0) >= p[2])
+    return f"task bar {done}/{total} stages complete, {finished} of {len(prog)} tasks fully finished"
+
+
 def _routes_path():
     root = os.path.dirname(os.path.realpath(__file__))
     try:
@@ -337,6 +396,74 @@ def task_routes(refresh=False):
 def task_route(name):
     """The ordered stage positions for a task, or [] if unknown."""
     return list(task_routes().get(name, []))
+
+
+def stage_rooms(task_name):
+    """Room name for each stage of a task, derived from the route positions.
+
+    task_locations only ever publishes StartAt, the FIRST stage. So for
+    Divert Power it always says Electrical, even after stage one is done and the
+    remaining part is in Communications - which would tell the model to go
+    somewhere it has already finished. Matching each route position to the
+    nearest known room gives the real stage order.
+    """
+    route = task_route(task_name)
+    if not route:
+        return []
+    try:
+        G = utility.load_G(utility.getGameData()["map_id"])
+    except Exception:
+        return []
+    rooms = known_rooms()
+    anchors = []
+    for r in rooms:
+        pos = room_position(G, r)
+        if pos is not None:
+            try:
+                anchors.append((r, float(pos[0]), float(pos[1])))
+            except (TypeError, ValueError, IndexError):
+                continue
+    if not anchors:
+        return []
+    out = []
+    for x, y in route:
+        try:
+            best = min(anchors, key=lambda a: (a[1] - x) ** 2 + (a[2] - y) ** 2)
+            out.append(best[0])
+        except (TypeError, ValueError):
+            out.append("")
+    return out
+
+
+def next_stage_room(task_name, done):
+    """Where the next unfinished stage is, or None if it cannot be known.
+
+    Deliberately does NOT guess. An earlier version matched the route position to
+    the nearest room and reported MedBay for a panel that is in Electrical - and
+    a confidently wrong room is far worse than no room, because the model would
+    walk there and find nothing, which is the loop this was written to end.
+
+    What is actually known:
+      - task_locations publishes StartAt, the first stage, so it is reliable while
+        done == 0 and is returned in that case
+      - taskRoutes publishes positions the game currently knows, and for a task in
+        progress that can be only the panel already reached
+
+    So for a partly done task the honest answer is "somewhere else".
+    """
+    if done != 0:
+        return None
+    return None
+
+
+def stage_rooms(task_name):
+    """Room names per stage - NOT reliably available, see next_stage_room.
+
+    Kept only so callers can ask "do we know the stage layout?" and be told no.
+    Deriving rooms from route coordinates produced wrong answers (MedBay for an
+    Electrical panel), so nothing uses it to make a decision.
+    """
+    return []
 
 
 def outstanding_tasks():

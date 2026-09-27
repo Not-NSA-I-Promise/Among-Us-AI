@@ -196,6 +196,9 @@ def overrule(player_id):
 
 
 # ------------------------------------------------------------------- faking
+_FAKED_ONCE = set()
+
+
 def fake_task(name, visual=False):
     """Pretend to do a task, for as long as a real one takes.
 
@@ -203,9 +206,18 @@ def fake_task(name, visual=False):
     caught; one who stands there for the real duration is not, even though the
     task bar never moves.
 
+    Two rules that make it actually convincing, and that were missing:
+
+    - You have to BE at the task. Faking Swipe Card from across Admin, or from
+      the wrong end of Electrical, does not look like swiping a card - it looks
+      like someone loitering. So the room has to match.
+    - Only fake a given task once. Standing at the same panel twice doing nothing
+      is far more suspicious than doing nothing once, because the impostor task
+      list is short and known.
+
     Visual tasks (MedBay scan, Start Reactor, Asteroids, Chart Course) are
-    refused by default, because other players can see the task happening and
-    standing still does not imitate it. Pass visual=True to override.
+    refused by default, because other players can see them and standing still
+    does not imitate them. Pass visual=True to override.
     """
     import importlib.util
     ts = os.path.join(os.path.dirname(os.path.realpath(__file__)), "task-solvers")
@@ -213,12 +225,46 @@ def fake_task(name, visual=False):
         "fakemod", os.path.join(ts, "fake_task.py"))
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
-    result = mod.fake_task(str(name), allow_visual=bool(visual))
+
+    wanted = str(name).strip()
+    if wanted in _FAKED_ONCE:
+        done = sorted(_FAKED_ONCE)
+        raise ActionError(
+            f"you already faked {wanted}. Faking the same task twice is very "
+            f"suspicious - the impostor task list is short and other players "
+            f"notice. Already faked: {', '.join(done)}. Fake something else, or "
+            f"do something useful instead.")
+
+    real = _match_outstanding_task(wanted)
+    if real is None:
+        raise ActionError(
+            f"{wanted!r} is not on your fake task list, so faking it would give "
+            f"you away. Outstanding: {', '.join(roleplay_outstanding()) or 'none'}")
+
+    # Must be at the task. Standing somewhere else and pretending is the tell.
+    here = _tasks_here()
+    if real not in here:
+        room = roleplay_locations().get(real, "another room")
+        if here:
+            raise ActionError(
+                f"you are in a room with {', '.join(here)}, not {real}. "
+                f"{real} is in {room} - a fake has to be done AT the task, "
+                f"so use go_to {room} first")
+        raise ActionError(
+            f"{real} is in {room}, not where you are standing. A fake has to be "
+            f"done AT the task, so use go_to {room} first")
+
+    result = mod.fake_task(real, allow_visual=bool(visual))
     if not result.get("ok"):
         raise ActionError(result.get("reason", "could not fake that"))
+    _FAKED_ONCE.add(real)
     # Report the honest caveat rather than claiming the task got done.
     return (f"faked {result['task']} for {result['seconds']}s "
             f"(timing only - the task bar did not move)")
+
+
+def faked_tasks():
+    return sorted(_FAKED_ONCE)
 
 
 # ------------------------------------------------------------------- venting
@@ -354,7 +400,7 @@ def do_task(name=None):
                 f"would run in the wrong place. Try again, or use observe state "
                 f"to check where you are")
 
-    before = len(roleplay_outstanding())
+    before = _stage_count(task_name)
     try:
         rc = solver.solve_task(task_name=task_name)
     except Exception as exc:
@@ -364,26 +410,66 @@ def do_task(name=None):
     if rc == 2:
         return f"started {task_name}{walked} - it finishes later (it is timed)"
 
-    # Verify. solve_task returns 0 when the subprocess exits, which says nothing
-    # about whether anything was solved - and a crash (rc 3) can also happen in
-    # cleanup, AFTER the work was done. So the task list is re-read either way and
-    # a crash is only reported as a failure if the task really is still there.
+    # Verify using STAGE COUNT, not list membership. The task list keeps a
+    # two-stage task like Divert Power in it until the LAST stage is finished, so
+    # "is the name still in the list" reported half-finished work as not done -
+    # the bot completed Electrical, was told nothing had been done, went to
+    # Communications, and then could not do anything there. It looped.
     time.sleep(0.4)
-    after = roleplay_outstanding()
-    if task_name not in after:
+    after = _stage_count(task_name)
+    total = _stage_total(task_name)
+
+    if after is not None and total and after >= total:
         if rc == 3:
             return (f"completed {task_name}{walked}, although the solver then "
                     f"crashed in its cleanup - the task itself is done")
-        return f"completed {task_name}{walked}"
+        return f"completed {task_name}{walked} ({after}/{total} stages)"
+
+    if after is not None and before is not None and after > before:
+        nxt = _next_room_for(task_name)
+        return (f"did stage {after}/{total} of {task_name}{walked} - it is NOT "
+                f"finished. Next part is in {nxt}. Ask for it once you are there.")
 
     if rc == 3:
-        raise ActionError(f"the {task_name} solver crashed and the task is still "
-                          f"outstanding, so it was NOT completed. See the "
+        raise ActionError(f"the {task_name} solver crashed and no stage "
+                          f"progressed, so it was NOT completed. See the "
                           f"traceback above.")
-    if len(after) < before:
-        return f"partly did {task_name}{walked} - still outstanding"
-    return (f"attempted {task_name}{walked} but the task is still showing as "
-            f"outstanding, so it was NOT completed")
+    if total and after is not None and after > 0:
+        return (f"attempted {task_name}{walked} but it is still at stage "
+                f"{after}/{total}, so it was NOT completed")
+    return (f"attempted {task_name}{walked} but no stage completed, so it was "
+            f"NOT completed")
+
+
+def _stage_info(name):
+    import roleplay
+    for n, done, total, room in roleplay.task_progress():
+        if n == name:
+            return done, total, room
+    return None, None, ""
+
+
+def _stage_count(name):
+    return _stage_info(name)[0]
+
+
+def _stage_total(name):
+    return _stage_info(name)[1]
+
+
+def _next_room_for(name):
+    """Where the unfinished part of a task is. Never guesses - see the docstring
+    on roleplay.next_stage_room about the MedBay/Electrical mix-up."""
+    import roleplay
+    done, _total, room = _stage_info(name)
+    if done is None:
+        return "its remaining room"
+    nxt = roleplay.next_stage_room(name, done)
+    if nxt:
+        return nxt
+    if done == 0 and room:
+        return room
+    return "another panel of it - the game only publishes the first stage"
 
 
 def _walk_near(G=None, target=None, task=""):
@@ -641,6 +727,43 @@ def _map_support_warning():
         return ""
 
 
+def _objective(role, is_imp, data, ab):
+    """Why this player should be doing anything at all.
+
+    The model had no goal. It was told what it could do but never what it was
+    trying to achieve, so "do the most useful thing" was a meaningless prompt and
+    it defaulted to wait. An impostor wins by reaching parity; a crewmate wins by
+    finishing the bar and ejecting the impostor.
+    """
+    if is_imp:
+        try:
+            alive = len(_living_players()) + 1
+        except Exception:
+            alive = None
+        goal = ("You win when the number of living impostors equals or beats the "
+                "living crewmates")
+        if alive is not None:
+            goal += f". Right now {alive} are alive and you are one of them"
+        cds = ab.get("cankill") == "1"
+        return (f"YOUR OBJECTIVE: {goal}. Counting you, that is "
+                f"{'a kill is available - take it if it is safe' if cds else 'no kill available right now'}. "
+                f"Sabotages stall the crew and give you a reason to be away from "
+                f"where you killed. Standing still is the one thing that loses "
+                f"you the game.")
+    prog = ""
+    try:
+        import roleplay as _rp
+        prog = _rp.progress_summary()
+    except Exception:
+        pass
+    # the per-task progress and the bar total are already in the state line, so
+    # the objective only restates what to DO, not how far along things are
+    return ("YOUR OBJECTIVE: finish the task bar and get every impostor ejected. "
+            "Do your tasks to look innocent and to make progress, and use the "
+            "things you actually saw - bodies, cameras, vitals, who was where "
+            "- to find the impostor. Sitting still achieves neither.")
+
+
 def _brief_state():
     data = utility.getGameData()
     if not data:
@@ -682,9 +805,40 @@ def _brief_state():
         here = _tasks_here(data)
     except Exception:
         here = []
+    # Per-task stage progress, and which task to work on next. A two-stage task
+    # stays in the list until the last stage, so without this the model could not
+    # tell "not started" from "half done", and would keep asking for a part it had
+    # already done.
+    try:
+        import roleplay as _rp
+        prog = _rp.task_progress()
+        parts = []
+        for n, d, t, room in prog:
+            if t and d is not None:
+                if d >= t:
+                    parts.append(f"{n} DONE")
+                elif d == 0:
+                    parts.append(f"{n} 0/{t} not started, in {room}")
+                else:
+                    nxt = _rp.next_stage_room(n, d)
+                    where = nxt if nxt else ("another panel - the game only "
+                                              f"publishes the first stage's room")
+                    parts.append(f"{n} {d}/{t} done, next part is in {where}")
+        if parts:
+            bits.append("task progress: " + "; ".join(parts))
+        summary = _rp.progress_summary()
+        if summary:
+            bits.append(summary)
+    except Exception:
+        pass
+
+    if is_imp and _FAKED_ONCE:
+        bits.append("tasks you have already faked (do NOT fake these again): "
+                    + ", ".join(sorted(_FAKED_ONCE)))
+
     if here:
         if is_imp:
-            bits.append("tasks you could FAKE in THIS room: " + ", ".join(here))
+            bits.append("tasks you could FAKE in THIS room (once each): " + ", ".join(here))
         else:
             bits.append("tasks you can do in THIS room right now: " + ", ".join(here))
     else:
@@ -733,6 +887,12 @@ def _brief_state():
     warn = _map_support_warning()
     if warn:
         bits.append(warn)
+    try:
+        obj = _objective(role, is_imp, data, ab)
+        if obj:
+            bits.append(obj)
+    except Exception:
+        pass
     return "; ".join(bits)
 
 

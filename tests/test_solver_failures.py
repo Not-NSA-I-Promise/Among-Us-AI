@@ -189,9 +189,13 @@ check("handles rc == 3 as a crash", "rc == 3" in a)
 check("but still verifies the task actually went away after a crash",
       "crashed in its cleanup" in a and "the task itself is done" in a)
 check("only calls a crash a failure if the task is really still outstanding",
-      "crashed and the task is still" in a and "NOT completed" in a)
-check("still verifies the task actually went away",
-      "still showing as" in a)
+      "solver crashed and no stage" in a and "NOT completed" in a)
+# verification must use stage counts, not list membership: a two-stage task
+# stays in the list until its LAST stage, which caused the Divert Power loop
+check("verifies with stage counts, not list membership",
+      "_stage_count" in a and "after >= total" in a)
+check("reports partial progress with the next location",
+      "did stage" in a and "Next part is in" in a)
 
 if failures:
     print()
