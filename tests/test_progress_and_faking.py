@@ -154,6 +154,61 @@ check("faking walks there and then fakes", "faked Divert Power" in out, out)
 check("and reports that it walked", "walked to the panel" in out, out)
 
 print()
+print("=== faking walks using the LIVE route, not the static task database ===")
+# This was a real bug found in a live game. The bot was in Admin, the static
+# database has an Admin entry for Upload Data, so the old code walked to
+# (2.69, -6.87) - a panel it was already standing at - and never moved at all,
+# while reporting that it had walked. The live route the plugin publishes puts
+# the real panel in Navigation at (17.0, -2.45).
+import roleplay as _rp2  # noqa: E402
+
+_walked_to = []
+_saved = {
+    "walk": _rp2.walk_to,
+    "route": _rp2.task_route,
+    "tasks_here": agent._tasks_here,
+    "walk_near": agent._walk_near,
+    "match": agent._match_outstanding_task,
+    "locs": agent.roleplay_locations,
+}
+_arrived = {"at": False}
+
+
+def _record_walk(G, x, y):
+    _walked_to.append((x, y))
+    _arrived["at"] = True
+    return True
+
+
+# empty before the walk, the panel after it - so the post-walk check passes
+agent._tasks_here = lambda: ["Upload Data"] if _arrived["at"] else []
+agent._walk_near = lambda G=None, target=None, task="": (
+    _record_walk(G, target[0], target[1]) if target else False)
+_rp2.walk_to = lambda G, x, y: _record_walk(G, x, y)
+_rp2.task_route = lambda n, refresh=False: [(17.0, -2.45)]
+agent._match_outstanding_task = lambda t: "Upload Data"
+agent.roleplay_locations = lambda: {"Upload Data": "Navigation"}
+
+agent._FAKED_ONCE.clear()
+try:
+    _out = agent.fake_task("Upload Data")
+    check("faking reaches the panel", "walked to the panel" in _out, _out)
+    check("and it walked to the LIVE route, not the static database",
+          _walked_to and abs(_walked_to[0][0] - 17.0) < 0.01, _walked_to)
+    check("and never to the Admin position the database offered",
+          all(abs(w[0] - 2.68849) > 0.01 for w in _walked_to), _walked_to)
+except Exception as exc:
+    check("faking reaches the panel", False, f"{type(exc).__name__}: {exc}")
+finally:
+    _rp2.walk_to = _saved["walk"]
+    _rp2.task_route = _saved["route"]
+    agent._tasks_here = _saved["tasks_here"]
+    agent._walk_near = _saved["walk_near"]
+    agent._match_outstanding_task = _saved["match"]
+    agent.roleplay_locations = _saved["locs"]
+    agent._FAKED_ONCE.clear()
+
+print()
 print("=== 5b. it refuses when it cannot reach the panel ===")
 agent._FAKED_ONCE.clear()
 agent._tasks_here = _real_tasks_here

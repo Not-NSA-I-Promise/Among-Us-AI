@@ -152,45 +152,47 @@ for role, imp, needle in (
     check("{} is told: {!r}".format(role, needle[:40]), needle in st, st[-160:])
 
 print()
-print("=== 10. a run of waits is called out, and real options are offered ===")
+print("=== 10. `wait` is a real cooldown, not a prompt telling-off ===")
 botlink.get_role = lambda: "Crewmate"
 fake_state()
-# a plain Crewmate genuinely cannot vent, so the suggestion must not offer it
-botlink.read_ability = lambda: {"invent": "0", "isdead": "0", "isimpostor": "0",
-                                "cankill": "0", "canvent": "0", "abilitycount": "0"}
+agent.reset_for_new_round()
 a = agent_loop.Agent()
-for _ in range(3):
-    a._consecutive_waits += 1
+check("with no cooldown the model is not nagged",
+      "not an option" not in a.situation(), a.situation()[-140:])
+
+# actually wait, which starts the timer
+agent.run_action("wait", [])
 sit = a.situation()
-check("3 waits in a row is under the limit", "chosen 'wait'" not in sit, sit[-140:])
-a._consecutive_waits = agent_loop.WAIT_STREAK_LIMIT
-sit = a.situation()
-check("at the limit the model is told it looks like faking",
-      "faking a task" in sit, sit[-200:])
-check("and is given something to do instead",
-      "could do" in sit or "you could" in sit, sit[-200:])
-check("the suggestion is legal for a crewmate, not a vent",
-      "do_task" in sit and "vent (for movement)" not in sit, sit[-200:])
+check("after waiting, the model is told wait is closed",
+      "not an option" in sit, sit[-200:])
+check("and it is given a real time", "180s" in sit or "179s" in sit, sit[-200:])
+check("and the action is gone from the tool list",
+      "wait" not in agent.action_names(available_only=True))
+check("not merely mentioned in a list of options",
+      "wait - deliberately" not in agent.tool_reference("Crewmate"))
+agent.reset_for_new_round()
+check("a new round clears it", "not an option" not in a.situation())
 
 print()
-print("=== 11. an impostor's suggestion is a fake, not a real task ===")
+print("=== 11. a real action is always available while wait is cooling ===")
 fake_state(imp=True, room="Weapons")
+agent.reset_for_new_round()
+agent.run_action("wait", [])
 a = agent_loop.Agent()
-a._consecutive_waits = agent_loop.WAIT_STREAK_LIMIT
-sit = a.situation()
-check("imp is nudged toward fake_task", "fake_task" in sit, sit[-220:])
-check("imp is never nudged toward do_task", "do_task" not in sit, sit[-220:])
+offered = agent.action_names(available_only=True)
+check("fake_task is still offered during the cooldown", "fake_task" in offered)
+check("do_task is still offered for a crewmate-like state", "do_task" in offered)
+check("and observe/go_to still work", "observe" in offered and "go_to" in offered)
+agent.reset_for_new_round()
 
 print()
-print("=== 12. the streak resets on a real action ===")
+print("=== 12. the cooldown does not block anything else ===")
 a = agent_loop.Agent()
-a._consecutive_waits = 7
 llm = sys.modules.get("llm")
 llm.ask = lambda m, **k: "do_task Fix Wiring"
 name, arg = a.decide()
-a._consecutive_waits = 0 if name != "wait" else a._consecutive_waits + 1
-check("choosing something real resets the counter", a._consecutive_waits == 0,
-      a._consecutive_waits)
+check("the model can still choose a real action", name == "do_task", name)
+check("and doing so leaves the cooldown alone", agent._wait_cooldown_left() == 0)
 
 if failures:
     print()

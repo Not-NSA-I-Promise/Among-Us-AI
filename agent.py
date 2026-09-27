@@ -245,26 +245,24 @@ def fake_task(name, visual=False):
             f"{wanted!r} is not on your fake task list, so faking it would give "
             f"you away. Outstanding: {', '.join(roleplay_outstanding()) or 'none'}")
 
-    # Walk to it first. The task database has the panel coordinates, so this is
-    # a normal go_to - refusing instead and making the model spend a turn on
-    # go_to wasted a whole round when the bot could simply walk there.
+    # Walk to the panel. This reuses _stand_at_panel, the same routine that
+    # makes real tasks work, rather than a second copy of it: the copy here only
+    # consulted the static task database, ignored the live route the plugin
+    # publishes for multi-stage panels, and silently did nothing when the
+    # database had no entry for the room we were standing in.
+    walked = ""
     here = _tasks_here()
     if real not in here:
         room = roleplay_locations().get(real, "")
         note = f"{real} is in {room}" if room else f"{real} is elsewhere"
-        if not _walk_near(G=None, target=_panel_position(real), task=real):
-            raise ActionError(f"could not walk to the {real} panel to fake it")
+        refusal = _stand_at_panel(real)
+        if refusal:
+            raise ActionError(f"could not get to the {real} panel to fake it: "
+                              f"{refusal}")
         walked = " (walked to the panel)"
-        time.sleep(0.3)
-        try:
-            import roleplay as _rp
-            _rp.press_use()
-            time.sleep(0.5)
-        except Exception:
-            pass
         if real not in _tasks_here():
-            raise ActionError(f"walked to where {note} but the {real} panel is "
-                              f"not here - use go_to {room} and try again")
+            raise ActionError(f"walked to {note} but the {real} panel is not here - "
+                              f"ask go_to for {room} and try again")
     else:
         walked = ""
 
@@ -286,6 +284,19 @@ def fake_task(name, visual=False):
 
 def faked_tasks():
     return sorted(_FAKED_ONCE)
+
+
+def reset_for_new_round():
+    """Clear per-round state. Called when a game ends, not every turn.
+
+    Without this, the "faked once" list survived the whole process, so after one
+    game the bot refused to fake ANY task ever again - the set only lived in
+    memory and nothing ever emptied it. Same for the `wait` cooldown, which
+    should not carry into a fresh game.
+    """
+    global _wait_used_at
+    _FAKED_ONCE.clear()
+    _wait_used_at = None
 
 
 # ------------------------------------------------------------------- venting
@@ -1126,8 +1137,65 @@ ACTIONS = {
 }
 
 
-def action_names():
+def action_names(available_only=False):
+    """The action names, optionally excluding the ones on cooldown.
+
+    `wait` is genuinely removed from this list while it is cooling down, so the
+    model is never shown it as an option. Telling a model "don't spam wait" in
+    the prompt does not work - it is the one action that always looks available
+    and always looks harmless, so it wins whenever the model is unsure. Hiding
+    it is the only thing that actually stops it.
+    """
+    if available_only and _wait_cooldown_left() > 0:
+        return sorted(n for n in ACTIONS if n != "wait")
     return sorted(ACTIONS)
+
+
+# How long `wait` is unavailable after the model uses it. Long enough that
+# waiting twice in a row is not an option, because the point of waiting is to
+# let a situation change - and a second wait only burns a turn.
+WAIT_COOLDOWN_SECONDS = 180.0
+_wait_used_at = None
+
+
+def _wait_cooldown_left():
+    """Seconds until `wait` becomes available again, or 0."""
+    global _wait_used_at
+    if _wait_used_at is None:
+        return 0.0
+    left = WAIT_COOLDOWN_SECONDS - (time.time() - _wait_used_at)
+    return left if left > 0 else 0.0
+
+
+def _wait_used():
+    """Start the cooldown. Called only when the model actually waits."""
+    global _wait_used_at
+    _wait_used_at = time.time()
+
+
+def _wait_cooldown_note(suggestions=None):
+    """A line for the situation block, so the model knows why `wait` is gone.
+
+    `suggestions` are the options that are actually legal right now, computed
+    from live state. Saying "do something real" without saying what is legal
+    just makes the model pick again at random - it cannot vent as a Tracker, and
+    offering that would be worse than offering nothing.
+    """
+    left = _wait_cooldown_left()
+    if left <= 0:
+        return ""
+    out = (f"you just decided to wait, so you are committed to it for another "
+           f"{int(round(left))}s. `wait` is not an option right now - the next "
+           f"action must be a real one.")
+    if suggestions:
+        out += f" Right now you could: {', '.join(suggestions)}"
+    return out
+
+
+def reset_wait_cooldown():
+    """Clear the cooldown. Called when a round starts, not every turn."""
+    global _wait_used_at
+    _wait_used_at = None
 
 
 def tool_reference(role=None):
@@ -1180,19 +1248,34 @@ def tool_reference(role=None):
             lines.append("")
     except Exception:
         pass
+    _cooling = _wait_cooldown_left() > 0
     lines += [
         "You may call exactly one of these per turn. Nothing else is possible:",
         "",
     ]
-    for name in action_names():
+    for name in action_names(available_only=True):
         _args, _fn, desc = ACTIONS[name]
         lines.append(f"  {desc}")
+    if _cooling:
+        # No need to list it or even name it as a choice - it is simply not
+        # there, which is the point.
+        lines.append("")
+        lines.append(f"({_wait_cooldown_note()})")
     lines += [
         "",
         "Reply with one line: the action name and its argument, nothing else.",
-        'Examples: "go_to Electrical", "kill", "sabotage lights", "wait".',
-        "If nothing is safe or useful to do right now, reply \"wait\".",
+        'Examples: "go_to Electrical", "kill", "sabotage lights".',
     ]
+    if _cooling:
+        # Do not suggest `wait` in the closing line while it is disabled -
+        # offering it in the closing line is what made the model keep reaching
+        # for it.
+        lines.append("Choose one of the actions listed above.")
+    else:
+        lines.append(
+            "If nothing is safe or useful to do right now, reply \"wait\" - but "
+            "that is a real decision, not a fallback: after you wait, waiting is "
+            "closed to you for three minutes and you will have to act.")
     return "\n".join(lines)
 
 
@@ -1369,5 +1452,20 @@ def _match_outstanding_task(text):
 
 def run_action(name, args):
     """Execute one action. Raises ActionError if it is not legal right now."""
+    if name == "wait":
+        # Even though `wait` is hidden from the tool list while it is cooling
+        # down, the model can still reply with the word, and some models will.
+        # That is a refusal, not a free action - otherwise "wait" would still
+        # be the path of least resistance and the cooldown would mean nothing.
+        left = _wait_cooldown_left()
+        if left > 0:
+            raise ActionError(
+                f"you already waited, so you are committed to that for another "
+                f"{int(round(left))}s. Waiting twice in a row just burns a turn - "
+                f"commit to something: move somewhere, do or fake a task, use "
+                f"your ability, or say something useful.")
     _required, handler, _desc = ACTIONS[name]
-    return handler(*args)
+    out = handler(*args)
+    if name == "wait":
+        _wait_used()
+    return out

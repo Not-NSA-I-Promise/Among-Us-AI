@@ -30,9 +30,13 @@ right and this file is a bug.
 | `say` | message | Speak in chat or at a meeting |
 | `vote` | color or `skip` | Vote at a meeting |
 | `observe` | what | Read state, map, vitals, tracker, notes, memory or witnesses |
-| `wait` | — | Deliberately do nothing this turn |
+| `wait` | — | Deliberately do nothing this turn. **On a 3 minute cooldown**: after using it, the action is removed from the model's tool list and replying with the word is refused |
 
-20 actions.
+19 or 20 actions are offered at any moment — `wait` is the only one that can be
+withheld, and it is withheld whenever its cooldown is running. That is deliberate:
+`wait` is the one action that always looks available and always looks harmless, so
+it wins whenever the model is unsure. Prompting the model not to spam it did not
+work, because it was reaching for `wait` long before any limit fired.
 
 ## Restrictions the harness enforces
 

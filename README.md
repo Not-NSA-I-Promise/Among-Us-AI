@@ -13,7 +13,7 @@ Here's a video I made detailing the creation process: https://youtu.be/VF41pxxw9
 | doc | what it covers |
 |---|---|
 | [ARCHITECTURE.md](ARCHITECTURE.md) | the model plays, the harness only executes — and the six real conflicts that creates |
-| [TOOLS.md](TOOLS.md) | all 20 actions the model can take, what each refuses, and what it has no access to |
+| [TOOLS.md](TOOLS.md) | all 20 actions the model can take (19 while `wait` is cooling down), what each refuses, and what it has no access to |
 | [MAPS.md](MAPS.md) | which maps actually work - only Skeld and Polus, verified by test |
 | [KNOWLEDGE_BASE.md](KNOWLEDGE_BASE.md) | researched game facts the harness relies on, and which ones are still uncertain |
 | [WHEN_UNSURE.md](WHEN_UNSURE.md) | if a game fact is unknown: research it, then ask, then write the answer down |

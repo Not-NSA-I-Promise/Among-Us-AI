@@ -280,6 +280,14 @@ def main(G) -> int:
             line = bot.step()
             print(f"  model: {line}")
         else:
+            # The game is over (or the user is holding ` to stop). Clear anything
+            # that only means something within one game, so the next match starts
+            # from a clean slate instead of inheriting the last one's state.
+            try:
+                import agent as _agent
+                _agent.reset_for_new_round()
+            except Exception:
+                pass
             return 0
 
 if __name__ == "__main__":

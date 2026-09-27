@@ -188,20 +188,21 @@ check("imp is not told it can do a real task here",
       "can do in THIS room" not in st, st)
 
 print()
-print("=== 9. the wait nudge only offers an in-room task ===")
+print("=== 9. the cooldown nudge only offers an in-room task ===")
 botlink.read_ability = lambda: {"invent": "0", "isdead": "0", "isimpostor": "0",
                                 "cankill": "0", "canvent": "0", "abilitycount": "0"}
+agent.reset_for_new_round()
+agent.run_action("wait", [])          # wait is now closed, so the nudge fires
 a = agent_loop.Agent()
-a._consecutive_waits = agent_loop.WAIT_STREAK_LIMIT
 sit = a.situation()
 check("nudge offers the in-room task", "do_task Empty Garbage" in sit, sit[-220:])
 
 set_state(imp=False, room="Weapons")
 a = agent_loop.Agent()
-a._consecutive_waits = agent_loop.WAIT_STREAK_LIMIT
 sit = a.situation()
 check("with no task here, no do_task is offered", "do_task" not in sit, sit[-220:])
 check("and it suggests going somewhere instead", "go_to" in sit, sit[-220:])
+agent.reset_for_new_round()
 
 if failures:
     print()

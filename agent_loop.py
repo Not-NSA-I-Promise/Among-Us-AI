@@ -12,10 +12,10 @@ import botlink
 import llm
 import utility
 
-# How many `wait`s in a row before the model is told that idling looks like
-# faking. Four is roughly long enough that "nothing is safe right now" is a real
-# possibility, and short enough to catch the pattern in one round.
-WAIT_STREAK_LIMIT = 4
+# `wait` used to be limited by counting how many the model had chosen in a row
+# and telling it off in the prompt. That is now a real time-based cooldown in
+# agent.py (WAIT_COOLDOWN_SECONDS) which removes the action from the model's
+# tool list entirely, so nothing needs counting here.
 
 
 class Agent:
@@ -28,7 +28,6 @@ class Agent:
         self.last_outcome = None
         self.model = None
         self._meeting_turns = 0
-        self._consecutive_waits = 0
 
     # ------------------------------------------------------------------ prompt
     def system_prompt(self):
@@ -56,18 +55,16 @@ class Agent:
             parts.append(f"{self._meeting_turns} turns left in this meeting: "
                          "you still need to speak and vote")
 
-        # Anti-idle. A run of `wait` is not neutral: to the rest of the lobby the
-        # bot is standing in a room doing nothing, which is precisely what an
-        # impostor faking a task looks like. The model is told this, and is given
-        # the options it actually has, rather than being left to default to wait.
-        if self._consecutive_waits >= WAIT_STREAK_LIMIT:
-            useful = self._useful_actions()
-            parts.append(
-                f"You have chosen 'wait' {self._consecutive_waits} times in a row. "
-                f"From outside this looks like you are faking a task, which is how "
-                f"impostors give themselves away. Do something instead. "
-                f"Right now you could: {', '.join(useful) if useful else 'go_to a room'}"
-            )
+        # A run of `wait` used to be handled by telling the model off in the
+        # prompt once it had already happened four times. That does not work:
+        # `wait` is the one action that always looks available and always looks
+        # harmless, so it wins whenever the model is unsure, and the model was
+        # reaching it long before the limit. It is now a real cooldown in
+        # agent.py, and the tool is removed from the action list while it runs,
+        # so there is nothing here to nag about.
+        note = agent._wait_cooldown_note(self._useful_actions())
+        if note:
+            parts.append(note)
         return " | ".join(parts)
 
     def _useful_actions(self):
@@ -179,10 +176,6 @@ class Agent:
 
         self.last_action = f"{name} {' '.join(args)}".strip()
         self.last_outcome = outcome
-        if name == "wait":
-            self._consecutive_waits += 1
-        else:
-            self._consecutive_waits = 0
         self.history.append(self.last_action)
         if len(self.history) > self.max_history:
             self.history.pop(0)
