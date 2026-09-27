@@ -285,24 +285,30 @@ src = open(os.path.join(ROOT, "task-solvers", "Fix Wiring.py"),
 check("there is a single call to open_panel()",
       src.count("if not open_panel():") == 1,
       f"{src.count('if not open_panel():')} calls")
-check("and it checks the panel state before every click",
-      "if panel_is_open():" in src,
-      "the loop clicks without checking first")
+check("and it checks the panel before it clicks USE",
+      "if wires_visible():" in src and
+      src.index("if wires_visible():") < src.index("click_use()", src.index("def open_panel")),
+      "the click is not guarded by a state check")
 
 print()
-print("=== no solver may click USE before checking the panel is closed ===")
-# USE is a toggle once a minigame is up, so click-then-check closes the panel.
-# This bit Fix Wiring twice, in two different ways.
+print("=== a solver may click USE AT MOST ONCE ===")
+# USE toggles a minigame, so a second click closes the panel. This has broken
+# Fix Wiring three ways: a duplicated open_panel() call, a click-then-check loop,
+# and a brightness check that reported a closed panel as open so the solver never
+# clicked at all. The rule is now "at most one click, then wait".
 for solver in ("Fix Wiring", "Inspect Sample", "Fix Communications"):
     text = open(os.path.join(ROOT, "task-solvers", solver + ".py"),
                 encoding="utf-8").read()
-    body = text[text.find("def open_panel"):]
-    body = body[:body.find("\ndef ", 5)] if "\ndef " in body[5:] else body
-    first_click = body.find("click_use()")
-    first_check = body.find("if panel_is_open():")
-    check(f"{solver} checks the panel before it clicks USE",
-          first_check != -1 and first_check < first_click,
-          f"check at {first_check}, click at {first_click}")
+    start = text.find("def open_panel")
+    body = text[start:]
+    nxt = body.find("\ndef ", 5)
+    if nxt != -1:
+        body = body[:nxt]
+    clicks = body.count("click_use()")
+    check(f"{solver} clicks USE at most once", clicks <= 1, f"{clicks} clicks")
+    check(f"{solver} does not use a blind brightness threshold to decide",
+          "mean()" not in body,
+          "brightness as an open/closed signal is not reliable here")
     check(f"{solver} opens its panel exactly once",
           text.count("if not open_panel():") == 1,
           f"{text.count('if not open_panel():')} calls")

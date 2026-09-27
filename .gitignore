@@ -10,3 +10,6 @@ task-solvers/cv2-templates/* resized/
 
 # runtime state written by the bot on every move - not source
 last_area.txt
+
+# written by the Inspect Sample solver when it cannot find the tube
+inspect_sample_debug_*.png

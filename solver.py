@@ -8,6 +8,17 @@ import keyboard
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/task-solvers")
 from task_utility import get_dimensions, get_screen_coords, wake
 
+# Tasks that are a progress bar you wait out rather than something you complete
+# by clicking, so the harness must not expect their task bar to move while the
+# solver runs.
+#
+# Inspect Sample used to be in this list, which was simply wrong: it is finished
+# by clicking the odd tube out, and it completes at once. Listing it here meant
+# the harness reported "started Inspect Sample - it finishes later (it is timed)"
+# every single time, never checked whether the task had actually been done, and
+# the model dutifully retried it forever while the solver quietly failed.
+TIMED_TASKS = ("Reboot Wifi",)
+
 def generate_files():
     possible_tasks = utility.load_dict().keys()
     for task in possible_tasks:
@@ -110,10 +121,7 @@ def solve_task(task_name=None, task_location=None) -> int:
         while p.poll() is None:
             if utility.in_meeting() or (utility.isDead() != dead) or keyboard.is_pressed('`'):
                 p.kill()
-                if task_name == "Inspect Sample" or task_name == "Reboot Wifi":
-                    return 2
-                else:
-                    return 1
+                return 2 if task_name in TIMED_TASKS else 1
             time.sleep(1/30)
 
         # Check how the solver EXITED. A Python script that hit an exception - a
@@ -126,10 +134,7 @@ def solve_task(task_name=None, task_location=None) -> int:
             print(f"solver for {task_name} exited {rc} - it failed")
             return 3
 
-        if task_name == "Inspect Sample" or task_name == "Reboot Wifi":
-            return 2
-        else:
-            return 0
+        return 2 if task_name in TIMED_TASKS else 0
     
     print("Task not found")
     return -1

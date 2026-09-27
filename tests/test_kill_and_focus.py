@@ -12,7 +12,8 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(os.getcwd(), "task-solvers"))
 
 import agent           # noqa: E402
@@ -28,6 +29,15 @@ def check(name, cond, detail=""):
     else:
         print("  FAIL", name, "<-", detail)
         fails.append(name)
+
+
+def _raises(fn):
+    """Return the exception fn raised, or None."""
+    try:
+        fn()
+    except Exception as exc:
+        return exc
+    return None
 
 
 # ---------------------------------------------------------------- kill
@@ -193,7 +203,71 @@ finally:
         real_find, real_fore, real_iconic)
 
 print()
+print("=== reading the snapshot survives the game writing it ===")
+# The plugin rewrites sendData.txt on every tick with File.WriteAllText, which
+# truncates first. On Windows, opening a file another process is in the middle of
+# writing raises PermissionError, and a half-written file is short. Both killed a
+# solver outright - "Clear Asteroids" died with PermissionError on sendData.txt
+# and the whole task was abandoned mid-run.
+import importlib.util as _ilu
+import tempfile
+
+sys.path.insert(0, os.path.join(ROOT, "task-solvers"))
+_tu_spec = _ilu.spec_from_file_location(
+    "tu_test", os.path.join(ROOT, "task-solvers", "task_utility.py"))
+
+GOOD = "".join(f"line {i}\n" for i in range(15))
+SHORT = "line 0\nline 1\n"
+
+_tmpdir = tempfile.mkdtemp()
+_good = os.path.join(_tmpdir, "good.txt")
+_short = os.path.join(_tmpdir, "short.txt")
+open(_good, "w", encoding="utf-8").write(GOOD)
+open(_short, "w", encoding="utf-8").write(SHORT)
+
+
+def _load():
+    mod = _ilu.module_from_spec(_tu_spec)
+    _tu_spec.loader.exec_module(mod)
+    return mod
+
+
+tu = _load()
+check("a complete snapshot is read straight through",
+      len(tu.read_snapshot_lines(_good)) == 15)
+check("a truncated snapshot raises a clear error, not a bare OSError",
+      _raises(lambda: tu.read_snapshot_lines(_short, tries=2, pause=0.01)) is not None
+      and "too short" in str(_raises(lambda: tu.read_snapshot_lines(
+          _short, tries=2, pause=0.01)) or ""),
+      _raises(lambda: tu.read_snapshot_lines(_short, tries=2, pause=0.01)))
+
+
+def _permission_error(path, tries=8, pause=0.15):
+    import builtins
+    real_open = builtins.open
+    state = {"n": 0}
+
+    def flaky(*a, **k):
+        if str(path).endswith("good.txt"):
+            state["n"] += 1
+            if state["n"] <= 3:
+                raise PermissionError(13, "used by another process")
+        return real_open(*a, **k)
+
+    builtins.open = flaky
+    try:
+        return tu.read_snapshot_lines(path, tries=tries, pause=0.01)
+    finally:
+        builtins.open = real_open
+
+
+lines = _permission_error(_good)
+check("a PermissionError from the game's write is retried, not fatal",
+      lines is not None and len(lines) == 15, lines)
+
+print()
 if fails:
     print("FAILURES:", ", ".join(fails))
     raise SystemExit(1)
-print("all checks passed: a kill needs a body, and focus cannot crash the bot")
+print("all checks passed: a kill needs a body, focus cannot crash the bot, "
+      "and the snapshot read survives the game writing it")

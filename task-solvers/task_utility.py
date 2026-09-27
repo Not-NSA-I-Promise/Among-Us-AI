@@ -6,6 +6,7 @@ import numpy as np
 import cv2
 import os
 import pydirectinput
+import time
 from wake_keyboard import wake
 from PIL import Image
 
@@ -18,35 +19,71 @@ with open("sendDataDir.txt") as f:
 
 SABOTAGE_TASKS = ["Reset Reactor", "Fix Lights", "Fix Communications", "Restore Oxygen"]
 
+# A complete snapshot needs at least this many lines; the reader below uses
+# lines[10] for the room, so 10 was not enough and the old check let a truncated
+# file spin in `while True` forever.
+DATA_MIN_LINES = 11
+
+
+def read_snapshot_lines(path, tries=8, pause=0.15):
+    """Read sendData.txt, tolerating the game writing it at the same moment.
+
+    The plugin rewrites this file on every tick with File.WriteAllText, which
+    truncates it first. On Windows, opening a file another process is writing is
+    not guaranteed to succeed - it raises PermissionError - and a half-written
+    file can be short. Both killed a solver outright: "Clear Asteroids" died with
+    PermissionError: 'C:\\Games\\Among Us\\sendData.txt' and the whole task was
+    abandoned mid-run.
+
+    So: retry a few times, sharing the file so the writer is not locked out, and
+    raise a clear error at the end rather than looping forever or crashing with a
+    bare OSError.
+    """
+    last = None
+    for _ in range(tries):
+        try:
+            with open(path, "r", buffering=1) as file:
+                lines = file.readlines()
+            if len(lines) >= DATA_MIN_LINES:
+                return lines
+            last = (f"the file is too short - only {len(lines)} line(s) where "
+                    f"{DATA_MIN_LINES} are needed, so the game was caught "
+                    f"mid-write")
+        except PermissionError as exc:
+            last = f"the game is writing it ({exc})"
+        except OSError as exc:
+            last = str(exc)
+        time.sleep(pause)
+    raise IOError(
+        f"could not read a complete game snapshot from {path!r}: {last}. "
+        f"The game may be loading, or the match may have ended.")
+
+
 def getGameData():
-    dataLen : int = 10
+    dataLen: int = DATA_MIN_LINES
     x,y,status,tasks, task_locations, task_steps, map_id, dead = None, None, None, None, None, None, None, None
-    while True:
-        with open(SEND_DATA_PATH) as file:
-            lines = file.readlines()
-            if len(lines) < dataLen:
-                file.close()
-                continue
+    lines = read_snapshot_lines(SEND_DATA_PATH)
+    if len(lines) < dataLen:
+        raise IOError(f"game snapshot is too short: {len(lines)} lines")
 
-            x = float(lines[0].split()[0])
-            y = float(lines[0].split()[1])
-            status = lines[1].strip()
+    x = float(lines[0].split()[0])
+    y = float(lines[0].split()[1])
+    status = lines[1].strip()
 
-            tasks = lines[2].rstrip().strip('][').split(", ")
+    tasks = lines[2].rstrip().strip('][').split(", ")
 
-            task_locations = lines[3].rstrip().strip('][').split(", ")
+    task_locations = lines[3].rstrip().strip('][').split(", ")
 
-            task_steps = lines[4].rstrip().strip('][').split(", ")
+    task_steps = lines[4].rstrip().strip('][').split(", ")
 
-            map_id = lines[5].rstrip()
+    map_id = lines[5].rstrip()
 
-            dead = bool(int(lines[6].rstrip()))
+    dead = bool(int(lines[6].rstrip()))
 
-            room = lines[10].rstrip()
+    room = lines[10].rstrip()
 
-        if None in [x,y,status,tasks, task_locations, task_steps, map_id, dead, room]:
-            continue
-        break
+    if None in [x,y,status,tasks, task_locations, task_steps, map_id, dead, room]:
+        raise IOError("game snapshot had missing fields")
 
     if dead or status == "impostor":
         if tasks[0] == "Submit Scan" and task_locations[0] == "Hallway":

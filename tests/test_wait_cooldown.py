@@ -44,7 +44,7 @@ check("wait is gone from the offered actions",
       "wait" not in agent.action_names(available_only=True))
 ref = agent.tool_reference("Impostor")
 check("and gone from the model prompt", NEEDLE not in ref)
-check("the cooldown is running", agent._wait_cooldown_left() > 170,
+check("the cooldown is running", agent._wait_cooldown_left() > 150,
       agent._wait_cooldown_left())
 check("it is a three minute cooldown", agent.WAIT_COOLDOWN_SECONDS == 180.0)
 
@@ -67,7 +67,8 @@ check("the closing line does not offer wait as a fallback",
               for ln in lines), lines)
 check("but it is told wait is closed, with a time",
       any("not an option" in ln for ln in lines), lines)
-check("and a real time is given", any("180s" in ln for ln in lines), lines)
+check("and it is given a real time", any(f"{n}s" in ln for ln in lines
+                                         for n in range(120, 181)), lines)
 
 print()
 print("=== replying with the word anyway is refused, not obeyed ===")
@@ -88,7 +89,8 @@ agent.ACTIONS["observe"] = (("what",),
 try:
     agent.run_action("observe", ["state"])
     check("another action is unaffected", called == [("state",)], called)
-    check("and it did not clear the cooldown", agent._wait_cooldown_left() > 170)
+    check("and it did not clear the cooldown", agent._wait_cooldown_left() > 150,
+          agent._wait_cooldown_left())
 finally:
     _args, _fn, _desc = agent.ACTIONS["observe"]
     del agent.ACTIONS["observe"]

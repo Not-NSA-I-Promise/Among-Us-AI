@@ -3,6 +3,7 @@ import cv2
 from task_utility import *
 import time
 import copy
+import os
 import pyautogui
 
 # Inspect Sample is a two-step task, and the old version did neither step
@@ -35,7 +36,9 @@ def _tube_pos():
         confidences=(0.5, 0.4, 0.3), verbose=False)
 
 
-# The middle of the screen, where the open panel is drawn.
+# The middle of the screen, where the open panel is drawn. Used only to place the
+# START click and to save a debug image on failure - never to decide whether the
+# panel is open, which a blind brightness threshold gets wrong.
 PANEL_REGION = [
     dimensions[0] + round(dimensions[2] * 0.25),
     dimensions[1] + round(dimensions[3] * 0.15),
@@ -47,37 +50,45 @@ PANEL_REGION = [
 def panel_is_open():
     """True if the Inspect Sample panel is up.
 
-    Two signals. The tube template is the specific one, but it is a weak one: if
-    the tubes only appear after START is pressed, this is false while the panel is
-    plainly open, and a caller that acted on it would click USE - which CLOSES an
-    open minigame rather than doing nothing. The brightness check covers that case,
-    so a panel that is up is never mistaken for a panel that is not.
+    Only the tube template is trusted. A brightness check was added here as a
+    fallback and had to be removed: the panel region of a normally lit room is
+    often brighter than any threshold that can be picked blind, so it reported
+    "open" on a closed panel and the solver never clicked anything.
     """
-    if _tube_pos() is not None:
-        return True
-    try:
-        shot = pyautogui.screenshot(region=PANEL_REGION)
-        return float(np.array(shot).mean()) > 60.0
-    except Exception:
-        return False
+    return _tube_pos() is not None
 
 
 def open_panel():
-    """Open the panel. The state is checked BEFORE every click.
+    """Open the panel with AT MOST ONE click, then wait for it to appear.
 
-    USE is a toggle while a minigame is up, so clicking a panel that is already
-    open closes it. Checking first means a click is only ever spent on a panel
-    known to be closed, which makes this safe to call more than once.
+    Clicking more than once is what made this task loop: the second click closed
+    the panel the first one had opened, so the panel opened and shut repeatedly
+    and nothing was ever submitted. So: check, click once, wait. Never click
+    again - if it does not appear, report that and let the harness retry.
     """
-    for attempt in range(3):
+    if panel_is_open():
+        return True
+    click_use()
+    for _ in range(16):          # up to ~4s
+        time.sleep(0.25)
         if panel_is_open():
             return True
-        click_use()
-        time.sleep(0.9)
-        if panel_is_open():
-            return True
-        print(f"Inspect Sample: the panel did not open on attempt {attempt + 1}")
     return False
+
+
+def _save_debug(why):
+    """Save what the panel looked like, so a failure is diagnosable.
+
+    Every attempt to get this task right so far has been a guess about where the
+    START button and the tubes are, and each guess was wrong in a different way.
+    Writing the actual screen out turns the next attempt into a measurement.
+    """
+    try:
+        path = os.path.join(get_dir(), f"inspect_sample_debug_{why}.png")
+        pyautogui.screenshot(region=PANEL_REGION).save(path)
+        print(f"Inspect Sample: saved the panel to {path} to show why ({why})")
+    except Exception as exc:
+        print(f"Inspect Sample: could not save a debug image ({exc})")
 
 
 if not open_panel():
@@ -85,13 +96,15 @@ if not open_panel():
           "visible, so nothing was clicked")
     raise SystemExit(0)
 
-# START button. The only position available: the original used this offset and
-# it does sit on the green button, so it is kept - but the panel being open is
-# now confirmed first, which is what was missing.
-start_x = dimensions[0] + round(dimensions[2] / 1.52)
-start_y = dimensions[1] + round(dimensions[3] / 1.16)
+# START button. The original used width/1.52, height/1.16; the user reports the
+# panel opening and START never being pressed, so the click is placed from the
+# panel's own geometry instead: horizontally centred, and near the bottom of the
+# panel where the button is. Guessing a fraction of the whole window is what put
+# the click in the wrong place to begin with.
+start_x = PANEL_REGION[0] + round(PANEL_REGION[2] / 2)
+start_y = PANEL_REGION[1] + round(PANEL_REGION[3] * 0.85)
 pyautogui.click((start_x, start_y))
-print("Inspect Sample: clicked START")
+print(f"Inspect Sample: clicked START at ({start_x},{start_y})")
 
 # The sample animates for about five seconds. Clicking during the animation
 # either does nothing or closes the panel, so wait for the tubes to settle
@@ -106,25 +119,18 @@ for _ in range(30):
 if not tube:
     print("Inspect Sample: START was clicked but the anomaly tube never "
           "appeared, so nothing was clicked")
+    _save_debug("no-tube-after-start")
     try:
         print(f"Inspect Sample: {click_close()}")
     except TypeError:
         pass
     raise SystemExit(0)
 
-# The template is matched on the whole screen, so the match can be the START
-# button rather than a tube. A tube sits in the middle band of the panel, and
-# START is near the bottom, so require a plausible vertical position.
-if not (dimensions[1] + dimensions[3] * 0.2 < tube[1]
-        < dimensions[1] + dimensions[3] * 0.8):
-    print("Inspect Sample: the only match was the START button, not a tube, so "
-          "the panel was not advanced")
-    try:
-        print(f"Inspect Sample: {click_close()}")
-    except TypeError:
-        pass
-    raise SystemExit(0)
-
+# NO position filter here. A filter was added that rejected any match outside the
+# middle 60% of the window height, on the theory that it would catch a match on
+# the START button instead of a tube. It did the opposite: it rejected genuine
+# tube matches every time, so the panel was never advanced and the task looped
+# forever. The template is a picture of an anomaly tube, so a match is a tube.
 pyautogui.click((tube[0], tube[1]))
 print(f"Inspect Sample: clicked the anomaly tube at ({tube[0]},{tube[1]})")
 
