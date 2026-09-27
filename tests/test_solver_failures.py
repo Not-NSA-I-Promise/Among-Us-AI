@@ -25,7 +25,41 @@ def check(label, cond, detail=""):
 
 SOLVERS = sorted(glob.glob(os.path.join("task-solvers", "*.py")))
 
+print("=== 0. every solver must COMPILE ===")
+# A solver is run as a subprocess, so a syntax error in it is only ever seen at
+# runtime, mid-game, as a crash. An IndentationError introduced by an edit
+# shipped once already and cost a live round. py_compile catches it here.
+import py_compile
+
+import tempfile as _tf
+_tmpc = os.path.join(_tf.gettempdir(), "_pycompile_check.pyc")
+
+for path in SOLVERS:
+    name = os.path.basename(path)
+    try:
+        py_compile.compile(path, doraise=True, cfile=_tmpc)
+        check("{} compiles".format(name), True)
+    except py_compile.PyCompileError as exc:
+        first = str(exc).strip().splitlines()
+        detail = next((l for l in first if "Error" in l), first[0] if first else "")
+        check("{} compiles".format(name), False, detail)
+
+print()
+print("=== 0b. the modules the harness imports also compile ===")
+for path in ("agent.py", "agent_loop.py", "botlink.py", "roleplay.py",
+             "utility.py", "solver.py", "test_commands.py"):
+    try:
+        py_compile.compile(path, doraise=True, cfile=_tmpc)
+        check("{} compiles".format(path), True)
+    except py_compile.PyCompileError as exc:
+        first = str(exc).strip().splitlines()
+        detail = next((l for l in first if "Error" in l), first[0] if first else "")
+        check("{} compiles".format(path), False, detail)
+
 print("=== 1. no solver calls locateCenterOnScreen without guarding it ===")
+import tempfile as _tf
+_tmpc = os.path.join(_tf.gettempdir(), "_pycompile_check.pyc")
+
 for path in SOLVERS:
     name = os.path.basename(path)
     with open(path, encoding="utf-8", errors="replace") as f:
@@ -38,6 +72,9 @@ for path in SOLVERS:
 
 print()
 print("=== 2. every solver that uses find_template imports it ===")
+import tempfile as _tf
+_tmpc = os.path.join(_tf.gettempdir(), "_pycompile_check.pyc")
+
 for path in SOLVERS:
     name = os.path.basename(path)
     if name == "task_utility.py":
@@ -51,6 +88,9 @@ for path in SOLVERS:
 
 print()
 print("=== 3. no unbounded retry loop on a template remains ===")
+import tempfile as _tf
+_tmpc = os.path.join(_tf.gettempdir(), "_pycompile_check.pyc")
+
 for path in SOLVERS:
     name = os.path.basename(path)
     with open(path, encoding="utf-8", errors="replace") as f:

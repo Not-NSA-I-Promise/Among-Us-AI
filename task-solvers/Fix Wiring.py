@@ -32,33 +32,44 @@ right_dimensions = [
 click_use()
 time.sleep(0.8)
 
+# Wires in numeric order, which is the order the game's hidden numbers run in
+# (red 1, blue 2, yellow 3, pink 4). Connecting them out of order is visibly
+# wrong to anyone who knows the pattern, so this order matters.
 wire_colors = ["red", "blue", "yellow", "pink"]
 
-  for color in wire_colors:
-      template = f"{get_dir()}\\task-solvers\\cv2-templates\\Fix Wiring resized\\{color}Wire.png"
+connected = 0
+for color in wire_colors:
+    template = f"{get_dir()}\\task-solvers\\cv2-templates\\Fix Wiring resized\\{color}Wire.png"
 
-      # find_template catches ImageNotFoundException at each rung. The previous
-      # loop here called pyautogui directly, which RAISES rather than returning
-      # None, so the very first attempt at confidence=0.8 killed the script and
-      # the lower rungs were never reached - a 0.738 match was discarded.
-      left = find_template(template, region=left_dimensions)
-      if not left:
-          print(f"Fix Wiring: could not find {color} wire on the left")
-          break
+    # find_template catches ImageNotFoundException at each rung. The previous
+    # loop here called pyautogui directly, which RAISES rather than returning
+    # None, so the very first attempt at confidence=0.8 killed the script and
+    # the lower rungs were never reached - a 0.738 match was discarded.
+    #
+    # A colour that is not on this panel must be SKIPPED, not treated as the end.
+    # The old `break` stopped the whole loop on the first miss, so a panel whose
+    # wire was not red did nothing at all.
+    left = find_template(template, region=left_dimensions, verbose=False)
+    if not left:
+        continue
 
-      pyautogui.moveTo(left[0] + round(dimensions[2] / 32), left[1])
+    right = find_template(template, region=right_dimensions, verbose=False)
+    if not right:
+        continue
 
-      right = find_template(template, region=right_dimensions)
-      if not right:
-          print(f"Fix Wiring: could not find {color} wire on the right")
-          break
-
-
-    pyautogui.dragTo(right[0] - round(dimensions[2] / 19.2), right[1], duration=0.2, tween=pyautogui.easeOutQuad)
+    pyautogui.moveTo(left[0] + round(dimensions[2] / 32), left[1])
+    pyautogui.dragTo(right[0] - round(dimensions[2] / 19.2), right[1],
+                      duration=0.2, tween=pyautogui.easeOutQuad)
     time.sleep(0.2)
+    print(f"Fix Wiring: connected the {color} wire")
+    connected += 1
+    break   # one wire per panel on Skeld; a second would be a wrong click
 
-try:
-    click_close()
-except TypeError:
-    # panel already closed, nothing to click
-    pass
+if connected == 0:
+    print("Fix Wiring: no wire endpoint found on either side of this panel")
+else:
+    try:
+        click_close()
+    except TypeError:
+        pass
+
