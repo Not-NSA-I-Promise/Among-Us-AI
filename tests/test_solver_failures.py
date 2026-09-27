@@ -186,16 +186,20 @@ src = agent.__file__
 with open(src, encoding="utf-8") as f:
     a = f.read()
 check("handles rc == 3 as a crash", "rc == 3" in a)
-check("but still verifies the task actually went away after a crash",
-      "crashed in its cleanup" in a and "the task itself is done" in a)
-check("only calls a crash a failure if the task is really still outstanding",
-      "solver crashed and no stage" in a and "NOT completed" in a)
+check("still verifies the task actually went away after a crash",
+      "crashed afterwards but the stage landed" in a)
+check("only calls a crash a failure if no stage completed",
+      "the solver crashed and no stage completed" in a)
 # verification must use stage counts, not list membership: a two-stage task
 # stays in the list until its LAST stage, which caused the Divert Power loop
 check("verifies with stage counts, not list membership",
-      "_stage_count" in a and "after >= total" in a)
-check("reports partial progress with the next location",
-      "did stage" in a and "Next part is in" in a)
+      "_stage_count" in a and "roleplay.task_is_complete" in a)
+# a multi-stage task needs more than one pass, and the game re-points it
+check("loops over the remaining stages", "for attempt in range" in a)
+check("re-reads where the task is now each pass",
+      "_current_task_room" in a)
+check("reports partial progress honestly",
+      "it is NOT " in a and "stages of" in a)
 
 if failures:
     print()

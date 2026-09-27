@@ -310,16 +310,24 @@ def vent():
 
 # ------------------------------------------------------------------ tasks
 def do_task(name=None):
-    """Walk to a task panel, then run its solver.
+    """Work through a task to completion, one stage at a time.
 
-    Two things were wrong here. The bot did not WALK to the panel first, so the
-    solver - which drives the mouse - ran at whatever spot it happened to be
-    standing in; and it reported "completed" purely on the solver's exit code,
-    which is 0 even when the solver did nothing useful.
+    Three things were wrong here, in order of how badly they hurt:
 
-    So: resolve the task, walk to its panel, press USE to open it, run the
-    solver, and then CHECK whether the task actually went away. The result
-    reported to the model distinguishes done from attempted.
+    1. It did not walk to the panel. solver.solve_task just spawns a script that
+       drives the mouse; it assumes you are standing at the panel. The old state
+       machine walked first and that step was lost when the model took over.
+    2. It did only ONE stage. Fix Wiring is three panels and Divert Power is two,
+       so a single pass can never complete either - the log showed the wire being
+       "connected" and the counter still reading 0/3. PlayerTask.Locations holds
+       only the CURRENT panel (the game re-points it between stages, which is why
+       taskRoutes.txt has one position per task), so the way through is to
+       re-read where the game says the task is now and walk there again.
+    3. It reported completion on the solver's exit code, which is 0 whenever the
+       subprocess exits. It now compares stage counts before and after.
+
+    Returns a description of what actually happened, including honest partial
+    progress, so the model is never told a task finished when it did not.
     """
     import roleplay
     import solver
@@ -350,95 +358,152 @@ def do_task(name=None):
 
     here = _tasks_here()
     if task_name not in here:
-        route = roleplay.task_route(task_name)
-        loc = roleplay_locations().get(task_name, "another room")
+        room = _current_task_room(task_name)
         if here:
             raise ActionError(
                 f"{task_name} is not in this room. "
                 f"Tasks in this room: {', '.join(here)}. "
-                f"{task_name} is in {loc} - use go_to {loc} first")
+                f"{task_name} is in {room} - use go_to {room} first")
         raise ActionError(
-            f"there is no task in this room. {task_name} is in {loc} - "
-            f"use go_to {loc} first")
+            f"there is no task in this room. {task_name} is in {room} - "
+            f"use go_to {room} first")
 
-    # Stand at the actual panel. The room name is not enough: the panel is a
-    # specific spot in the room, and a solver that clicks pixels needs to be
-    # standing at it.
-    route = roleplay.task_route(task_name)
-    walked = ""
-    if route:
-        stage = route[0]
-        if not _walk_near(G=None, target=stage, task=task_name):
-            raise ActionError(f"could not walk to the {task_name} panel")
-        walked = f" at {stage[0]:.1f},{stage[1]:.1f}"
-        time.sleep(0.3)
-        # USE opens the panel; without it the solver has nothing to work on
+    total = _stage_total(task_name) or 1
+    done = 0
+    notes = []
+    last_room = None
+    stalled = 0
+
+    # One pass per remaining stage. The game re-points the task between stages,
+    # so each iteration re-reads where it is now.
+    for attempt in range(int(total) + 1):
+        if roleplay.task_is_complete(task_name):
+            break
+        if utility.isDead():
+            notes.append("died partway")
+            break
         try:
-            import roleplay as _rp
-            _rp.press_use()
-            time.sleep(0.6)
+            if utility.in_meeting():
+                notes.append("a meeting started")
+                break
         except Exception:
             pass
-    else:
-        # No route published. Fall back to the task database's position for the
-        # room we are in, which is what the old state machine used.
-        pos = _panel_position(task_name)
-        if pos:
-            if not _walk_near(G=None, target=pos, task=task_name):
-                raise ActionError(f"could not walk to the {task_name} panel")
-            walked = f" at {pos[0]:.1f},{pos[1]:.1f}"
-            time.sleep(0.3)
-            try:
-                import roleplay as _rp
-                _rp.press_use()
-                time.sleep(0.6)
-            except Exception:
-                pass
-        else:
-            raise ActionError(
-                f"no position is known for the {task_name} panel, so the solver "
-                f"would run in the wrong place. Try again, or use observe state "
-                f"to check where you are")
 
-    before = _stage_count(task_name)
-    try:
-        rc = solver.solve_task(task_name=task_name)
-    except Exception as exc:
-        raise ActionError(f"solving {task_name} failed: {exc}")
-    if rc == 1:
-        raise ActionError(f"a meeting interrupted {task_name}")
-    if rc == 2:
-        return f"started {task_name}{walked} - it finishes later (it is timed)"
+        room = _current_task_room(task_name)
+        if room and room.lower() == (utility.getGameData().get("room", "") or "").lower():
+            here_now = _tasks_here()
+            if task_name not in here_now:
+                # the room name matches but the panel is not here, so the game
+                # has re-pointed the task somewhere else in this room
+                stalled += 1
+                if stalled >= 2:
+                    notes.append(f"the game kept re-pointing {task_name} and no "
+                                 f"stage completed")
+                    break
+        if room and room != last_room:
+            last_room = room
+        done = _stage_count(task_name) or 0
 
-    # Verify using STAGE COUNT, not list membership. The task list keeps a
-    # two-stage task like Divert Power in it until the LAST stage is finished, so
-    # "is the name still in the list" reported half-finished work as not done -
-    # the bot completed Electrical, was told nothing had been done, went to
-    # Communications, and then could not do anything there. It looped.
-    time.sleep(0.4)
-    after = _stage_count(task_name)
-    total = _stage_total(task_name)
+        walked = _stand_at_panel(task_name)
+        if walked.startswith("could not"):
+            notes.append(walked)
+            break
 
-    if after is not None and total and after >= total:
+        before = _stage_count(task_name) or 0
+        try:
+            rc = solver.solve_task(task_name=task_name)
+        except Exception as exc:
+            raise ActionError(f"solving {task_name} failed: {exc}")
+        if rc == 1:
+            notes.append("a meeting interrupted it")
+            break
+        if rc == 2:
+            return f"started {task_name}{walked} - it finishes later (it is timed)"
+
+        time.sleep(0.4)
+        after = _stage_count(task_name) or 0
+        if after > before:
+            done = after
+            if rc == 3:
+                notes.append("the solver crashed afterwards but the stage landed")
+            continue
         if rc == 3:
-            return (f"completed {task_name}{walked}, although the solver then "
-                    f"crashed in its cleanup - the task itself is done")
-        return f"completed {task_name}{walked} ({after}/{total} stages)"
+            notes.append("the solver crashed and no stage completed")
+            break
+        # no progress on a stage that should have advanced
+        stalled += 1
+        if stalled >= 2:
+            notes.append(f"two attempts at {task_name} made no progress - the "
+                         f"solver is not completing the panel")
+            break
 
-    if after is not None and before is not None and after > before:
+    final = _stage_count(task_name) or 0
+    total = _stage_total(task_name) or total
+    if roleplay.task_is_complete(task_name) or (total and final >= total):
+        msg = f"completed {task_name} ({final}/{total} stages)"
+        if notes:
+            msg += " - " + "; ".join(notes)
+        return msg
+    if final > 0:
         nxt = _next_room_for(task_name)
-        return (f"did stage {after}/{total} of {task_name}{walked} - it is NOT "
-                f"finished. Next part is in {nxt}. Ask for it once you are there.")
+        tail = f"; next part is at {nxt}" if nxt else ""
+        why = ("; ".join(notes) if notes else
+               "ask for it again once you are at the next panel")
+        return (f"did {final}/{total} stages of {task_name} - it is NOT "
+                f"finished{tail} ({why})")
+    raise ActionError(f"attempted {task_name} but no stage completed, so it was "
+                      f"NOT completed"
+                      + (f" ({'; '.join(notes)})" if notes else ""))
 
-    if rc == 3:
-        raise ActionError(f"the {task_name} solver crashed and no stage "
-                          f"progressed, so it was NOT completed. See the "
-                          f"traceback above.")
-    if total and after is not None and after > 0:
-        return (f"attempted {task_name}{walked} but it is still at stage "
-                f"{after}/{total}, so it was NOT completed")
-    return (f"attempted {task_name}{walked} but no stage completed, so it was "
-            f"NOT completed")
+
+def _current_task_room(task_name):
+    """Where the game currently says this task is.
+
+    task_locations publishes StartAt, and the game moves that between stages for
+    tasks like Fix Wiring, so this is re-read every iteration rather than cached.
+    """
+    try:
+        data = utility.getGameData()
+    except Exception:
+        return ""
+    names = data.get("tasks") or []
+    locs = data.get("task_locations") or []
+    for i, n in enumerate(names):
+        if n == task_name and i < len(locs):
+            return locs[i].split("|")[0].strip()
+    return ""
+
+
+def _stand_at_panel(task_name):
+    """Walk to the current panel and open it. Returns a note, or a refusal."""
+    try:
+        import roleplay
+    except Exception as exc:
+        return f"could not import movement ({exc})"
+    try:
+        if utility.in_meeting():
+            return "could not reach the panel, a meeting is running"
+    except Exception:
+        pass
+
+    route = roleplay.task_route(task_name)
+    if route:
+        target = route[0]
+    else:
+        pos = _panel_position(task_name)
+        if not pos:
+            return (f"no position is known for the {task_name} panel, so the "
+                    f"solver would run in the wrong place")
+        target = pos
+    if not _walk_near(G=None, target=target, task=task_name):
+        return f"could not walk to the {task_name} panel"
+    time.sleep(0.3)
+    try:
+        roleplay.press_use()
+        time.sleep(0.6)
+    except Exception:
+        pass
+    return ""
 
 
 def _stage_info(name):

@@ -61,7 +61,10 @@ for color in wire_colors:
     pyautogui.dragTo(right[0] - round(dimensions[2] / 19.2), right[1],
                       duration=0.2, tween=pyautogui.easeOutQuad)
     time.sleep(0.2)
-    print(f"Fix Wiring: connected the {color} wire")
+    # Deliberately not "connected". A drag that misses still completes the code
+    # path, and this line is what the harness reads as the solver having worked.
+    # The stage counter is the only real evidence, and the harness checks that.
+    print(f"Fix Wiring: dragged the {color} wire across - unverified")
     connected += 1
     break   # one wire per panel on Skeld; a second would be a wrong click
 
@@ -69,7 +72,8 @@ if connected == 0:
     print("Fix Wiring: no wire endpoint found on either side of this panel")
 else:
     try:
-        click_close()
+        how = click_close()
+        print(f"Fix Wiring: {how}")
     except TypeError:
         pass
 

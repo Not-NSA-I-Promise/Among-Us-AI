@@ -27,12 +27,22 @@ TASKS = ["Fix Wiring", "Empty Garbage", "Divert Power", "Prime Shields"]
 LOCS = ["Electrical", "Cafeteria", "Upper Engine", "Shields"]
 
 
-def set_state(imp=False, room="Cafeteria", dead=False, meeting=False):
-    utility.getGameData = lambda: {
-        "map_id": "Skeld", "room": room, "color": "RED", "inMeeting": meeting,
-        "playersDead": {"RED": dead}, "tasks": list(TASKS),
-        "task_locations": list(LOCS), "position": (0, 0), "lights": "0",
-        "nearbyPlayers": []}
+def set_state(imp=False, room="Cafeteria", dead=False, meeting=False,
+              steps=None):
+    """steps: dict of task -> (done, total); the fake solver advances it."""
+    STEPS.clear()
+    STEPS.update(steps if steps is not None
+                 else {t: (0, 1) for t in TASKS})
+    def snapshot():
+        return {
+            "map_id": "Ship", "room": room, "color": "RED", "inMeeting": meeting,
+            "playersDead": {"RED": dead}, "tasks": list(TASKS),
+            "task_locations": list(LOCS),
+            "task_steps": [f"{STEPS.get(t, (0, 1))[0]}/{STEPS.get(t, (0, 1))[1]}"
+                           for t in TASKS],
+            "position": (0, 0), "lights": "0",
+            "nearbyPlayers": []}
+    utility.getGameData = snapshot
     utility.isImpostor = lambda: imp
     utility.isDead = lambda: dead
     utility.in_meeting = lambda: meeting
@@ -49,12 +59,21 @@ def set_state(imp=False, room="Cafeteria", dead=False, meeting=False):
 
 # stand in for the solver so no game interaction happens
 solver_calls = []
+# the simulated step counter the fake solver advances
+STEPS = {}
 
 
 class FakeSolver:
     @staticmethod
     def solve_task(task_name=None, **kw):
         solver_calls.append(task_name)
+        # A real solver completes a panel, so the counter must move. Without
+        # this the harness correctly reports "no stage completed", which is the
+        # behaviour the live log showed when Fix Wiring did nothing.
+        if task_name in STEPS:
+            cur, total = STEPS[task_name]
+            if cur < total:
+                STEPS[task_name] = (cur + 1, total)
         return 0
 
 
@@ -142,8 +161,14 @@ print("=== 7. the prompt offers in-room tasks ONLY ===")
 set_state(imp=False, room="Cafeteria")
 st = agent._brief_state()
 check("the in-room task is offered", "Empty Garbage" in st, st)
-check("tasks in other rooms are NOT offered as doable here",
-      "Fix Wiring" not in st and "Divert Power" not in st, st)
+check("the in-room offer is explicitly 'in THIS room'",
+      "tasks you can do in THIS room" in st, st)
+# out-of-room tasks ARE mentioned, but as progress only - never as doable here
+offer = st.split("tasks you can do in THIS room")[1].split(";")[0]
+check("no out-of-room task appears in the in-room offer",
+      "Fix Wiring" not in offer and "Divert Power" not in offer, offer)
+check("out-of-room tasks are still shown as progress",
+      "Fix Wiring 0/1 not started, in Electrical" in st, st)
 check("no route is suggested when a task is already underfoot",
       "use go_to" not in st, st)
 
