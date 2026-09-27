@@ -60,6 +60,21 @@ class FakeSolver:
 
 sys.modules["solver"] = FakeSolver
 
+# and for movement, so no real walking is attempted
+walk_calls = []
+
+
+def fake_walk(G, x, y):
+    walk_calls.append((round(x, 1), round(y, 1)))
+    return True
+
+
+import roleplay  # noqa: E402
+roleplay.walk_to = fake_walk
+roleplay.press_use = lambda *a, **k: True
+# no taskRoutes.txt while the game is closed, so fall back to the database
+roleplay.task_route = lambda name: []
+
 print("=== 1. a CREWMATE is not told it is an impostor ===")
 set_state(imp=False, room="Cafeteria")
 try:

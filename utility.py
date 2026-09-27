@@ -42,6 +42,74 @@ with open("sendDataDir.txt") as f:
 # starts at skeld, not hardcoded
 MAP = "SHIP"
 
+# The game reports MapType.ToString(): "Ship", "Polus", "Airship", "Fungle",
+# "MIRA HQ". The rest of this file keys everything off "SHIP"/"PB"/"AIRSHIP"/
+# "HQ", which is the legacy naming from the original repo and does not line up.
+#
+# MAP = map_id.upper() therefore produced "POLUS", "FUNGLE" and "MIRA HQ", none of
+# which match any branch in load_dict, and load_G was handed "Polus" when the
+# graph file is Pb_G.pkl. The effect was that the bot worked on Skeld and was
+# completely non-functional on the other four maps: load_dict() returned None and
+# load_G() raised FileNotFoundError.
+#
+# This table is the single place that translation happens.
+_MAP_ALIASES = {
+    "SHIP": "SHIP",
+    "SKELD": "SHIP",
+    "MIRA": "SHIP",          # MIRA HQ is the company, not the Skeld
+    "THE SKELD": "SHIP",
+    "POLUS": "PB",
+    "PB": "PB",
+    "AIRSHIP": "AIRSHIP",
+    "THE AIRSHIP": "AIRSHIP",
+    "FUNGLE": "FUNGLE",
+    "THE FUNGLE": "FUNGLE",
+    "MIRA HQ": "HQ",
+    "MIRAHQ": "HQ",
+    "HQ": "HQ",
+}
+
+# Graph file per normalised map. Only these exist in the repo today; a missing
+# one is reported by name instead of surfacing as a bare FileNotFoundError from
+# deep inside a movement routine.
+_GRAPH_FILES = {
+    "SHIP": "SHIP_G.pkl",
+    "PB": "Pb_G.pkl",
+}
+
+
+def normalize_map(map_name):
+    """MapType name -> the repo's internal key. Never returns None."""
+    if not map_name:
+        return "SHIP"
+    key = str(map_name).strip().upper().replace("_", " ")
+    return _MAP_ALIASES.get(key, key)
+
+
+def available_maps():
+    """Maps that have both a graph and a task database, and what is missing.
+
+    Reports the truth per map rather than implying everything works. Only SHIP
+    and PB are complete in this repo.
+    """
+    dbs = {
+        "SHIP": "SHIP_TASK_TYPES.json",
+        "PB": "PB_TASK_TYPES.json",
+        "AIRSHIP": "AIRSHIP_TASK_TYPES.json",
+        "HQ": "HQ_TASK_TYPES.json",
+        "FUNGLE": "FUNGLE_TASK_TYPES.json",
+    }
+    out = []
+    for key in ("SHIP", "PB", "AIRSHIP", "HQ", "FUNGLE"):
+        # "" used to join to "graphs", which exists, so a map with no graph file
+        # was reported as having one. An absent entry must stay absent.
+        graph_file = _GRAPH_FILES.get(key)
+        graph = bool(graph_file) and os.path.exists(
+            os.path.join("graphs", graph_file))
+        db = os.path.exists(os.path.join("tasks-json", dbs[key]))
+        out.append((key, graph, db))
+    return out
+
 
 def _load_config() -> dict:
     """Bot behaviour toggles from bot_config.json (all optional)."""
@@ -135,7 +203,7 @@ def getGameData():
         task_steps = lines[4].rstrip().strip('][').split(", ")
 
         map_id = lines[5].rstrip()
-        MAP = map_id.upper()
+        MAP = normalize_map(map_id)
 
         dead = bool(int(lines[6].rstrip()))
 
@@ -371,7 +439,12 @@ def load_dict() -> dict:
                 return HQ_TASK_TYPES
         else:
             return HQ_TASK_TYPES
-    return
+
+    # Fungle has no task database in this repo. Returning None here meant every
+    # caller got an opaque AttributeError on None deep inside movement code, so
+    # an empty dict is returned and the map is reported as unsupported by
+    # available_maps() instead.
+    return {}
 
 def is_task_done(task) -> bool:
     """
@@ -730,7 +803,26 @@ def write_G(G, map_name):
     print(f'Wrote to graphs\{map_name}_G.pkl')
 
 def load_G(map_name) -> nx.Graph:
-    with open(f'graphs\{map_name}_G.pkl', 'rb') as f:
+    """Load a map's movement graph.
+
+    Accepts the game's MapType name or the repo's key. Raises a clear error
+    naming the map and what is missing, instead of a bare FileNotFoundError from
+    the middle of a movement routine.
+    """
+    key = normalize_map(map_name)
+    filename = _GRAPH_FILES.get(key)
+    if filename is None:
+        have = ", ".join(k for k, g, _ in available_maps() if g) or "none"
+        raise FileNotFoundError(
+            f"no movement graph is bundled for map {key!r} "
+            f"(from {map_name!r}). Graphs available: {have}. "
+            f"Movement, go_to and do_task cannot work on this map.")
+    path = os.path.join("graphs", filename)
+    if not os.path.exists(path):
+        raise FileNotFoundError(
+            f"the movement graph for {key!r} is missing: expected {path}. "
+            f"go_to and do_task cannot work until it is added.")
+    with open(path, 'rb') as f:
         return pickle.load(f)
 
 def show_graph(G : nx.Graph, graph : list):

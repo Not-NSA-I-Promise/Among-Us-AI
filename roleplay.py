@@ -286,6 +286,59 @@ def _load_sabotage_module():
     return m
 
 
+TASK_ROUTES = None
+
+
+def _routes_path():
+    root = os.path.dirname(os.path.realpath(__file__))
+    try:
+        with open(os.path.join(root, "sendDataDir.txt")) as f:
+            return f.readline().strip() + "\\taskRoutes.txt"
+    except OSError:
+        return None
+
+
+def task_routes(refresh=False):
+    """Task name -> [(x, y), ...], one entry per stage, in order.
+
+    Written by the plugin from PlayerTask.Locations. sendData.txt only carries
+    StartAt, so without this the bot knew Empty Garbage began in Cafeteria but
+    not where the panel was, nor that it has a second stage in Storage.
+    """
+    global TASK_ROUTES
+    if TASK_ROUTES is not None and not refresh:
+        return TASK_ROUTES
+    TASK_ROUTES = {}
+    path = _routes_path()
+    if not path:
+        return TASK_ROUTES
+    try:
+        with open(path) as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                parts = line.split("|")
+                name = parts[0].strip()
+                pts = []
+                for p in parts[1:]:
+                    try:
+                        x, y = p.split(",")
+                        pts.append((float(x), float(y)))
+                    except ValueError:
+                        continue
+                if name and pts:
+                    TASK_ROUTES[name] = pts
+    except OSError:
+        pass
+    return TASK_ROUTES
+
+
+def task_route(name):
+    """The ordered stage positions for a task, or [] if unknown."""
+    return list(task_routes().get(name, []))
+
+
 def outstanding_tasks():
     """The task names still to do, as the game reports them."""
     try:

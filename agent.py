@@ -264,65 +264,160 @@ def vent():
 
 # ------------------------------------------------------------------ tasks
 def do_task(name=None):
-    """Do a task in the room you are standing in.
+    """Walk to a task panel, then run its solver.
 
-    Deliberately NOT a "go there and do it" action. Offering every outstanding
-    task at all times led the model to ask for a task in a room it was not in -
-    it would try to empty garbage while standing in Cafeteria - which is both a
-    wasted turn and a dead giveaway. The model is told the tasks underfoot, and
-    gets go_to when it wants one from somewhere else.
+    Two things were wrong here. The bot did not WALK to the panel first, so the
+    solver - which drives the mouse - ran at whatever spot it happened to be
+    standing in; and it reported "completed" purely on the solver's exit code,
+    which is 0 even when the solver did nothing useful.
+
+    So: resolve the task, walk to its panel, press USE to open it, run the
+    solver, and then CHECK whether the task actually went away. The result
+    reported to the model distinguishes done from attempted.
     """
     import roleplay
     import solver
 
     # This was inverted. `not isImpostor()` is true for a CREWMATE, so a
-    # crewmate got refused with "you are an impostor" and then idled for the
-    # whole round. The condition and the message had to agree.
+    # crewmate got refused with a message about being an impostor, and then
+    # idled for the whole round. The condition and the message have to agree.
     if utility.isImpostor() and not utility.isDead():
         raise ActionError("you are an impostor - do not complete real tasks, "
                           "use fake_task instead to look busy")
-
     if utility.isDead():
         raise ActionError("you are dead - ghosts cannot do tasks")
 
     if not name:
-        # no name given: solve whatever is underfoot
-        try:
-            ok = solver.solve_task()
-        except Exception as exc:
-            raise ActionError(str(exc))
-        if ok != 0:
-            raise ActionError(f"the solver returned {ok}")
-        return "did the task here"
+        here = _tasks_here()
+        if not here:
+            raise ActionError("there is no task in this room to do")
+        name = here[0]
 
-    here = _tasks_here()
     wanted = str(name).strip()
     match = roleplay.find_task(wanted)
     if match is None:
-        available = roleplay.outstanding_tasks()
+        available = roleplay_outstanding()
         raise ActionError(
             f"you do not have a task called {wanted!r}. "
             f"You still have: {', '.join(available) if available else 'nothing'}")
+    task_name = match[0]
 
-    task_name, location = match
-    if not here:
-        raise ActionError(
-            f"there is no task in this room to do. "
-            f"{task_name} is in {location or 'another room'} - use go_to first")
+    here = _tasks_here()
     if task_name not in here:
-        # the model named a real task, just not one that is underfoot
+        route = roleplay.task_route(task_name)
+        loc = roleplay_locations().get(task_name, "another room")
+        if here:
+            raise ActionError(
+                f"{task_name} is not in this room. "
+                f"Tasks in this room: {', '.join(here)}. "
+                f"{task_name} is in {loc} - use go_to {loc} first")
         raise ActionError(
-            f"{task_name} is not in this room. "
-            f"Tasks in this room: {', '.join(here) or 'none'}. "
-            f"{task_name} is in {location or 'another room'} - use go_to first")
+            f"there is no task in this room. {task_name} is in {loc} - "
+            f"use go_to {loc} first")
 
+    # Stand at the actual panel. The room name is not enough: the panel is a
+    # specific spot in the room, and a solver that clicks pixels needs to be
+    # standing at it.
+    route = roleplay.task_route(task_name)
+    walked = ""
+    if route:
+        stage = route[0]
+        if not _walk_near(G=None, target=stage, task=task_name):
+            raise ActionError(f"could not walk to the {task_name} panel")
+        walked = f" at {stage[0]:.1f},{stage[1]:.1f}"
+        time.sleep(0.3)
+        # USE opens the panel; without it the solver has nothing to work on
+        try:
+            import roleplay as _rp
+            _rp.press_use()
+            time.sleep(0.6)
+        except Exception:
+            pass
+    else:
+        # No route published. Fall back to the task database's position for the
+        # room we are in, which is what the old state machine used.
+        pos = _panel_position(task_name)
+        if pos:
+            if not _walk_near(G=None, target=pos, task=task_name):
+                raise ActionError(f"could not walk to the {task_name} panel")
+            walked = f" at {pos[0]:.1f},{pos[1]:.1f}"
+            time.sleep(0.3)
+            try:
+                import roleplay as _rp
+                _rp.press_use()
+                time.sleep(0.6)
+            except Exception:
+                pass
+        else:
+            raise ActionError(
+                f"no position is known for the {task_name} panel, so the solver "
+                f"would run in the wrong place. Try again, or use observe state "
+                f"to check where you are")
+
+    before = len(roleplay_outstanding())
     try:
-        ok = solver.solve_task(task_name=task_name)
+        rc = solver.solve_task(task_name=task_name)
     except Exception as exc:
         raise ActionError(f"solving {task_name} failed: {exc}")
-    if ok != 0:
-        raise ActionError(f"the solver returned {ok} for {task_name}")
-    return f"completed {task_name}"
+    if rc == 1:
+        raise ActionError(f"a meeting interrupted {task_name}")
+    if rc == 2:
+        return f"started {task_name}{walked} - it finishes later (it is timed)"
+
+    # Verify. solve_task returns 0 when the subprocess exited, which says nothing
+    # about whether anything was solved.
+    time.sleep(0.4)
+    after = roleplay_outstanding()
+    if task_name not in after:
+        return f"completed {task_name}{walked}"
+    if len(after) < before:
+        return f"partly did {task_name}{walked} - still outstanding"
+    return (f"attempted {task_name}{walked} but the task is still showing as "
+            f"outstanding, so it was NOT completed")
+
+
+def _walk_near(G=None, target=None, task=""):
+    """Walk to a world position. Thin wrapper so do_task stays readable."""
+    try:
+        import roleplay
+        if G is None:
+            G = utility.load_G(utility.getGameData()["map_id"])
+        return roleplay.walk_to(G, target[0], target[1])
+    except Exception as exc:
+        print(f"  walk to {task} failed: {exc}")
+        return False
+
+
+def _panel_position(task_name):
+    """A task's panel position, from the repo's task database."""
+    try:
+        import roleplay
+        d = utility.load_dict()
+    except Exception:
+        return None
+    entry = d.get(task_name)
+    if not entry:
+        return None
+    room = str(_current_room()).lower()
+    for loc, pos in entry.items():
+        if loc.lower() == room:
+            try:
+                return tuple(pos)
+            except Exception:
+                return None
+    for _loc, pos in entry.items():
+        try:
+            return tuple(pos)
+        except Exception:
+            continue
+    return None
+
+
+def _current_room():
+    try:
+        return utility.getGameData().get("room", "")
+    except Exception:
+        return ""
 
 
 # ---------------------------------------------------------------- social
@@ -504,6 +599,38 @@ def _role_guidance(role, is_imp, ab):
             "kill cleanly. Do not claim you saw something you did not see.")
 
 
+def _map_support_warning():
+    """Say plainly when the current map cannot be played.
+
+    Only Skeld and Polus ship with a movement graph. On the other three the bot
+    cannot walk anywhere, so every movement action would fail, and the model
+    would burn the round on refusals. Better to say so once, up front, than to
+    have it discover it a hundred times.
+    """
+    try:
+        data = utility.getGameData()
+        if not data:
+            return ""
+        key = utility.normalize_map(data.get("map_id"))
+        graph, db = False, False
+        for k, g, d in utility.available_maps():
+            if k == key:
+                graph, db = g, d
+        if graph and db:
+            return ""
+        missing = []
+        if not graph:
+            missing.append("no movement graph (so go_to and do_task cannot work)")
+        if not db:
+            missing.append("no task database (so task positions are unknown)")
+        usable = [k for k, g, d in utility.available_maps() if g and d]
+        return (f"WARNING: this map ({key}) is not fully supported - "
+                f"{'; '.join(missing)}. Fully supported maps: "
+                f"{', '.join(usable) or 'none'}. Expect movement to fail.")
+    except Exception:
+        return ""
+
+
 def _brief_state():
     data = utility.getGameData()
     if not data:
@@ -593,6 +720,9 @@ def _brief_state():
     guidance = _role_guidance(role, is_imp, ab)
     if guidance:
         bits.append(guidance)
+    warn = _map_support_warning()
+    if warn:
+        bits.append(warn)
     return "; ".join(bits)
 
 
