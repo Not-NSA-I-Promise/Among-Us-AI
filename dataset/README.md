@@ -125,7 +125,76 @@ is wrong.
 Keep the failures. Entries 02 and 04 lose, and 08 contains a refusal, because an
 agent trained only on perfect rounds will not know what to do when a plan fails.
 
+## Does this support finetuning a reasoning model?
+
+**Not as it stands, and it is worth being blunt about why.**
+
+`entries.jsonl` is SFT data for a non-reasoning instruct model. The assistant
+turns are bare actions:
+
+```
+"assistant": "fake_task Fix Wiring"
+"assistant": "go_to Storage"
+```
+
+A reasoning model is trained to emit a chain of thought *before* its answer —
+either inside `<think>...</think>` or in whatever shape its chat template expects.
+Training this set teaches a reasoning model to answer with **zero reasoning
+tokens**, which is the exact opposite of what it is for. The model would learn to
+be confidently action-emitting, which is the failure mode we are trying to fix.
+
+The `rationale` field does not rescue it. That is author commentary explaining
+*why* the action was right — useful documentation, and useful for a human
+reviewer or a process-supervision variant, but it is not the model's own output
+and putting it in the assistant turn would be fabricating a reasoning trace the
+model never produced.
+
+Also missing for any real finetune:
+
+- no chat template applied (the system prompt is stored raw)
+- no tokenizer or `special_tokens_map`
+- no train/validation split
+- no `<think>` traces
+
+## What reasoning-model SFT would need
+
+Three options, in increasing order of work:
+
+**1. Distil from a strong reasoner.** Run each of the 10 matches through a
+capable reasoning model, keep the situations, and record the trace it produced
+plus the final action. This is legitimate here, unlike self-distillation from
+the *current* model: the teacher knows the game (or is given the dictionary and
+these same entries as few-shot context) and the trace is genuinely new
+information. The action stays the same, so the legality gate still applies.
+
+**2. Write the traces by hand.** Extend the entry format so the assistant turn
+becomes:
+
+```
+<think>venting is on cooldown and no witnesses, so the right move is to spend the
+turn on a real fake in a room I have a plausible reason to be in</think>
+fake_task Download Data
+```
+
+The 10 entries are 162 turns, so this is very doable by hand and gives full
+control over the reasoning style. The existing `rationale` fields are most of
+the raw material already.
+
+**3. Process supervision.** Train on the reasoning as the *objective* rather than
+the action: reward a correct chain even when it concludes `wait`. This is the
+most powerful option and the furthest from a format tweak.
+
+Whatever the route, the `rationale` text is what should become the trace, and
+`validate.py` should keep gating the resulting action.
+
 ## Not here
 
 No recorder. Logging the model's own games teaches it nothing, and it costs time
 and server capacity every run.
+
+## Why ten
+
+This is a **sample**, not a training set: enough to check the format, the gate
+and the authoring workflow end to end. Ten entries cannot train anything useful.
+The point of the sample is that it is defensible line by line — if these ten are
+right, a hundred written the same way will be too.

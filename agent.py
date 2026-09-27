@@ -321,13 +321,18 @@ def do_task(name=None):
 
 # ---------------------------------------------------------------- social
 def say(message):
-    """Say something in the meeting or in-game chat."""
-    try:
-        import chatGPT
-        chatGPT.say(str(message))
-        return "said it"
-    except Exception as exc:
-        raise ActionError(str(exc))
+    """Say something in the meeting or in-game chat.
+
+    Goes through the game's own chat RPC via the plugin, so the message is
+    indistinguishable from a typed one. This used to call a chatGPT.say() that
+    never existed, so speaking was impossible and the model could only vote.
+    """
+    text = str(message).strip()
+    if not text:
+        raise ActionError("say needs something to say")
+    if botlink.say(text):
+        return f"said: {text}"
+    raise ActionError(f"the game would not send it: {botlink.last_result()}")
 
 
 def vote(color):
@@ -414,18 +419,62 @@ def _brief_state():
         except Exception:
             pass
         bits.append(f"can kill right now: {ab.get('cankill') == '1'}")
-    if data.get("inMeeting") == "1":
-        bits.append("a meeting is running")
-    if ab.get("invent") == "1":
+    # inMeeting is a Python bool, not the string "1". Comparing it to "1" was
+    # always False, so the model was NEVER told a meeting was running - it was
+    # voting blind and had no idea it was in a meeting at all.
+    if _in_meeting():
+        bits.append("a MEETING IS RUNNING - you can only say, observe and vote")
+    if _in_vent(ab):
         bits.append("you are inside a vent")
     if ab.get("isdead") == "1":
         bits.append("you are dead")
+
+    chat = _chat_transcript()
+    if chat:
+        bits.append("what everyone has said so far: " + chat)
     try:
-        if utility.is_urgent_task():
-            bits.append(f"an urgent task is up: {utility.is_urgent_task()}")
+        urgent = utility.is_urgent_task()
+        if urgent:
+            bits.append(f"an urgent task is up: {urgent}")
     except Exception:
         pass
     return "; ".join(bits)
+
+
+def _in_meeting():
+    """True if a meeting is running. Tolerates bool or the string '1'."""
+    try:
+        v = utility.getGameData().get("inMeeting")
+    except Exception:
+        return False
+    if isinstance(v, str):
+        return v.strip() in ("1", "True", "true")
+    return bool(v)
+
+
+def _in_vent(ab=None):
+    ab = ab if ab is not None else botlink.read_ability()
+    return ab.get("invent") == "1"
+
+
+def _chat_transcript(limit=8):
+    """What the other players have actually said.
+
+    This is the single most important input in a social deduction game and it
+    was being thrown away. The plugin already captures every chat message into
+    chatData.txt; nothing was reading it into the prompt, so the model had no
+    idea what the room was arguing about when it was asked to vote.
+    """
+    try:
+        msgs = utility.get_chat_messages()
+    except Exception:
+        return ""
+    msgs = [m.strip() for m in msgs if m and m.strip()]
+    if not msgs:
+        return ""
+    if len(msgs) > limit:
+        msgs = msgs[-limit:]
+    return " | ".join(msgs)
 
 
 def roleplay_kill_nearest(G):

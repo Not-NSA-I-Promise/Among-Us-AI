@@ -118,6 +118,37 @@ def open_chat() -> bool:
     return send_cmd("openchat")
 
 
+def say(message: str) -> bool:
+    """Send a chat message through the game's own RPC.
+
+    This did not exist: agent.say() called chatGPT.say(), which was never
+    implemented, so every `say` action raised AttributeError and the model could
+    not speak at all - it could only vote silently.
+    """
+    text = str(message).strip()
+    if not text:
+        return False
+    return send_cmd("say " + text)
+
+
+def meeting_time_left() -> float:
+    """Seconds left in the meeting's discussion phase, or -1 if none.
+
+    Needed so the model can budget speaking against voting instead of either
+    talking until the timer expires or never speaking at all.
+    """
+    try:
+        ok, detail = try_cmd("meetingtime")
+    except Exception:
+        return -1.0
+    if not ok or not str(detail).startswith("ok"):
+        return -1.0
+    try:
+        return float(str(detail).split(" ", 1)[1])
+    except (IndexError, ValueError):
+        return -1.0
+
+
 def close_chat() -> bool:
     return send_cmd("closechat")
 

@@ -8,7 +8,9 @@ because lights were off. If the model says "wait", this waits.
 import time
 
 import agent
+import botlink
 import llm
+import utility
 
 
 class Agent:
@@ -53,22 +55,20 @@ class Agent:
     # it can budget speaking against voting, but it is still the model that
     # decides to speak and to vote - nothing here chooses for it.
     def _meeting_budget(self):
+        """How many turns are left in the meeting, for budgeting speech vs vote.
+
+        This read a 'meetingtime' key from read_ui_coords(), which only ever
+        contains screen coordinates, so it always fell through to a guessed 20
+        seconds. It now asks the plugin, which reads MeetingHud.discussionTimer.
+        """
         try:
-            import utility
-            if not utility.in_meeting():
+            if not agent._in_meeting():
                 self._meeting_turns = 0
                 return
-            # the plugin publishes the meeting clock; fall back to a nominal
-            # budget if the file is not there yet
-            remaining = 20
-            try:
-                import botlink
-                ui = botlink.read_ui_coords()
-                if ui.get("meetingtime"):
-                    remaining = int(float(ui["meetingtime"]))
-            except Exception:
-                pass
-            # roughly one turn per 2 seconds
+            remaining = botlink.meeting_time_left()
+            if remaining is None or remaining < 0:
+                remaining = 20.0
+            # one decision per ~2 seconds
             self._meeting_turns = max(0, int(remaining // 2) - 1)
         except Exception:
             self._meeting_turns = 0
