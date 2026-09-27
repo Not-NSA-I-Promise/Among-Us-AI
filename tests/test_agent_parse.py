@@ -89,7 +89,7 @@ expected = [
     ("interrogate", "interrogate", None),
     ("read my notes", "notes", None),
     ("do a task", "do_task", "here"),
-    ("do_task Calibrate Distributor", "do_task", "Calibrate"),
+    ("do_task Calibrate Distributor", "do_task", "Calibrate Distributor"),
     ("do the wiring task", "do_task", "wiring"),
     ("go do the Swipe Card task", "do_task", "Swipe Card"),
 ]

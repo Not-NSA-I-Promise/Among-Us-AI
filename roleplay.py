@@ -299,13 +299,14 @@ def find_task(wanted):
     """Find an outstanding task by name and where it is. (name, location) or None.
 
     Matched loosely, because the model will say "fix wires" for "Fix Wiring" and
-    "calibrate distributor" for "Calibrate Distributor". Returns the first match
-    so the model still chooses when several are plausible.
+    "wires" for "Fix Wiring". The matching itself is shared with
+    task-solvers/fake_task.py, so anything the parser can turn into an action is
+    also something the solver can actually find and run - a parse that resolves
+    to a task nobody can execute is worse than a rejection.
     """
     tasks = outstanding_tasks()
     if not tasks or not wanted:
         return None
-    w = str(wanted).strip().lower()
 
     data = None
     try:
@@ -322,20 +323,33 @@ def find_task(wanted):
                 loc = pairs[i].split("|")[0]
             locations[name] = loc
 
-    for name in tasks:
-        if name.lower() == w:
-            return name, locations.get(name, "")
-    for name in tasks:
-        n = name.lower()
-        if w in n or n in w:
-            return name, locations.get(name, "")
-    # last resort: match on the words, ignoring order ("wiring fix")
-    wwords = set(w.split())
-    for name in tasks:
-        nwords = set(name.lower().split())
-        if wwords and len(wwords & nwords) >= max(1, len(wwords) - 1):
-            return name, locations.get(name, "")
-    return None
+    def _load_matcher():
+        import importlib.util
+        import os
+        import sys
+        ts = os.path.join(os.path.dirname(os.path.realpath(__file__)), "task-solvers")
+        if ts not in sys.path:
+            sys.path.insert(0, ts)
+        spec = importlib.util.spec_from_file_location(
+            "_fakematch", os.path.join(ts, "fake_task.py"))
+        m = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(m)
+        return m
+
+    try:
+        mod = _load_matcher()
+        name = mod.best_match(wanted, tasks)
+    except Exception:
+        name = None
+    if name is None:
+        w = str(wanted).strip().lower()
+        for t in tasks:
+            if t.lower() == w or w in t.lower():
+                name = t
+                break
+    if name is None:
+        return None
+    return name, locations.get(name, "")
 
 
 def admin_position():

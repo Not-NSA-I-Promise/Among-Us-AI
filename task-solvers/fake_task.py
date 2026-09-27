@@ -67,6 +67,71 @@ def _stem(word):
     return w[:4] if len(w) >= 4 else w
 
 
+def best_match(query, candidates):
+    """Fuzzy-match a free-text task name against a list of real task names.
+
+    Returns the best candidate, or None. Handles the inflections and dropped
+    words the model actually produces: "wires" for "Fix Wiring", "swipe card" for
+    "Swipe Card", "do the download" for "Download Data".
+
+    Shared with roleplay.find_task, which has to resolve the same phrasings -
+    if only this one could match them, the model could parse a task it could
+    never execute.
+    """
+    import difflib
+    q = str(query).strip().strip("\"'`.,;:!?").lower()
+    if not q or len(q) < 3:
+        return None
+    candidates = [c for c in candidates if c]
+    if not candidates:
+        return None
+    lowered = {c: c.lower() for c in candidates}
+    words = [w for w in q.replace("(", " ").replace(")", " ").split()
+             if w not in ("the", "a", "an", "task", "do", "my", "fake", "please")]
+
+    for c, low in lowered.items():
+        if low == q or low in q:
+            return c
+
+    best, best_ratio = None, 0.0
+    for name in candidates:
+        ratio = difflib.SequenceMatcher(None, q, lowered[name]).ratio()
+        if ratio > best_ratio:
+            best, best_ratio = name, ratio
+    if best and best_ratio >= 0.62:
+        return best
+
+    # A long phrase gets no loose word-level pass. "wires" should find "Fix
+    # Wiring", but "fix the flux capacitor" shares only the word "fix" and must
+    # not be allowed to resolve to it - a false match here sends the bot to the
+    # wrong panel.
+    if len(words) > 2:
+        return None
+
+    # word-level, on stems, scored by how much of the query is covered
+    best_name, best_key = None, None
+    for name in candidates:
+        stems = {_stem(w) for w in lowered[name].split()}
+        hits = 0
+        for w in words:
+            sw = _stem(w)
+            if not sw:
+                continue
+            if sw in stems:
+                hits += 1
+            elif any(difflib.SequenceMatcher(None, sw, ns).ratio() >= 0.75
+                     for ns in stems):
+                hits += 0.5
+        if hits <= 0:
+            continue
+        key = (hits, -len(stems))
+        if best_key is None or key > best_key:
+            best_name, best_key = name, key
+    if best_name and best_key[0] >= 1:
+        return best_name
+    return None
+
+
 def lookup(name):
     """Return the timing record for a task, matching loosely."""
     table = durations()

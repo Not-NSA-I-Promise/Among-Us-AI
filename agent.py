@@ -397,31 +397,115 @@ def _color_index(color):
                           f"valid: {', '.join(botlink.COLOR_NAMES)}")
 
 
+def _role_guidance(role, is_imp, ab):
+    """Role-specific judgement, as advice in the prompt.
+
+    Not enforced by the harness - it is the model's decision, which is the point.
+    But the model has no way to know these rules unless it is told them, and a
+    base model will happily shapeshift next to a witness or interrogate a
+    random player. The rules come from dataset/AMONGUS_DICTIONARY.json.
+    """
+    # Specific role advice is checked BEFORE the generic impostor advice, or an
+    # impostor Shapeshifter and a Viper would only ever be told the generic
+    # version and their own rules would be unreachable.
+    if role == "Shapeshifter":
+        return ("Do NOT shapeshift while a crewmate is near you - they will see the "
+                "transformation and you are dead. Only do it when nobody is near, "
+                "and mimic someone who has not been accused yet.")
+    if role == "Viper":
+        return ("You can kill from inside a vent. Vent when nobody can see you, and "
+                "kill from there rather than on foot.")
+    if role == "Phantom":
+        return ("Ability 1 makes you invisible and is usable even as a crewmate, so "
+                "using it is never suspicious. Ability 2 leaves a decoy - place it "
+                "somewhere you have already left. If you are an impostor, kill "
+                "behind a closed door and then vanish to cover the discovery.")
+
+    if is_imp:
+        return ("As an impostor: fake a task before you do anything else, because "
+                "standing still doing nothing is what an impostor looks like. If "
+                "your fellow impostor has just killed and a crewmate is nearby, "
+                "kill that crewmate too - a double kill ends the round. Do not "
+                "shapeshift or stand in the open next to a witness.")
+    if role == "Detective":
+        return ("Do NOT interrogate a random player. Your ability is worth spending "
+                "on a body, or on someone who was near a body, or on someone who "
+                "was following or chasing a player. A player nobody can account "
+                "for is the right target; a player with a solid alibi is not. Read "
+                "your notes before you report and say only what they say.")
+    if role == "Judge":
+        return ("Do NOT spend your overrule on a hunch. Wait until you have real "
+                "information: you witnessed them near a kill, they vented, a body "
+                "was found where they were, or nobody can say where they were. A "
+                "vent-kill is enough. One bad overrule costs you the whole game.")
+    if role == "Engineer":
+        return ("You can vent for movement, and saying so is a good alibi rather "
+                "than a giveaway. Venting proves nothing on its own.")
+    if role == "Scientist":
+        return ("Vitals tell you who is dead and who is disconnected. If bodies have "
+                "been found but nobody is dead on vitals, a vent happened - that is "
+                "the strongest thing you can tell the room.")
+    if role == "Tracker":
+        return ("You CANNOT vent. Track someone you have actually seen, and turn "
+                "where they went into a specific thing to say in the meeting.")
+    if role == "Guardian Angel":
+        return ("Shield the player the evidence actually points at, not a random "
+                "one. Remember bodies and who was near them.")
+    if role == "Crewmate":
+        return ("Ask 'who followed you' - that question catches more impostors than "
+                "asking who was near the body. If you did not see something, do "
+                "not claim you did. Skip the vote if you have no information.")
+    return ""
+
+
 def _brief_state():
     data = utility.getGameData()
     role = botlink.get_role()
     ab = botlink.read_ability()
     living = _living_players()
     near = _nearby_players()
+    is_imp = ab.get("isimpostor") == "1"
     bits = [
-        f"you are {role} ({'impostor' if ab.get('isimpostor') == '1' else 'crew'})",
+        f"you are {role} ({'impostor' if is_imp else 'crew'})",
         f"in {data['room']}",
         f"alive: {', '.join(living) if living else 'you are alone'}",
     ]
     if near:
-        bits.append(f"near you: {', '.join(near)}")
+        bits.append(f"near you RIGHT NOW: {', '.join(near)}")
+    else:
+        bits.append("nobody near you right now")
+
+    # Fellow impostors. An impostor needs to know who not to kill and who not to
+    # vote, and it needs to know before it acts, not after.
+    if is_imp:
+        try:
+            mates = [m for m in utility.get_fellow_imposters() if m]
+            if mates:
+                bits.append(f"your fellow IMPOSTOR: {', '.join(mates)} - never kill or vote them")
+        except Exception:
+            pass
+
+    # Tasks in this room. Without this the model has no idea it is standing at a
+    # panel, which is most of why it walked the map doing nothing.
+    try:
+        here = _tasks_here(data)
+    except Exception:
+        here = []
+    if here:
+        bits.append("tasks in THIS room you can do right now: " + ", ".join(here))
+
     # The cooldown is the model's business, not the harness's, so give it the
     # number rather than deciding on its behalf that the kill is unavailable.
-    if ab.get("isimpostor") == "1":
+    if is_imp:
         try:
             cd = utility.get_killCD()
             bits.append(f"kill cooldown: {cd}")
         except Exception:
             pass
         bits.append(f"can kill right now: {ab.get('cankill') == '1'}")
-    # inMeeting is a Python bool, not the string "1". Comparing it to "1" was
-    # always False, so the model was NEVER told a meeting was running - it was
-    # voting blind and had no idea it was in a meeting at all.
+        bits.append("if your fellow impostor has just killed near a crewmate, "
+                    "killing that crewmate too is a double kill and wins you the round")
+
     if _in_meeting():
         bits.append("a MEETING IS RUNNING - you can only say, observe and vote")
     if _in_vent(ab):
@@ -438,7 +522,40 @@ def _brief_state():
             bits.append(f"an urgent task is up: {urgent}")
     except Exception:
         pass
+
+    guidance = _role_guidance(role, is_imp, ab)
+    if guidance:
+        bits.append(guidance)
     return "; ".join(bits)
+
+
+def _tasks_here(data=None):
+    """Outstanding tasks located in the room the bot is standing in.
+
+    This is the piece that was missing: the model was told its whole task list
+    and the whole room list, but never which tasks were underfoot, so it had to
+    guess whether doing anything was even possible where it stood.
+    """
+    try:
+        data = data or utility.getGameData()
+    except Exception:
+        return []
+    room = str(data.get("room", "")).strip().lower()
+    if not room:
+        return []
+    names = data.get("tasks") or []
+    locs = data.get("task_locations") or []
+    here = []
+    for i, name in enumerate(names):
+        if i >= len(locs):
+            continue
+        loc = locs[i].split("|")[0].strip().lower()
+        # a location can be a list of equivalent rooms, e.g. "Admin | Cafeteria"
+        if not loc:
+            continue
+        if room in [p.strip() for p in locs[i].lower().split("|")]:
+            here.append(name)
+    return here
 
 
 def _in_meeting():
@@ -673,10 +790,79 @@ def parse_action(reply):
         args = [p.strip(",.;:\"'") for p in parts[1:]]
         required, _fn, _desc = ACTIONS[name]
         if len(args) >= len(required):
-            return name, args[:len(required)]
+            if required:
+                # Task names are multi-word. "do_task Fix Wiring" must keep
+                # "Fix Wiring", not collapse to "Fix", or find_task gets half a
+                # name and the solver has nothing to work with.
+                if name in ("do_task", "fake_task"):
+                    return name, [" ".join(parts[1:]).strip(",.;:\"'")]
+                return name, args[:len(required)]
+            return name, []
         return None, line
 
+    # A bare task name, with no verb at all: "fix wiring", "swipe card", "wires".
+    # The model asked for the wires exactly like this and the parser had no way to
+    # read it, so it stood there doing nothing - which to the rest of the lobby is
+    # indistinguishable from an impostor faking a task. Matching against the real
+    # outstanding list means the model's own wording is enough.
+    matched = _match_outstanding_task(line)
+    if matched:
+        try:
+            is_imp = botlink.read_ability().get("isimpostor") == "1"
+        except Exception:
+            is_imp = False
+        verb = "fake_task" if is_imp else "do_task"
+        # only when a task really was named, so this cannot swallow typos
+        return verb, [matched]
+
+    # A bare sentence during a meeting is speech. The model was told to prefix
+    # with `say`, and often does, but a chatty reply like "i think red is sus"
+    # otherwise parsed as nothing - which is the same failure as not being able
+    # to speak at all. Restricted to meetings, to a plausible chat length, and
+    # only when it reads like a sentence rather than a typo.
+    if _looks_like_speech(line):
+        return "say", [line]
+
     return None, line
+
+
+def _looks_like_speech(line):
+    """Is this a chat message rather than a typo or an invented verb?"""
+    s = str(line).strip()
+    if not s or len(s) > 120 or len(s) < 3:
+        return False
+    if not _in_meeting():
+        return False
+    # a wall of no-spaces, camelCase or symbols is code or a typo, not speech
+    if any(ch in s for ch in "{}[]<>|\\`~*#@$%^&_="):
+        return False
+    if "_" in s and " " not in s:
+        return False
+    words = s.split()
+    if len(words) > 20:
+        return False
+    # must start like a sentence a player would type
+    if not (words[0].lower().endswith("i") or words[0].lower() in (
+            "i", "im", "no", "yes", "red", "blue", "green", "yellow", "pink",
+            "white", "black", "purple", "cyan", "brown", "orange", "lime",
+            "rose", "banana", "skip", "vote", "who", "what", "where", "why",
+            "stop", "wait", "its", "thats", "there", "he", "she", "they", "it",
+            "not", "can", "dont", "do", "we", "you", "ur", "ok", "wait")):
+        return False
+    return True
+
+
+def _match_outstanding_task(text):
+    """If `text` names one of the bot's outstanding tasks, return the real name."""
+    t = str(text).strip().strip("\"'`.,;:!?")
+    if not t or len(t) < 3:
+        return None
+    try:
+        import roleplay
+        found = roleplay.find_task(t)
+    except Exception:
+        return None
+    return found[0] if found else None
 
 
 def run_action(name, args):

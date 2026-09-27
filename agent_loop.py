@@ -12,6 +12,11 @@ import botlink
 import llm
 import utility
 
+# How many `wait`s in a row before the model is told that idling looks like
+# faking. Four is roughly long enough that "nothing is safe right now" is a real
+# possibility, and short enough to catch the pattern in one round.
+WAIT_STREAK_LIMIT = 4
+
 
 class Agent:
     """Holds the short memory of what the model has already decided."""
@@ -23,6 +28,7 @@ class Agent:
         self.last_outcome = None
         self.model = None
         self._meeting_turns = 0
+        self._consecutive_waits = 0
 
     # ------------------------------------------------------------------ prompt
     def system_prompt(self):
@@ -49,7 +55,54 @@ class Agent:
         if self._meeting_turns:
             parts.append(f"{self._meeting_turns} turns left in this meeting: "
                          "you still need to speak and vote")
+
+        # Anti-idle. A run of `wait` is not neutral: to the rest of the lobby the
+        # bot is standing in a room doing nothing, which is precisely what an
+        # impostor faking a task looks like. The model is told this, and is given
+        # the options it actually has, rather than being left to default to wait.
+        if self._consecutive_waits >= WAIT_STREAK_LIMIT:
+            useful = self._useful_actions()
+            parts.append(
+                f"You have chosen 'wait' {self._consecutive_waits} times in a row. "
+                f"From outside this looks like you are faking a task, which is how "
+                f"impostors give themselves away. Do something instead. "
+                f"Right now you could: {', '.join(useful) if useful else 'go_to a room'}"
+            )
         return " | ".join(parts)
+
+    def _useful_actions(self):
+        """What is actually available this turn, in words.
+
+        Computed from live state, not guessed, so the nudge cannot suggest
+        something illegal like venting as a Tracker.
+        """
+        out = []
+        try:
+            ab = botlink.read_ability()
+            is_imp = ab.get("isimpostor") == "1"
+        except Exception:
+            return out
+
+        if not agent._in_meeting():
+            try:
+                here = agent._tasks_here()
+            except Exception:
+                here = []
+            if here and not is_imp:
+                out.append(f"do_task {here[0]}")
+            if is_imp:
+                out.append("fake_task <something on your list>")
+                if ab.get("cankill") == "1":
+                    out.append("kill (if a kill is safe)")
+            try:
+                outstanding = __import__("roleplay").outstanding_tasks()
+            except Exception:
+                outstanding = []
+            if outstanding and not here:
+                out.append(f"go_to the room with {outstanding[0]}")
+            if ab.get("canvent") == "1" and not ab.get("invent") == "1":
+                out.append("vent (for movement)")
+        return out
 
     # A meeting has a time limit. The model gets told how many turns are left so
     # it can budget speaking against voting, but it is still the model that
@@ -103,6 +156,9 @@ class Agent:
             # the honest response to a confused model.
             self.last_action = None
             self.last_outcome = f"no valid action (said: {raw})"
+            # A reply the parser could not read is not a decision, so it must not
+            # count as a deliberate wait - but it also must not reset the streak,
+            # because repeatedly saying something unparseable is the same problem.
             return self.last_outcome
 
         args = raw if isinstance(raw, list) else []
@@ -110,13 +166,17 @@ class Agent:
             outcome = agent.run_action(name, args)
         except agent.ActionError as exc:
             outcome = f"refused: {exc}"
-        except botlink_error() as exc:
+        except botlink.CommandFailed as exc:
             outcome = f"game refused: {exc}"
         except Exception as exc:
             outcome = f"error: {type(exc).__name__}: {exc}"
 
         self.last_action = f"{name} {' '.join(args)}".strip()
         self.last_outcome = outcome
+        if name == "wait":
+            self._consecutive_waits += 1
+        else:
+            self._consecutive_waits = 0
         self.history.append(self.last_action)
         if len(self.history) > self.max_history:
             self.history.pop(0)
