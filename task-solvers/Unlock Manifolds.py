@@ -17,9 +17,22 @@ dimensions[3] = round(dimensions[3] / 3.1)
 
 pos = None
 for i in range(1, 11):
-    while pos is None:
-        pos = pyautogui.locateCenterOnScreen(f"{get_dir()}\\task-solvers\\cv2-templates\\Unlock Manifolds resized\\{i}.png", confidence=0.8, region=dimensions, grayscale=True)
+    # The old version polled in an unbounded while-loop whose only exit was the
+    # ` key, and the pyautogui call RAISES on the first miss rather than
+    # returning None, so the loop never even ran - it just crashed. Bounded
+    # retries here, and a clean failure instead of a crash or a hang.
+    pos = None
+    for _attempt in range(5):
+        pos = find_template(
+            f"{get_dir()}\\task-solvers\\cv2-templates\\Unlock Manifolds resized\\{i}.png",
+            region=dimensions, confidences=(0.8, 0.7, 0.6), grayscale=True,
+            verbose=False)
+        if pos:
+            break
         if keyboard.is_pressed('`'):
             raise SystemExit(0)
+        time.sleep(0.4)
+    if not pos:
+        print(f"Unlock Manifolds: gave up looking for step {i}")
+        break
     pyautogui.click(pos)
-    pos = None

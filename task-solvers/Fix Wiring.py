@@ -34,29 +34,25 @@ time.sleep(0.8)
 
 wire_colors = ["red", "blue", "yellow", "pink"]
 
-for color in wire_colors:
-    template = f"{get_dir()}\\task-solvers\\cv2-templates\\Fix Wiring resized\\{color}Wire.png"
+  for color in wire_colors:
+      template = f"{get_dir()}\\task-solvers\\cv2-templates\\Fix Wiring resized\\{color}Wire.png"
 
-    # Widen the confidence window before giving up on a wire.
-    left = None
-    for confidence in (0.8, 0.7, 0.6, 0.5):
-        left = pyautogui.locateCenterOnScreen(template, confidence=confidence, region=left_dimensions)
-        if left:
-            break
-    if not left:
-        print(f"Fix Wiring: could not find {color} wire on the left")
-        break
+      # find_template catches ImageNotFoundException at each rung. The previous
+      # loop here called pyautogui directly, which RAISES rather than returning
+      # None, so the very first attempt at confidence=0.8 killed the script and
+      # the lower rungs were never reached - a 0.738 match was discarded.
+      left = find_template(template, region=left_dimensions)
+      if not left:
+          print(f"Fix Wiring: could not find {color} wire on the left")
+          break
 
-    pyautogui.moveTo(left[0] + round(dimensions[2] / 32), left[1])
+      pyautogui.moveTo(left[0] + round(dimensions[2] / 32), left[1])
 
-    right = None
-    for confidence in (0.8, 0.7, 0.6, 0.5):
-        right = pyautogui.locateCenterOnScreen(template, confidence=confidence, region=right_dimensions)
-        if right:
-            break
-    if not right:
-        print(f"Fix Wiring: could not find {color} wire on the right")
-        break
+      right = find_template(template, region=right_dimensions)
+      if not right:
+          print(f"Fix Wiring: could not find {color} wire on the right")
+          break
+
 
     pyautogui.dragTo(right[0] - round(dimensions[2] / 19.2), right[1], duration=0.2, tween=pyautogui.easeOutQuad)
     time.sleep(0.2)

@@ -25,6 +25,11 @@ dimensions[1] += round(dimensions[3] / 3.2)
 dimensions[2] = round(dimensions[2] / 3.4)
 dimensions[3] = round(dimensions[3] / 3.6)
 
-pos = pyautogui.locateCenterOnScreen(f"{get_dir()}\\task-solvers\\cv2-templates\\Inspect Sample\\anomaly.png", confidence=0.5, region=dimensions)
-pyautogui.click(pos[0], pos[1] + round(y_offset / 2.87))
+pos = find_template(
+    f"{get_dir()}\\task-solvers\\cv2-templates\\Inspect Sample\\anomaly.png",
+    region=dimensions, confidences=(0.5, 0.4))
+if pos:
+    pyautogui.click(pos[0], pos[1] + round(y_offset / 2.87))
+else:
+    print("Inspect Sample: could not find the anomaly tube")
 """

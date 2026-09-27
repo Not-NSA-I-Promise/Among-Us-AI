@@ -116,6 +116,16 @@ def solve_task(task_name=None, task_location=None) -> int:
                     return 1
             time.sleep(1/30)
 
+        # Check how the solver EXITED. A Python script that hit an exception - a
+        # template that could not be found, anything at all - still terminates,
+        # and this function used to return 0 for it, so a dead solver was
+        # reported to the model as a completed task. That is how "attempted Fix
+        # Wiring ... NOT completed" was possible at all.
+        rc = p.returncode
+        if rc not in (0, None):
+            print(f"solver for {task_name} exited {rc} - it failed")
+            return 3
+
         if task_name == "Inspect Sample" or task_name == "Reboot Wifi":
             return 2
         else:

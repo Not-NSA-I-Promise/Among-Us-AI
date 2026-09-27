@@ -361,6 +361,9 @@ def do_task(name=None):
         raise ActionError(f"solving {task_name} failed: {exc}")
     if rc == 1:
         raise ActionError(f"a meeting interrupted {task_name}")
+    if rc == 3:
+        raise ActionError(f"the {task_name} solver crashed - see the traceback "
+                          f"above. The task was not attempted successfully.")
     if rc == 2:
         return f"started {task_name}{walked} - it finishes later (it is timed)"
 

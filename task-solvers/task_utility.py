@@ -103,6 +103,42 @@ def click_use():
     pydirectinput.click()
     return
 
+def find_template(template, region=None, confidences=(0.8, 0.7, 0.6, 0.5, 0.4),
+                  grayscale=False, verbose=True):
+    """Locate a template on screen, returning None instead of raising.
+
+    pyautogui.locateCenterOnScreen RAISES ImageNotFoundException when it cannot
+    find something. Solvers written as `pos = pyautogui.locateCenterOnScreen(...)`
+    therefore die at that line whenever the template is not on screen, and a dead
+    solver looks like a successful one to solve_task.
+
+    This walks a confidence ladder and catches the exception at each rung, so a
+    lower-confidence match is actually reachable. Use this instead of calling
+    pyautogui directly.
+    """
+    for c in confidences:
+        try:
+            pos = pyautogui.locateCenterOnScreen(
+                template, confidence=c, region=region, grayscale=grayscale)
+            if pos:
+                if verbose and c < confidences[0]:
+                    print(f"  matched {os.path.basename(template)} "
+                          f"at confidence {c}")
+                return pos
+        except pyautogui.ImageNotFoundException:
+            continue
+        except Exception as exc:
+            # a bad region or a corrupt template should not kill the solver
+            if verbose:
+                print(f"  template search failed for "
+                      f"{os.path.basename(template)}: {type(exc).__name__}")
+            return None
+    if verbose:
+        print(f"  could not find {os.path.basename(template)} anywhere in the "
+              f"region (tried confidence down to {confidences[-1]})")
+    return None
+
+
 def resize_images(dimensions, task_name):
     if task_name == "Unlock Manifolds":
         for i in range(1,11):
