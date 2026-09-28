@@ -20,6 +20,7 @@ CMD_PATH = os.path.join(_GAME_DIR, "botCmd.txt")
 UI_PATH = os.path.join(_GAME_DIR, "uiCoords.txt")
 ROLE_PATH = os.path.join(_GAME_DIR, "roleData.txt")
 PRESENCE_PATH = os.path.join(_GAME_DIR, "killPresence.txt")
+KILL_WHERE_PATH = os.path.join(_GAME_DIR, "killWhere.txt")
 
 COLOR_NAMES = [
     "RED", "BLUE", "GREEN", "PINK", "ORANGE", "YELLOW", "BLACK", "WHITE",
@@ -246,6 +247,67 @@ def solver_interrupted():
     return False
 
 
+def recent_kills(retries=2):
+    """Kills the local player could have heard: who, on whom, and how far away.
+
+    Written by the plugin when MurderPlayer runs, from the game's own
+    positions. Until now the bot had no idea a kill had happened at all - it only
+    ever learned that a name had turned up in playersDead, with no idea who did
+    it or whether it was anywhere near it. A player hears a kill and roughly
+    knows where from; this is that, exactly.
+
+    Returns a list of dicts, oldest first, newest last. Empty if none.
+    """
+    for _ in range(retries):
+        try:
+            with open(KILL_WHERE_PATH) as f:
+                lines = [ln.strip() for ln in f if ln.strip()]
+            break
+        except OSError:
+            lines = []
+            time.sleep(0.05)
+    out = []
+    for ln in lines:
+        p = ln.split(" ", 4)
+        if len(p) < 5:
+            continue
+        killer, victim, x, y, dist = p[0], p[1], p[2], p[3], p[4]
+        room = ""
+        tail = p[4].split(" ", 1)
+        if len(tail) == 2:
+            dist, room = tail[0], tail[1]
+        try:
+            out.append({
+                "killer": killer,
+                "victim": victim,
+                "x": float(x),
+                "y": float(y),
+                "dist": float(dist),
+                "room": room,
+            })
+        except ValueError:
+            continue
+    return out
+
+
+def kill_alert(max_age_files=1):
+    """One line describing the most recent kill, or '' if there is nothing new.
+
+    Deliberately terse: the model needs the fact and the distance, not a report.
+    """
+    kills = recent_kills()
+    if not kills:
+        return ""
+    k = kills[-max_age_files:]
+    bits = []
+    for e in k:
+        near = ("you were %.1f tiles away" % e["dist"]) if e["dist"] <= 12 else \
+               "%.0f tiles away" % e["dist"]
+        where = (" in " + e["room"]) if e["room"] else ""
+        bits.append("%s killed %s%s, %s" % (e["killer"], e["victim"], where, near))
+    return "you heard a kill: " + "; ".join(bits)
+
+
 def read_minigame_controls(retries=4):
     """Where the open minigame's clickable things actually are on screen.
 
@@ -283,6 +345,14 @@ def read_minigame_controls(retries=4):
         key = parts[0]
         if key == "type" and len(parts) > 1:
             out["type"] = parts[1]
+        elif key == "class" and len(parts) > 1:
+            out["class"] = parts[1]
+        elif key in ("sprite", "collider", "transform") and len(parts) >= 5:
+            # the concrete class and every public element it exposes, so a task
+            # with no hand-written support can still be diagnosed instead of
+            # being guessed at with pixel offsets
+            out.setdefault(key + "s", {}).setdefault(parts[1], {})[parts[2]] = (
+                int(parts[3]), int(parts[4]))
         elif key in ("button", "light") and len(parts) >= 4:
             out.setdefault(key + "s", {})[int(parts[1])] = (int(parts[2]), int(parts[3]))
         elif key in ("lightcol", "buttoncol") and len(parts) >= 5:

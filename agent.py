@@ -975,6 +975,19 @@ def _brief_state():
     else:
         bits.append("nobody near you right now")
 
+    # A kill that just happened. The bot used to have no idea one had occurred: it
+    # only ever saw a name appear in playersDead, with no killer, no location and
+    # no sense of whether it was anywhere near it. That is the single most
+    # important piece of information a player gets when they hear a kill, and
+    # without it the model cannot reason about who to suspect or whether it is
+    # safe to be standing where it is.
+    try:
+        alert = botlink.kill_alert()
+    except Exception:
+        alert = ""
+    if alert:
+        bits.append(alert + " - anyone who claims to have been elsewhere then is lying")
+
     # Fellow impostors. An impostor needs to know who not to kill and who not to
     # vote, and it needs to know before it acts, not after.
     if is_imp:

@@ -68,12 +68,27 @@ class FakePyautogui(types.ModuleType):
     def __init__(self, game):
         super().__init__("pyautogui")
         self.game = game
+        self.down = False
 
     def click(self, x=None, y=None, *a, **k):
         self.game.clicks.append((x, y))
 
-    def moveTo(self, *a, **k):
+    def moveTo(self, x=None, y=None, *a, **k):
+        if self.down:
+            self.game.drags.append((x, y))
+            # the lever follows the mouse while the button is held
+            c = dict(self.game.controls) if self.game.controls else {}
+            if "handle" in c:
+                c["handle"] = (x, y)
+            self.game.controls = c
         return None
+
+    def mouseDown(self, *a, **k):
+        self.down = True
+
+    def mouseUp(self, *a, **k):
+        self.down = False
+        self.game.released = True
 
     def dragTo(self, x, y, *a, **k):
         self.game.drags.append((x, y))
@@ -207,37 +222,29 @@ GARBAGE = {
 
 
 class GarbageGame(FakeGame):
+    """The handle follows the mouse while the button is held, and stops at the
+    end of its travel - which is the behaviour the new drag is built around."""
+
     def __init__(self):
         super().__init__(dict(GARBAGE))
-        self.dragged = False
-
-    def read_minigame_controls(self, retries=4):
-        c = super().read_minigame_controls(retries)
-        if self.dragged:
-            c["finished"] = True
-        return c
+        self.released = False
 
     def read_minigame(self, retries=4):
-        return {"open": not self.dragged, "task": "EmptyGarbage"}
+        # the panel closes once the lever has been released at the end
+        return {"open": not self.released, "task": "EmptyGarbage"}
 
 
-def dragTo(self, x, y, *a, **k):
-    self.game.drags.append((x, y))
-    self.game.dragged = True
-    return None
-
-
-orig_drag = FakePyautogui.dragTo
-FakePyautogui.dragTo = dragTo
 g2 = GarbageGame()
 rc, out = run("Empty Garbage", g2)
-FakePyautogui.dragTo = orig_drag
 print(out.strip())
 check("it completed", rc == 0, f"rc={rc}\n{out}")
-check("it dragged starting at the handle the game published",
+check("it pressed the mouse down on the handle the game published",
       g2.drags and g2.drags[0][0] == GARBAGE["handle"][0], g2.drags)
-check("the drag goes DOWN, the direction a lever is pulled", g2.drags and
-      g2.drags[0][1] > GARBAGE["handle"][1], g2.drags)
+check("it dragged downward, the direction a lever is pulled",
+      len(g2.drags) > 1 and g2.drags[-1][1] > GARBAGE["handle"][1], g2.drags)
+check("it released the mouse", g2.released, "never released")
+check("and it did NOT let go early: it kept dragging until the handle stopped",
+      len(g2.drags) >= 4, f"only {len(g2.drags)} drag steps")
 
 print()
 print("=== Empty Trash waits instead of dragging when there is no lever ===")
