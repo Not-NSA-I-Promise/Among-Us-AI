@@ -122,19 +122,62 @@ def _find_dials(left, top, width, height):
     return found
 
 
-def solve():
+def _panel_open():
+    """Is the game telling us this panel is actually up?
+
+    Read from Minigame.Instance, which is authoritative. Without this check the
+    solver screenshot whatever is on screen and hunts for coloured blobs in it -
+    and it will happily find three of them in the game's own HUD at a fixed
+    column, click them, and report success. A live run did exactly that:
+    'clicked the yellow button, found at (1125, 262)', '3/3 done', with nothing
+    having happened at all.
+    """
+    try:
+        st = botlink.read_minigame() or {}
+    except Exception:
+        return None
+    if st.get("open"):
+        return True
+    return False
+
+
+def _geometry_available():
+    """Has the plugin build that publishes this panel's real geometry been loaded?
+
+    If not, the dial positions are guesses and the solver must say so rather than
+    quietly clicking around.
+    """
+    try:
+        c = botlink.read_minigame_controls() or {}
+    except Exception:
+        return False
+    return bool(c.get("class"))
+
+
+def _solve():
     region = _panel_region()
     if not region:
         print("Calibrate Distributor: no game window dimensions")
         return 1
     left, top, width, height = region
 
-    # The button sits below its dial. This offset is the one remaining assumption
-    # in the solver, and it is why a screenshot is saved on failure: the dials
-    # themselves are now found by colour, so only the button's position is a
-    # guess, and the picture will show whether it is right.
+    if _panel_open() is False:
+        print("Calibrate Distributor: the game says no panel is open, so nothing "
+              "was clicked")
+        return 1
+
+    if not _geometry_available():
+        print("Calibrate Distributor: WARNING - the plugin build that publishes "
+              "this panel's real sprite positions is not loaded, so the dial "
+              "positions below are GUESSES found by colour-matching whatever is "
+              "on screen. Clicks will be verified and reported honestly, but "
+              "expect this to fail until the game is restarted with the current "
+              "plugin.")
+
+    # The button sits below its dial. The one remaining assumption.
     button_dy = round(height * 0.07)
 
+    misses = {name: 0 for name, _t in DIALS}
     done = {name: False for name, _t in DIALS}
     start = time.time()
     clicks = 0
@@ -146,47 +189,77 @@ def solve():
         if is_urgent_task():
             print("Calibrate Distributor: an urgent task needs doing")
             return 2
-        if time.time() - start > 45:
+        if time.time() - start > 40:
             missing = [n for n in done if not done[n]]
-            print(f"Calibrate Distributor: gave up after 45s; still to do: "
-                  f"{', '.join(missing) or 'nothing'}")
+            print(f"Calibrate Distributor: gave up after 40s. Clicked {clicks} "
+                  f"time(s) but these were never confirmed done: "
+                  f"{', '.join(missing) or 'nothing'}. The clicks were NOT "
+                  f"verified as working.")
             _dump_geometry("timeout")
             return 1
 
         dials = _find_dials(left, top, width, height)
         if not dials:
-            # The panel is animating, or the dials are all at rest and dark.
+            if is_task_done(task="Calibrate Distributor"):
+                break
             time.sleep(0.06)
             continue
 
-        clicked = False
+        target = None
         for name, _t in DIALS:
-            if done[name]:
+            if done[name] or misses[name] >= 2:
                 continue
-            pos = dials.get(name)
-            if not pos:
-                continue
-            # Click the button directly beneath the dial we can SEE, and do it
-            # immediately: no other screenshot, no other dial examined first, so
-            # the dial has the least possible time to rotate between being seen
-            # and being clicked.
-            pyautogui.click((pos[0], pos[1] + button_dy))
+            if name in dials:
+                target = (name, dials[name])
+                break
+
+        if not target:
+            # everything was clicked and nothing confirmed. Stop; do not loop.
+            print("Calibrate Distributor: every dial was clicked and none was "
+                  "confirmed done - the clicks are not landing")
+            _dump_geometry("not-landing")
+            return 1
+
+        name, pos = target
+        before = dict(dials)
+
+        # Click immediately, with nothing in between, so the dial has the least
+        # possible time to rotate between being seen and being clicked.
+        pyautogui.click((pos[0], pos[1] + button_dy))
+        clicks += 1
+        time.sleep(0.7)          # let the dial finish rotating
+
+        # VERIFY. Did the click change the panel at all? If the same dial is
+        # sitting in exactly the same place afterwards, the click did nothing, and
+        # this must not be counted as done.
+        after = _find_dials(left, top, width, height)
+        moved = (name not in after) or (after.get(name) != pos)
+        if moved:
             done[name] = True
-            clicks += 1
-            clicked = True
-            print(f"Calibrate Distributor: clicked the {name} button, found at "
-                  f"{pos} - {sum(done.values())}/{len(DIALS)} done")
+            print(f"Calibrate Distributor: the {name} dial responded to the "
+                  f"click at {pos} - {sum(done.values())}/{len(DIALS)} confirmed")
+        else:
+            misses[name] += 1
+            print(f"Calibrate Distributor: the click on {name} at {pos} changed "
+                  f"nothing ({misses[name]}/2) - the dial is still there")
+
+        if all(done.values()):
             break
 
-        if clicked:
-            # Wait for the dial to finish rotating before deciding anything again.
-            time.sleep(0.7)
-        else:
-            time.sleep(0.06)
+    if is_task_done(task="Calibrate Distributor"):
+        print(f"Calibrate Distributor: done and the game confirms it - "
+              f"{clicks} click(s), {sum(done.values())}/{len(DIALS)} dials")
+        return 0
 
-    print(f"Calibrate Distributor: done, {clicks} click(s), "
-          f"{sum(done.values())}/{len(DIALS)} dials")
-    return 0
+    print("Calibrate Distributor: the game does NOT report the task as done")
+    return 1
+
+
+solve = _solve
+
+
+if __name__ == "__main__":
+    sys.exit(solve())
 
 
 if __name__ == "__main__":

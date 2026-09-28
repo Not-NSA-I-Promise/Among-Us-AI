@@ -187,17 +187,63 @@ check("it sleeps so it does not busy-spin", "sleep" in calls,
 src = open(path, encoding="utf-8").read()
 check("it waits for the dial to settle after a click",
       "time.sleep(0.7)" in src, "no settle wait, so it reads a mid-animation panel")
-check("it never clicks the same dial twice", "if done[name]:" in src,
-      "it can re-click a dial")
-check("it gives up rather than looping forever", "gave up after 45s" in src,
+check("it sleeps so it does not busy-spin", "time.sleep(0.06)" in src,
+      "it spins a core taking screenshots")
+check("it gives up rather than looping forever", "gave up after 40s" in src,
       "no timeout")
+names = {n.name for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)}
 check("it dumps the panel when it gives up", "_dump_geometry" in src,
       "no diagnostics")
 check("the colour predicates are element-wise, not boolean and",
       "(r > 200) &" in src, "a boolean `and` over numpy arrays raises")
 
 print()
+print("=== it must never claim a click worked without checking ===")
+# A live run printed 'clicked the yellow button, found at (1125, 262)' and then
+# '3/3 done' with nothing having happened at all. The dials it found were a
+# regular column in the game's own HUD, because the plugin build that publishes
+# this panel's real geometry was not loaded. The solver counted clicks as success.
+import ast
+
+path = os.path.join(ROOT, "task-solvers", "Calibrate Distributor.py")
+src = open(path, encoding="utf-8").read()
+tree = ast.parse(src)
+
+check("it refuses to run unless the game confirms the panel is open",
+      "_panel_open" in src and "the game says no panel is open" in src,
+      "it will screenshot whatever is on screen")
+check("it warns when the real geometry is not available",
+      "_geometry_available" in src and "GUESSES" in src,
+      "it silently uses guessed positions")
+check("it verifies each click instead of assuming it worked",
+      "responded to the" in src and "the dial is still there" in src,
+      "a click is counted as done without checking")
+check("it does not click a dial again once it is confirmed",
+      "if done[name] or misses[name] >= 2:" in src,
+      "it can re-click a confirmed or dead dial")
+check("it gives up on a dial that does not respond",
+      "misses[name] >= 2" in src,
+      "it clicks the same dead spot forever")
+check("it stops when every dial was clicked and none worked",
+      "the clicks are not landing" in src,
+      "it keeps going after everything has failed")
+check("it does NOT print a bare 'done' any more",
+      "Calibrate Distributor: done," not in src,
+      "it still reports unverified success")
+check("success is only reported when the game confirms the task is done",
+      "the game confirms it" in src and "does NOT report the task as done" in src,
+      "success is not gated on the game's own state")
+
+# `solve` is an alias for the real implementation, so it is an assignment rather
+# than a def; check that the alias exists and that every other function is a
+# private helper, so there is one unambiguous entry point.
+check("solve is a single unambiguous entry point",
+      "solve = _solve" in src and
+      {n for n in names if not n.startswith("_")} == set(),
+      sorted(names))
+
+print()
 if fails:
     print("FAILURES:", ", ".join(fails))
     raise SystemExit(1)
-print("all checks passed: it clicks the dial it saw, and gives up instead of looping")
+print("all checks passed: it clicks the dial it saw, verifies, and admits failure")
