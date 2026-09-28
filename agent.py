@@ -200,6 +200,30 @@ def overrule(player_id):
 _FAKED_ONCE = set()
 
 
+# The fake-task solver, loaded once and cached.
+#
+# It used to be re-executed from disk on every single call, which re-read the
+# timing table and re-imported pyautogui each time - and, worse, meant no test
+# could substitute a fake: agent.fake_task built its own private copy of the
+# module, so a stub applied to the test's copy did nothing. A test therefore
+# exercised the REAL solver, and failed whenever the game was not running.
+_FAKE_MODULE = None
+
+
+def _load_fake_module():
+    global _FAKE_MODULE
+    if _FAKE_MODULE is not None:
+        return _FAKE_MODULE
+    import importlib.util
+    ts = os.path.join(os.path.dirname(os.path.realpath(__file__)), "task-solvers")
+    spec = importlib.util.spec_from_file_location(
+        "fakemod", os.path.join(ts, "fake_task.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    _FAKE_MODULE = mod
+    return mod
+
+
 def fake_task(name, visual=False):
     """Pretend to do a task, for as long as a real one takes.
 
@@ -223,13 +247,6 @@ def fake_task(name, visual=False):
     are visual depends on the map and the stage, so that is checked against the
     live map rather than a flat list. Pass visual=True to override.
     """
-    import importlib.util
-    ts = os.path.join(os.path.dirname(os.path.realpath(__file__)), "task-solvers")
-    spec = importlib.util.spec_from_file_location(
-        "fakemod", os.path.join(ts, "fake_task.py"))
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-
     wanted = str(name).strip()
     if wanted in _FAKED_ONCE:
         done = sorted(_FAKED_ONCE)
@@ -271,8 +288,8 @@ def fake_task(name, visual=False):
     # per-task flag was wrong: Prime Shields is visual on Skeld but not Mira HQ,
     # and Skeld Empty Garbage is only visual at the Storage stage.
     _map, _stage = _here_context(real)
-    result = mod.fake_task(real, allow_visual=bool(visual),
-                           map_name=_map, stage=_stage)
+    result = _load_fake_module().fake_task(
+        real, allow_visual=bool(visual), map_name=_map, stage=_stage)
     if not result.get("ok"):
         raise ActionError(result.get("reason", "could not fake that"))
     _FAKED_ONCE.add(real)

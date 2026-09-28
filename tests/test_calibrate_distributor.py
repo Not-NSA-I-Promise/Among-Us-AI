@@ -55,27 +55,40 @@ ORIG = subprocess.run(
     cwd=ROOT, capture_output=True, text=True).stdout
 
 print()
-print("=== the strip and the three sample points are the original's ===")
+print("=== the sample and click columns are DIFFERENT, and both measured ===")
+# The original used one column for both. Measured from a live 1920x1080
+# screenshot of this panel, that column is rgb(0, 0, 0) - the black middle of
+# each row's bar - on all three rows, so its colour test could never pass and it
+# sat there forever. The colour is a small strip on the LEFT edge of each bar:
+# yellow x 1116..1134, blue and cyan x 1116..1122. The click stays at the
+# original's width/1.56 because that lands on the button at x 1128..1336.
+check("it samples at the measured colour column",
+      "colour_x = dimensions[0] + round(dimensions[2] * 7 / 12)" in CODE,
+      "the sampling column is not the measured one")
+check("it clicks at the original's button column",
+      "button_x = dimensions[0] + round(dimensions[2] / 1.56)" in CODE,
+      "the click column changed without being measured")
+check("it strips the colour column for sampling",
+      "dimensions[0] = colour_x" in CODE,
+      "the strip is not built at the colour column")
+check("all three clicks use button_x, not the strip",
+      CODE.count("pyautogui.click((button_x,") == 3,
+      f"{CODE.count('pyautogui.click((button_x,')} of 3 do")
+check("and it says which column it sampled and which it clicked",
+      "sampling the colour at x=" in CODE,
+      "it does not report the two columns")
+
+print()
+print("=== the three sample rows are the original's, and are correct ===")
 for expr, why in (
-        ("dimensions[0] += round(dimensions[2] / 1.56)", "the strip's x"),
-        ("dimensions[2] = 2", "the strip is 2px wide"),
-        ("round(dimensions[3] / 4.8)", "the yellow sample y"),
-        ("round(dimensions[3] / 2.16)", "the blue sample y"),
-        ("round(dimensions[3] / 1.44)", "the cyan sample y"),
-        ("button_offset = dimensions[3] / 14.4", "the click offset below it"),
+        ("round(dimensions[3] / 4.8)", "yellow, y 225"),
+        ("round(dimensions[3] / 2.16)", "blue, y 500"),
+        ("round(dimensions[3] / 1.44)", "cyan, y 750"),
+        ("button_offset = dimensions[3] / 14.4", "the click offset below the bar"),
         ("get_screenshot(dimensions)", "it reads the strip it just built"),
         ("getpixel((0, yellow_offset))", "x=0 OF THE STRIP"),
 ):
     check(f"it keeps {expr} ({why})", expr in CODE, "it is not there")
-
-print()
-print("=== the sample point and the click point are the same x ===")
-check("it clicks at dimensions[0], the strip's own x",
-      "pyautogui.click((dimensions[0]," in CODE,
-      "it clicks somewhere other than where it sampled")
-check("all three clicks use the strip's x",
-      CODE.count("pyautogui.click((dimensions[0],") == 3,
-      f"{CODE.count('pyautogui.click((dimensions[0],')} of 3 do")
 
 print()
 print("=== the colour ranges are the original's, unchanged ===")

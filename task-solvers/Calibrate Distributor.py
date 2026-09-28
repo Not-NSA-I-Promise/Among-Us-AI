@@ -53,7 +53,6 @@ def _panel_open():
 
 
 def _solve():
-    # Original strip and offsets, unchanged.
     dimensions = get_dimensions()
     if not dimensions:
         print("Calibrate Distributor: no game window dimensions")
@@ -64,7 +63,28 @@ def _solve():
               "was clicked")
         return 1
 
-    dimensions[0] += round(dimensions[2] / 1.56)
+    # Measured from a live 1920x1080 screenshot of this panel, not guessed.
+    #
+    # The original sampled the colour at window_x + width/1.56 = 1231. Measured,
+    # that column is rgb(0, 0, 0) - the black middle of each row's bar - on all
+    # three rows, so a "bright yellow" test could never pass and the solver sat
+    # there forever. The colour is in a small strip on the LEFT edge of each bar:
+    #
+    #   yellow  x 1116..1134
+    #   blue    x 1116..1122
+    #   cyan    x 1116..1122
+    #
+    # 1120/1920 is 7/12, which is the fraction used for sampling. The CLICK stays
+    # at the original's width/1.56, because that lands on the button, which spans
+    # roughly x 1140..1330. So the sample column and the click column are
+    # deliberately different, which the original got wrong by assuming they were
+    # the same.
+    #
+    # The three sample ROWS are the original's and are correct: 225, 500 and 750
+    # all sit on their bars in the screenshot.
+    colour_x = dimensions[0] + round(dimensions[2] * 7 / 12)
+    button_x = dimensions[0] + round(dimensions[2] / 1.56)
+    dimensions[0] = colour_x
     dimensions[2] = 2
     dimensions[2] = round(dimensions[2])
 
@@ -77,6 +97,8 @@ def _solve():
     done = [False, False, False]
     start = time.time()
     clicks = 0
+    print(f"Calibrate Distributor: sampling the colour at x={colour_x}, "
+          f"clicking the button at x={button_x}")
 
     while not is_task_done(task="Calibrate Distributor"):
         if _interrupted():
@@ -93,7 +115,10 @@ def _solve():
 
         screenshot = get_screenshot(dimensions)
         if screenshot is None:
-            time.sleep(0.05)
+            # the grab failed (UAC, locked session, display change). Skipping a
+            # pass is correct: it is not a reason to abandon the task, and it is
+            # certainly not a reason to claim the task was done.
+            time.sleep(0.2)
             continue
         s_y = screenshot.getpixel((0, yellow_offset))
         s_b = screenshot.getpixel((0, blue_offset))
@@ -104,7 +129,7 @@ def _solve():
         if not done[0]:
             if s_y[0] > 200 and s_y[1] > 200 and s_y[2] < 5:
                 pyautogui = __import__("pyautogui")
-                pyautogui.click((dimensions[0],
+                pyautogui.click((button_x,
                                  dimensions[1] + yellow_offset + button_offset))
                 done[0] = True
                 clicks += 1
@@ -118,7 +143,7 @@ def _solve():
             if s_b[0] < 105 and s_b[0] > 80 and s_b[1] < 105 and s_b[1] > 80 \
                     and s_b[2] > 250:
                 pyautogui = __import__("pyautogui")
-                pyautogui.click((dimensions[0],
+                pyautogui.click((button_x,
                                  dimensions[1] + blue_offset + button_offset))
                 done[1] = True
                 clicks += 1
@@ -132,7 +157,7 @@ def _solve():
             if s_c[0] < 115 and s_c[0] > 105 and s_c[1] < 255 and s_c[1] > 245 \
                     and s_c[2] > 250:
                 pyautogui = __import__("pyautogui")
-                pyautogui.click((dimensions[0],
+                pyautogui.click((button_x,
                                  dimensions[1] + cyan_offset + button_offset))
                 done[2] = True
                 clicks += 1

@@ -91,7 +91,30 @@ def getGameData():
             task_locations.pop(0)
     return {"position" : (x,y), "status" : status, "tasks" : tasks, "task_locations" : task_locations, "task_steps" : task_steps, "map_id" : map_id, "dead": dead, "room" : room}
 
-def get_screenshot(dimensions=None, window_title="Among Us"):
+def get_screenshot(dimensions=None, window_title="Among Us", tries=3):
+    """Screenshot of a region, or of the whole game client if no region is given.
+
+    The `elif dimensions` branch below is not an optimisation, it is the whole
+    reason the pixel-based solvers work. It was collapsed at some point into an
+    unconditional full-client capture, which silently broke every solver that
+    passes a region:
+
+      - Calibrate Distributor asks for a 2px-wide strip and reads getpixel((0, y))
+        from it. Handed the whole window instead, (0, y) is the window's LEFT EDGE,
+        not the dial - so the colour test never matched and it clicked the same
+        wrong place forever. That is the "it is not clicking the button" report.
+      - The original 2023 implementation had the branch, which is how the numbers
+        in the original solvers were ever valid.
+
+    A grab can also FAIL outright, raising OSError("screen grab failed"). That
+    happens whenever the desktop is not grabbable - a UAC prompt, a locked
+    session, a secure desktop, or the display changing underneath. It is not an
+    error in the solver and must not kill one: this is called inside tight loops
+    and an unhandled raise is reported by the harness as a crashed task. So it
+    retries briefly and then returns None, which every caller already handles by
+    skipping a pass.
+    """
+    region = None
     if window_title:
         hwnd = win32gui.FindWindow(None, window_title)
         if hwnd and not dimensions:
@@ -102,16 +125,26 @@ def get_screenshot(dimensions=None, window_title="Among Us"):
             x, y, x1, y1 = win32gui.GetClientRect(hwnd)
             x, y = win32gui.ClientToScreen(hwnd, (x, y))
             x1, y1 = win32gui.ClientToScreen(hwnd, (x1 - x, y1 - y))
-            im = pyautogui.screenshot(region=(x, y, x1, y1))
-            return im
+            region = (x, y, x1, y1)
         elif dimensions:
-            im = pyautogui.screenshot(region=dimensions)
-            return im
+            region = dimensions
         else:
             print('Window not found!')
+            return None
     else:
-        im = pyautogui.screenshot()
-        return im
+        region = None
+
+    last = None
+    for attempt in range(max(1, tries)):
+        try:
+            if region is None:
+                return pyautogui.screenshot()
+            return pyautogui.screenshot(region=region)
+        except Exception as exc:
+            last = exc
+            time.sleep(0.1 * (attempt + 1))
+    print("Screen grab failed: {} - retrying later".format(last))
+    return None
 
 def get_dimensions():
     window_title="Among Us"

@@ -99,8 +99,15 @@ spec = _il.spec_from_file_location(
 fk = _il.module_from_spec(spec)
 spec.loader.exec_module(fk)
 calls = []
-fk.fake_task = lambda name, allow_visual=False: (
+# Substitute the module agent.fake_task actually uses. It used to build its own
+# private copy of fake_task.py on every call, so stubbing the copy loaded here
+# did nothing and the test ran the REAL solver - which passed only because the
+# game happened to be running, and failed with 'no game window dimensions' when
+# it was not. The module is now cached and injectable.
+fake_mod = type("FakeMod", (), {})()
+fake_mod.fake_task = lambda name, allow_visual=False, map_name=None, stage=None: (
     calls.append(name) or {"ok": True, "task": name, "seconds": 6.0})
+agent._FAKE_MODULE = fake_mod
 set_state(imp=True, room="Electrical")
 first = agent.fake_task("Divert Power")
 check("the first fake is allowed", "faked Divert Power" in first, first)

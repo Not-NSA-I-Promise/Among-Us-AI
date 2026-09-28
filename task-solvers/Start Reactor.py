@@ -99,7 +99,7 @@ def _solve():
                     found = True
                     if pos in seen_pos:
                         # this is the start of the player's turn: the pads we
-                        # recorded are lit again, in order, waiting to be pressed
+                        # recorded are lit again, waiting to be pressed
                         seen_pos.remove(pos)
                         time.sleep(0.2)
                         break
@@ -111,6 +111,19 @@ def _solve():
                         time.sleep(1 / 60)
                     print(f"Start Reactor: read {len(click_list)} pad(s) and "
                           f"pressed them in order")
+                    # Start Reactor plays several rounds, each one longer. The
+                    # original never cleared click_list, so round two replayed
+                    # round one's sequence - which is why it solved the first
+                    # round and then got stuck. Clear it unless the panel closed,
+                    # in which case there is nothing left to do.
+                    time.sleep(0.5)
+                    if is_task_done("Start Reactor"):
+                        break
+                    if click_list:
+                        print(f"Start Reactor: clearing the {len(click_list)} "
+                              f"pad(s) from the previous round")
+                        click_list = []
+                        seen_pos = []
                     break
         if not found:
             time.sleep(0.05)
