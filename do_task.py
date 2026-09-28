@@ -24,9 +24,15 @@ confirms from the task bar whether the task actually completed.
 
 Nothing else in the harness is modified by running it.
 
-Usage:
-    python do_task.py "Inspect Sample"
-    python do_task.py "Start Reactor" --verbose
+Usage - use the VENV, not the bare `python`:
+
+    .venv\Scripts\python.exe do_task.py "Inspect Sample" --verbose
+    .venv\Scripts\python.exe do_task.py "Start Reactor"
+    .venv\Scripts\python.exe do_task.py "Inspect Sample" --no-solver
+
+On this machine `python` is Python 2.7 (C:\Python27\python.exe), which cannot
+parse this file at all. The project uses the venv everywhere else too -
+start_bot.bat calls .venv\Scripts\python.exe - so use that.
 """
 import argparse
 import os
