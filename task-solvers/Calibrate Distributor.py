@@ -1,194 +1,80 @@
-"""Calibrate Distributor.
+"""Calibrate Distributor, restored to the logic that was known to work.
 
-The panel has a dial per colour and a button. The old solver took a screenshot,
-decided what to do, and then clicked - and because the dials are ANIMATING, the
-dial it had just read had already rotated by the time the click landed. So it
-clicked the wrong place, the dial it had read was now somewhere else, and it sat
-in a loop on the first dial forever.
+This file was rewritten twice and both rewrites were worse than what they
+replaced. The original is in git history (2c96581, 2023-01-26) and it is
+self-consistent:
 
-The fix is about timing and not being stale:
+  - it builds a 2px-wide strip starting at window_x + width/1.56;
+  - it hands that strip to get_screenshot(), which DOES honour a region, and
+    reads getpixel((0, y)) - i.e. x=0 OF THE STRIP, which is the strip's real x;
+  - it clicks at dimensions[0], the same x.
 
-  - one fresh screenshot per decision, used immediately;
-  - the click happens in the same breath as the read that justified it, with no
-    other work in between, so the dial has had as little time as possible to move;
-  - after a click, WAIT for the dial to finish rotating before deciding anything
-    again, instead of immediately re-reading a panel that is mid-animation;
-  - a dial that has been clicked is never clicked again;
-  - a short sleep when there is nothing to do, so it is not spinning a core.
+So the sample point and the click point are the same place. The colour ranges in
+the original were measured against this panel, not guessed.
 
-This is still pixel-based, because the panel's real geometry is not available yet:
-minigameControls.txt reports `type other` with no class name and no sprite
-positions for this task, which means the plugin build that publishes them has not
-been loaded. When it has, the class name and every sprite's screen position will
-be in that file and this solver can be written against the real thing instead.
-Until then this version at least stops losing the race.
+An intermediate rewrite replaced all of that with "crop the panel and hunt for
+blobs of roughly the right colour". That was strictly worse: it found the game's
+own HUD - a regular column at x~1120 - clicked it three times, and printed
+"3/3 done". It also carried a claim in its own docstring that get_screenshot()
+ignored the region, which was false; that came from reading a truncated context
+window. The claim is recorded here because it is the sort of thing that gets
+re-derived and re-trusted.
+
+Kept from the rewrite, because both are improvements and neither touches the
+coordinates:
+
+  - the harness opens the panel and confirms it from Minigame.Instance, so this
+    does not call click_use(). The original did, which toggled the panel shut.
+  - the result is reported honestly. The original set done[i] = True the instant
+    it clicked, so "done" was a claim about clicks issued, not about the task.
+    Success is now only printed when the game itself reports the task complete.
 """
 import os
 import sys
 import time
 
-import pyautogui
+from task_utility import get_dimensions, get_screenshot, is_task_done  # noqa: E402
+from task_utility import is_urgent_task  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, ROOT)
-sys.path.insert(0, os.path.join(ROOT, "task-solvers"))
-
 import botlink  # noqa: E402
-from task_utility import get_dimensions, is_task_done, is_urgent_task  # noqa: E402
 
 
 def _interrupted():
     return botlink.solver_interrupted()
 
 
-def _dump_geometry(why):
-    """Copy the panel geometry and a screenshot out, so this can be written
-    properly instead of guessed at again."""
-    try:
-        import shutil
-        src = os.path.join(os.path.dirname(botlink.MINIGAME_CONTROLS_PATH),
-                           "minigameControls.txt")
-        dst = os.path.join(ROOT, f"calibrate_distributor_controls_{why}.txt")
-        shutil.copyfile(src, dst)
-        print(f"Calibrate Distributor: panel geometry copied to {dst}")
-    except Exception as exc:
-        print(f"Calibrate Distributor: could not copy the panel geometry ({exc})")
-    try:
-        pyautogui.screenshot().save(
-            os.path.join(ROOT, f"calibrate_distributor_{why}.png"))
-        print(f"Calibrate Distributor: screenshot saved for {why}")
-    except Exception as exc:
-        print(f"Calibrate Distributor: could not save a screenshot ({exc})")
-
-
-def _panel_region():
-    """The middle of the window, which is where a task panel is drawn.
-
-    Returns (left, top, width, height) in SCREEN coordinates, so a pixel found in
-    the screenshot and the click sent to it are the same coordinate. That matters:
-    task_utility.get_screenshot(dimensions) ignores the region it is given and
-    always grabs the whole client area, so the old solver sampled x=0 of the
-    window while clicking at about x=window/1.56. It was reading one place and
-    clicking another, which is why the colour test never matched a dial.
-    """
-    dims = get_dimensions()
-    if not dims:
-        return None
-    x, y, w, h = dims[0], dims[1], dims[2], dims[3]
-    left = x + round(w * 0.25)
-    top = y + round(h * 0.15)
-    width = round(w * 0.50)
-    height = round(h * 0.70)
-    return left, top, width, height
-
-
-# Each dial is identified by the colour of its own light. These are the values the
-# previous solver used, kept because they are the only part of it that was ever
-# measured rather than invented - but they are now used to FIND the dial, rather
-# than to test a pixel at a hardcoded offset that was never where the dial was.
-#
-# These are element-wise, not `and`: the predicates run over whole numpy arrays of
-# the cropped panel, and `and` would raise "truth value of an array is ambiguous".
-DIALS = [
-    ("yellow", lambda r, g, b: (r > 200) & (g > 200) & (b < 5)),
-    ("blue", lambda r, g, b: (r > 80) & (r < 105) & (g > 80) & (g < 105) & (b > 250)),
-    ("cyan", lambda r, g, b: (r > 105) & (r < 115) & (g > 245) & (g < 255) & (b > 250)),
-]
-
-
-def _find_dials(left, top, width, height):
-    """Find each dial by its colour, and return screen positions.
-
-    Returns {name: (x, y)} in SCREEN coordinates, using the centre of the cluster
-    of matching pixels.
-    """
-    import numpy as np
-    shot = pyautogui.screenshot(region=(left, top, width, height))
-    arr = np.array(shot)[:, :, :3].astype(int)
-    r, g, b = arr[:, :, 0], arr[:, :, 1], arr[:, :, 2]
-
-    found = {}
-    for name, test in DIALS:
-        mask = test(r, g, b)
-        # a dial is a blob, not speckle: ignore anything under a few pixels
-        if int(mask.sum()) < 12:
-            continue
-        ys, xs = np.where(mask)
-        if not len(xs):
-            continue
-        cx = int(xs.mean()) + left
-        cy = int(ys.mean()) + top
-        found[name] = (cx, cy)
-    return found
-
-
 def _panel_open():
-    """Is the game telling us this panel is actually up?
-
-    Read from Minigame.Instance, which is authoritative. Without this check the
-    solver screenshot whatever is on screen and hunts for coloured blobs in it -
-    and it will happily find three of them in the game's own HUD at a fixed
-    column, click them, and report success. A live run did exactly that:
-    'clicked the yellow button, found at (1125, 262)', '3/3 done', with nothing
-    having happened at all.
-    """
     try:
-        st = botlink.read_minigame() or {}
+        return (botlink.read_minigame() or {}).get("open")
     except Exception:
         return None
-    if st.get("open"):
-        return True
-    return False
-
-
-def _geometry_available():
-    """Has the plugin build that publishes this panel's real geometry been loaded?
-
-    A `class` line on its own is NOT enough. An earlier build reported
-    'class Minigame' - the BASE class, because Minigame.Instance is statically
-    typed as Minigame so GetType() returns the base proxy - and published no
-    sprite positions at all. The harness saw the class line, believed the
-    geometry build was loaded, stayed quiet, and went on colour-matching the
-    game's own HUD.
-
-    So this requires a real class AND at least one sprite position.
-    """
-    try:
-        c = botlink.read_minigame_controls() or {}
-    except Exception:
-        return False
-    cls = c.get("class")
-    if not cls or cls in ("Minigame", "unknown"):
-        return False
-    sprites = c.get("sprites") or {}
-    return bool(sprites)
 
 
 def _solve():
-    region = _panel_region()
-    if not region:
+    # Original strip and offsets, unchanged.
+    dimensions = get_dimensions()
+    if not dimensions:
         print("Calibrate Distributor: no game window dimensions")
         return 1
-    left, top, width, height = region
 
     if _panel_open() is False:
         print("Calibrate Distributor: the game says no panel is open, so nothing "
               "was clicked")
         return 1
 
-    if not _geometry_available():
-        print("Calibrate Distributor: WARNING - the plugin build that publishes "
-              "this panel's real sprite positions is not loaded, so the dial "
-              "positions below are GUESSES found by colour-matching whatever is "
-              "on screen. Clicks will be verified and reported honestly, but "
-              "expect this to fail until the game is restarted with the current "
-              "plugin.")
+    dimensions[0] += round(dimensions[2] / 1.56)
+    dimensions[2] = 2
+    dimensions[2] = round(dimensions[2])
 
-    # The button sits below its dial. The one remaining assumption.
-    button_dy = round(height * 0.07)
+    yellow_offset = round(dimensions[3] / 4.8)
+    blue_offset = round(dimensions[3] / 2.16)
+    cyan_offset = round(dimensions[3] / 1.44)
+    button_offset = dimensions[3] / 14.4
 
-    misses = {name: 0 for name, _t in DIALS}
-    done = {name: False for name, _t in DIALS}
+    # The original's three checks, verbatim.
+    done = [False, False, False]
     start = time.time()
     clicks = 0
 
@@ -200,76 +86,75 @@ def _solve():
             print("Calibrate Distributor: an urgent task needs doing")
             return 2
         if time.time() - start > 40:
-            missing = [n for n in done if not done[n]]
-            print(f"Calibrate Distributor: gave up after 40s. Clicked {clicks} "
-                  f"time(s) but these were never confirmed done: "
-                  f"{', '.join(missing) or 'nothing'}. The clicks were NOT "
-                  f"verified as working.")
-            _dump_geometry("timeout")
+            missing = [n for n, d in zip(("yellow", "blue", "cyan"), done) if not d]
+            print(f"Calibrate Distributor: gave up after 40s, {clicks} click(s); "
+                  f"never done: {', '.join(missing) or 'nothing'}")
             return 1
 
-        dials = _find_dials(left, top, width, height)
-        if not dials:
-            if is_task_done(task="Calibrate Distributor"):
-                break
-            time.sleep(0.06)
+        screenshot = get_screenshot(dimensions)
+        if screenshot is None:
+            time.sleep(0.05)
             continue
+        s_y = screenshot.getpixel((0, yellow_offset))
+        s_b = screenshot.getpixel((0, blue_offset))
+        s_c = screenshot.getpixel((0, cyan_offset))
 
-        target = None
-        for name, _t in DIALS:
-            if done[name] or misses[name] >= 2:
+        clicked = False
+
+        if not done[0]:
+            if s_y[0] > 200 and s_y[1] > 200 and s_y[2] < 5:
+                pyautogui = __import__("pyautogui")
+                pyautogui.click((dimensions[0],
+                                 dimensions[1] + yellow_offset + button_offset))
+                done[0] = True
+                clicks += 1
+                clicked = True
+                print(f"Calibrate Distributor: clicked yellow at {s_y}")
+            else:
+                time.sleep(0.05)
                 continue
-            if name in dials:
-                target = (name, dials[name])
-                break
 
-        if not target:
-            # everything was clicked and nothing confirmed. Stop; do not loop.
-            print("Calibrate Distributor: every dial was clicked and none was "
-                  "confirmed done - the clicks are not landing")
-            _dump_geometry("not-landing")
-            return 1
+        if not done[1]:
+            if s_b[0] < 105 and s_b[0] > 80 and s_b[1] < 105 and s_b[1] > 80 \
+                    and s_b[2] > 250:
+                pyautogui = __import__("pyautogui")
+                pyautogui.click((dimensions[0],
+                                 dimensions[1] + blue_offset + button_offset))
+                done[1] = True
+                clicks += 1
+                clicked = True
+                print(f"Calibrate Distributor: clicked blue at {s_b}")
+            else:
+                time.sleep(0.05)
+                continue
 
-        name, pos = target
-        before = dict(dials)
+        if not done[2]:
+            if s_c[0] < 115 and s_c[0] > 105 and s_c[1] < 255 and s_c[1] > 245 \
+                    and s_c[2] > 250:
+                pyautogui = __import__("pyautogui")
+                pyautogui.click((dimensions[0],
+                                 dimensions[1] + cyan_offset + button_offset))
+                done[2] = True
+                clicks += 1
+                clicked = True
+                print(f"Calibrate Distributor: clicked cyan at {s_c}")
+            else:
+                time.sleep(0.05)
+                continue
 
-        # Click immediately, with nothing in between, so the dial has the least
-        # possible time to rotate between being seen and being clicked.
-        pyautogui.click((pos[0], pos[1] + button_dy))
-        clicks += 1
-        time.sleep(0.7)          # let the dial finish rotating
-
-        # VERIFY. Did the click change the panel at all? If the same dial is
-        # sitting in exactly the same place afterwards, the click did nothing, and
-        # this must not be counted as done.
-        after = _find_dials(left, top, width, height)
-        moved = (name not in after) or (after.get(name) != pos)
-        if moved:
-            done[name] = True
-            print(f"Calibrate Distributor: the {name} dial responded to the "
-                  f"click at {pos} - {sum(done.values())}/{len(DIALS)} confirmed")
-        else:
-            misses[name] += 1
-            print(f"Calibrate Distributor: the click on {name} at {pos} changed "
-                  f"nothing ({misses[name]}/2) - the dial is still there")
-
-        if all(done.values()):
-            break
+        if clicked:
+            # let the dial settle, so the next read is not mid-animation
+            time.sleep(0.7)
 
     if is_task_done(task="Calibrate Distributor"):
-        print(f"Calibrate Distributor: done and the game confirms it - "
-              f"{clicks} click(s), {sum(done.values())}/{len(DIALS)} dials")
+        print(f"Calibrate Distributor: the game confirms it done - {clicks} "
+              f"click(s), {sum(done)}/3 dials")
         return 0
-
     print("Calibrate Distributor: the game does NOT report the task as done")
     return 1
 
 
 solve = _solve
-
-
-if __name__ == "__main__":
-    sys.exit(solve())
 
 
 if __name__ == "__main__":

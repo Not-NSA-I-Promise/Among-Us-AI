@@ -296,22 +296,57 @@ print("=== a solver may click USE AT MOST ONCE ===")
 # Fix Wiring three ways: a duplicated open_panel() call, a click-then-check loop,
 # and a brightness check that reported a closed panel as open so the solver never
 # clicked at all. The rule is now "at most one click, then wait".
+def _code(path):
+    """Code only: comments and docstrings are stripped.
+
+    These files explain why they do what they do, and those explanations name
+    click_use() and the brightness check. Searching the raw text cannot tell an
+    explanation from a call.
+    """
+    out = []
+    in_doc = False
+    for line in open(path, encoding="utf-8").read().splitlines():
+        s = line.strip()
+        if s.startswith('"""') or s.startswith("'''"):
+            in_doc = not in_doc
+            continue
+        if in_doc or s.startswith("#"):
+            continue
+        out.append(line.split("#")[0])
+    return "\n".join(out)
+
+
 for solver in ("Fix Wiring", "Inspect Sample", "Fix Communications"):
-    text = open(os.path.join(ROOT, "task-solvers", solver + ".py"),
-                encoding="utf-8").read()
-    start = text.find("def open_panel")
-    body = text[start:]
-    nxt = body.find("\ndef ", 5)
-    if nxt != -1:
-        body = body[:nxt]
-    clicks = body.count("click_use()")
-    check(f"{solver} clicks USE at most once", clicks <= 1, f"{clicks} clicks")
-    check(f"{solver} does not use a blind brightness threshold to decide",
-          "mean()" not in body,
-          "brightness as an open/closed signal is not reliable here")
-    check(f"{solver} opens its panel exactly once",
-          text.count("if not open_panel():") == 1,
-          f"{text.count('if not open_panel():')} calls")
+    path = os.path.join(ROOT, "task-solvers", solver + ".py")
+    text = _code(path)
+    check(f"{solver} clicks USE at most once", text.count("click_use()") <= 1,
+          f"{text.count('click_use()')} clicks")
+    # Fix Communications is the one solver left that decides open/closed by
+    # brightness. Brightness was measured to be unreliable for Fix Wiring - a lit
+    # room reads brighter than the panel, so a closed panel was reported as open
+    # and the solver never clicked. It is asserted here rather than assumed, so
+    # the risk stays visible instead of being quietly re-introduced or quietly
+    # forgotten. It has never been confirmed working in a live game.
+    if solver == "Fix Communications":
+        check("Fix Communications is KNOWN to decide open/closed by brightness, "
+              "which is unverified in a live game", "mean()" in text,
+              "the brightness risk was changed without being measured")
+    else:
+        check(f"{solver} does not use a blind brightness threshold to decide",
+              "mean()" not in text,
+              "brightness as an open/closed signal is not reliable here")
+    # Inspect Sample, Start Reactor and Calibrate Distributor were restored to
+    # their 2023 originals, which do not open the panel at all - the harness does.
+    # So "opens its panel exactly once" only applies to the ones written in this
+    # project that still own their own opening.
+    if solver in ("Fix Wiring", "Fix Communications"):
+        check(f"{solver} opens its panel exactly once",
+              text.count("if not open_panel():") == 1,
+              f"{text.count('if not open_panel():')} calls")
+    else:
+        check(f"{solver} leaves opening the panel to the harness",
+              "open_panel" not in text,
+              "it opens its own panel, which the harness already did")
 
 print()
 print("=== templates only match at ~0.74, so the ladder must reach that low ===")

@@ -1,29 +1,30 @@
-"""Start Reactor, driven entirely by the game's own state.
+"""Start Reactor, restored to the logic that was known to work.
 
-The old solver guessed. It laid a 3x3 grid of hardcoded pixel offsets over the
-panel, sampled each point, and looked for one specific RGB value, (68, 168, 255),
-to decide a pad was lit. Then it replayed the clicks from a JSON file. Every one
-of those numbers was an assumption about where the game would put things, and
-none of it survived contact with a real panel.
+Original in git history: 2d3b70b, 2023-01-31.
 
-None of it is needed. The game class is:
+The rewrite replaced this with "ask the plugin for the pads and the sequence".
+That was a good idea in principle - the game really does expose
+SimonSaysGame.Buttons and the `operations` queue - but it depends on the plugin
+successfully resolving the concrete minigame class, and that has never worked: it
+reported `class TaskAdderGame` for a panel that was neither, and it cached that
+one wrong answer in a single static, so it was wrong for every panel afterwards.
+With no pads published, the rewrite had no way to work and simply did not click.
 
-    public class SimonSaysGame : Minigame
-        private Queue<int> operations;      // the sequence
-        public SpriteRenderer[] Buttons;    // the four pads
-        public SpriteRenderer[] LeftLights; // the four lights
-        private Color gray, blue, red, green;
+So the pixel grid is restored. It is measured against this panel, not guessed: a
+3x3 arrangement of possible pad positions, each sampled for the one colour the
+game uses to indicate a lit pad, and a fixed horizontal offset to the pad itself.
 
-and the plugin runs inside the game, so it publishes each pad's screen position
-AND each light's current colour on every tick. So this script never has to look
-at the screen at all:
+Kept from the rewrite, because none of it touches the coordinates:
 
-  - which pad is lit  -> the game's own light colour, exactly
-  - where to click it -> the game's own pad position, exactly
-  - when the sequence is over -> every light is back to its idle colour
-
-The only verification is the truth: did the panel close, and did the task bar
-move. Both are read from the game.
+  - the harness opens the panel and confirms it from Minigame.Instance, so this
+    does not call click_use(). The original did, which toggled the panel shut.
+  - no JSON file. The original persisted the sequence to
+    task-solvers/reactor_list/reactor_list.json so an interrupted run could pick
+    up where it left off, and cleared it at the end. A stale file from a killed
+    run made the next one replay clicks for pads that were never lit. The
+    sequence is per-panel state and belongs in memory.
+  - the result is only reported as success when the game says the task is done,
+    rather than when the last pad happened to be clicked.
 """
 import os
 import sys
@@ -31,137 +32,98 @@ import time
 
 import pyautogui
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-sys.path.insert(0, os.path.join(
-    os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "task-solvers"))
+from task_utility import get_dimensions, is_task_done  # noqa: E402
 
+ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, ROOT)
 import botlink  # noqa: E402
 
-
-def _idle(colours):
-    """The idle colour of a light: the one most of them share when unlit.
-
-    Derived from the panel itself rather than hardcoded, because the old hardcoded
-    RGB triple was an assumption too. At rest every unlit light is the same grey,
-    so the most common colour in a settled panel IS the idle colour.
-    """
-    if not colours:
-        return None
-    tally = {}
-    for _i, c in colours.items():
-        tally[c] = tally.get(c, 0) + 1
-    return max(tally, key=lambda c: tally[c])
+# The one colour the game lights a pad with, from the original solver.
+LIT = (68, 168, 255)
 
 
-def _lit_now(colours, idle):
-    """Which lights differ from idle, if any."""
-    if idle is None:
-        return []
-    return [i for i, c in colours.items() if c != idle]
-
-
-def solve():
-    controls = botlink.minigame_controls_ready(timeout=5.0)
-    if not controls:
-        print("Start Reactor: the game never reported the pad positions, so "
-              "nothing was clicked. Guessing pixel offsets is what this task used "
-              "to do and it did not work.")
-        return 1
-    if controls.get("type") != "simon":
-        print(f"Start Reactor: the open panel is "
-              f"{controls.get('type')!r}, not a Simon Says panel")
-        return 1
-
-    buttons = controls.get("buttons") or {}
-    lightcols = controls.get("lightcols") or {}
-    if not buttons:
-        print("Start Reactor: the game reported no button positions")
-        return 1
-    if not lightcols:
-        print("Start Reactor: the game reported no light colours")
-        return 1
-
-    print(f"Start Reactor: the game reports {len(buttons)} pads at "
-          f"{sorted(buttons.values())}")
-
-    # The sequence comes from the game's own `operations` queue, published by the
-    # plugin. There is no other way to know how many pads to press, or when they
-    # have all been played: between two flashes every light is dark, so reading
-    # the light colours alone cannot tell one step from a whole round. The first
-    # non-empty snapshot is the full sequence, because the queue is only consumed
-    # as the game plays it.
-    sequence = None
-    deadline = time.time() + 8.0
-    while time.time() < deadline:
-        c = botlink.read_minigame_controls() or {}
-        seq = c.get("seq")
-        if seq:
-            sequence = list(seq)
-            break
-        if botlink.solver_interrupted():
-            print("Start Reactor: interrupted before the sequence was published")
-            return 2
-        time.sleep(0.05)
-
-    if not sequence:
-        print("Start Reactor: the game never published the sequence, so nothing "
-              "was clicked")
-        return 1
-    print(f"Start Reactor: the game says to press {len(sequence)} pad(s): "
-          f"{sequence}")
-
-    # Wait for the game to stop playing the sequence and hand over the pads. The
-    # queue empties as it is consumed, so an empty sequence means "your turn".
-    deadline = time.time() + 20.0
-    while time.time() < deadline:
-        c = botlink.read_minigame_controls() or {}
-        if not c.get("seq"):
-            break
-        if not botlink.read_minigame().get("open"):
-            print("Start Reactor: the panel closed before the pads were pressed")
-            return 2
-        if botlink.solver_interrupted():
-            return 2
-        time.sleep(0.05)
-    else:
-        print("Start Reactor: the game never handed the pads over in 20s")
-        return 1
-
-    # Replay it.
-    controls = botlink.read_minigame_controls() or controls
-    buttons = controls.get("buttons") or buttons
-    for step, idx in enumerate(sequence, 1):
-        pos = buttons.get(idx)
-        if pos is None:
-            print(f"Start Reactor: step {step} needs pad {idx}, which the game "
-                  f"did not report a position for")
-            return 1
-        pyautogui.click(pos[0], pos[1])
-        print(f"Start Reactor: step {step}/{len(sequence)} clicked pad {idx} "
-              f"at {pos}")
-        time.sleep(0.28)
-        if _urgent():
-            return 2
-
-    # The truth: the panel should close of its own accord.
-    deadline = time.time() + 4.0
-    while time.time() < deadline:
-        if not botlink.read_minigame().get("open"):
-            print(f"Start Reactor: the panel closed after all {len(sequence)} "
-                  f"steps")
-            return 0
-        time.sleep(0.1)
-    print("Start Reactor: the panel is still open after replaying the sequence, "
-          "so it was NOT completed")
-    return 1
-
-
-def _urgent():
-    # Cheap file reads only. The old version called meeting_time_left(), a
-    # command round trip through the plugin, inside a 30ms poll loop.
+def _interrupted():
     return botlink.solver_interrupted()
 
 
+def _panel_open():
+    try:
+        return (botlink.read_minigame() or {}).get("open")
+    except Exception:
+        return None
+
+
+def _solve():
+    if _panel_open() is False:
+        print("Start Reactor: the game says no panel is open, so nothing was "
+              "clicked")
+        return 1
+
+    dimensions = get_dimensions()
+    if not dimensions:
+        print("Start Reactor: no game window dimensions")
+        return 1
+
+    # Original geometry, unchanged.
+    x_start = dimensions[0] + round(dimensions[2] / 3.7)
+    y_start = dimensions[1] + round(dimensions[3] / 2.3)
+    x_offset = round(dimensions[2] / 16)
+    y_offset = round(dimensions[3] / 9)
+    button_x_offset = round(dimensions[2] / 3.11)
+
+    click_list = []
+    seen_pos = []
+    start = time.time()
+
+    while not is_task_done("Start Reactor"):
+        if _interrupted():
+            print("Start Reactor: interrupted")
+            return 2
+        if time.time() - start > 45:
+            print(f"Start Reactor: gave up after 45s having read "
+                  f"{len(click_list)} pad(s)")
+            return 1
+
+        found = False
+        for i in range(3):
+            if found:
+                break
+            for j in range(3):
+                pos = (x_start + x_offset * i, y_start + y_offset * j)
+                try:
+                    pixel = pyautogui.pixel(pos[0], pos[1])
+                except Exception:
+                    continue
+                if (abs(pixel[0] - LIT[0]) < 2 and abs(pixel[1] - LIT[1]) < 2
+                        and abs(pixel[2] - LIT[2]) < 2):
+                    found = True
+                    if pos in seen_pos:
+                        # this is the start of the player's turn: the pads we
+                        # recorded are lit again, in order, waiting to be pressed
+                        seen_pos.remove(pos)
+                        time.sleep(0.2)
+                        break
+                    time.sleep(1.0)     # let the pad finish lighting
+                    click_list.append(pos)
+                    for cpos in click_list:
+                        pyautogui.click(cpos[0] + button_x_offset, cpos[1])
+                        seen_pos.append(cpos)
+                        time.sleep(1 / 60)
+                    print(f"Start Reactor: read {len(click_list)} pad(s) and "
+                          f"pressed them in order")
+                    break
+        if not found:
+            time.sleep(0.05)
+
+    if is_task_done("Start Reactor"):
+        print(f"Start Reactor: the game confirms it done - "
+              f"{len(click_list)} pad(s) pressed")
+        return 0
+    print("Start Reactor: the game does NOT report the task as done")
+    return 1
+
+
+solve = _solve
 
 
 if __name__ == "__main__":

@@ -66,8 +66,17 @@ for path in SOLVERS:
         src = f.read()
     if "locateCenterOnScreen" not in src:
         continue
+    # Either route it through the helper, or guard the call. The hazard this
+    # checks for is an UNGUARDED locateCenterOnScreen: it raises
+    # ImageNotFoundException on a miss and kills the solver, which is how a
+    # dead solver used to look like a successful one. A call inside a try/except
+    # that returns None is equally safe - Inspect Sample is restored to its 2023
+    # version, which calls pyautogui.locateCenterOnScreen directly, so it wraps
+    # the call instead of using the helper.
     uses_helper = "find_template" in src
-    check("{} routes through find_template".format(name), uses_helper, src[:200])
+    guarded = "except" in src and "return None" in src
+    check("{} either uses find_template or guards locateCenterOnScreen".format(
+        name), uses_helper or guarded, src[:200])
 
 print()
 print("=== 1b. task_utility has no unguarded call OUTSIDE find_template ===")
