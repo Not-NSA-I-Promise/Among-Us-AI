@@ -218,6 +218,109 @@ def read_kill_presence() -> dict:
 ABILITY_PATH = os.path.join(_GAME_DIR, "abilityData.txt")
 VENT_PATH = os.path.join(_GAME_DIR, "ventData.txt")
 MINIGAME_PATH = os.path.join(_GAME_DIR, "minigameState.txt")
+MINIGAME_CONTROLS_PATH = os.path.join(_GAME_DIR, "minigameControls.txt")
+
+
+def solver_interrupted():
+    """Cheap "should I stop right now" check, for use inside a tight poll loop.
+
+    Deliberately file reads only. The meeting check used meeting_time_left(),
+    which is a command round trip through the plugin and waits for an
+    acknowledgement - in a 30ms polling loop that is seconds of stall per
+    iteration, which is most of the task's time budget.
+
+    A meeting closing the panel is detected anyway, because the panel going away
+    is what the poll loop is already watching for.
+    """
+    try:
+        if read_ability().get("isdead") == "1":
+            return True
+    except Exception:
+        pass
+    try:
+        import keyboard
+        if keyboard.is_pressed("`"):
+            return True
+    except Exception:
+        pass
+    return False
+
+
+def read_minigame_controls(retries=4):
+    """Where the open minigame's clickable things actually are on screen.
+
+    Read from the game's own transforms (SimonSaysGame.Buttons,
+    EmptyGarbageMinigame.Handle), not from templates or fixed pixel offsets.
+
+    This exists because pixel matching has been wrong for every task it was
+    applied to, and wrong differently each time. The game can simply be asked
+    where its buttons are, and it is always right.
+
+    Returns a dict like:
+        {"type": "simon", "buttons": {0: (x, y), ...}, "lights": {0: (x, y), ...}}
+    or {"type": "garbage", "handle": (x, y), "finished": bool, "lever": float}
+    or {"type": "other"} / {} when no panel is open or the plugin is old.
+    """
+    text = None
+    for _ in range(retries):
+        try:
+            with open(MINIGAME_CONTROLS_PATH) as f:
+                text = f.read()
+            break
+        except OSError:
+            time.sleep(0.05)
+    if not text or text.strip() in ("none", "nocam", ""):
+        return {}
+
+    out = {"type": "other", "task": ""}
+    first = text.strip().splitlines()[0] if text.strip() else ""
+    if first.startswith("task "):
+        out["task"] = first[5:].strip()
+    for line in text.splitlines():
+        parts = line.split()
+        if not parts:
+            continue
+        key = parts[0]
+        if key == "type" and len(parts) > 1:
+            out["type"] = parts[1]
+        elif key in ("button", "light") and len(parts) >= 4:
+            out.setdefault(key + "s", {})[int(parts[1])] = (int(parts[2]), int(parts[3]))
+        elif key in ("lightcol", "buttoncol") and len(parts) >= 5:
+            out.setdefault(key + "s", {})[int(parts[1])] = (
+                int(parts[2]), int(parts[3]), int(parts[4]))
+        elif key == "seq" and len(parts) >= 3:
+            out.setdefault("seq", []).append(int(parts[2]))
+        elif key == "handle" and len(parts) >= 3:
+            out["handle"] = (int(parts[1]), int(parts[2]))
+        elif key == "hasHandle" and len(parts) >= 2:
+            out["has_handle"] = parts[1] == "1"
+        elif key in ("handlelow", "handlehigh") and len(parts) >= 2:
+            try:
+                out[key] = float(parts[1])
+            except ValueError:
+                pass
+        elif key == "finished" and len(parts) >= 2:
+            out["finished"] = parts[1] == "1"
+        elif key == "lever" and len(parts) >= 2:
+            try:
+                out["lever"] = float(parts[1])
+            except ValueError:
+                pass
+        elif key in ("roundDown", "roundUp") and len(parts) >= 2:
+            out[key] = int(parts[1])
+    return out
+
+
+def minigame_controls_ready(timeout=3.0, poll=0.1):
+    """Wait until the open panel's controls are known, or None on timeout."""
+    deadline = time.time() + max(0.0, timeout)
+    while True:
+        c = read_minigame_controls()
+        if c and c.get("type") in ("simon", "garbage"):
+            return c
+        if time.time() >= deadline:
+            return None
+        time.sleep(poll)
 
 
 def read_minigame(retries=4):
