@@ -14,3 +14,5 @@ last_area.txt
 # written by the Inspect Sample solver when it cannot find the tube
 inspect_sample_debug_*.png
 fix_wiring_debug_*.png
+calibrate_distributor_controls_*.txt
+calibrate_distributor_*.png
