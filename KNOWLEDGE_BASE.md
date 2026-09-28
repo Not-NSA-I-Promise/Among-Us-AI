@@ -153,7 +153,52 @@ Two more facts that matter for automating it:
   colour anywhere, or it will think a completed wire is still waiting and drag it
   again.
 
-### The Polus 8-wire panel is not supported
+### The sampling column is NOT the clicking column - measured, not guessed
+
+The 2023 original samples the colour at `window_x + width/1.56` = **x 1231** at
+1920x1080. Measured on a live panel, that column is **`rgb(0, 0, 0)`** - the
+black middle of each row's bar - on all three rows. A "bright yellow" test cannot
+pass on black, so the solver could never have worked there.
+
+The colour is a small strip on the **left edge** of each bar:
+
+| | measured |
+|---|---|
+| yellow | x 1116..1134 |
+| blue | x 1116..1122 |
+| cyan | x 1116..1122 |
+| the button | x 1128..1336 |
+
+So sampling is at `width * 7/12` and clicking stays at `width / 1.56`. The two
+columns are **deliberately different**; the original assumed they were the same,
+and that is the whole bug. The three sample **rows** (height/4.8, /2.16, /1.44 =
+225, 500, 750) are the original's and are correct.
+
+**The original's colour thresholds are correct** and were never the problem. With
+the column corrected they read, live: yellow `rgb(255,227,0)`, blue
+`rgb(83,98,255)`, cyan `rgb(111,249,255)` - all three pass the 2023 tests
+exactly as written.
+
+### UNSOLVED: the task also needs the rings ROTATED
+
+The original only reads a colour and clicks a bar. On the current game that is
+not the whole task. Measured live:
+
+- each of the three rings has a **draggable handle** on its rim;
+- each row's bar is **green while that handle sits in the correct arc** and
+  **silver otherwise** - the green-dominant pixel count at the bar's centre is a
+  reliable signal (green ~60, silver 0);
+- clicking the right-hand panel **rotated ring 1's handle**, and its bar went from
+  green to silver;
+- ring geometry at 1920x1080: centres `(700, 258) (700, 535) (700, 812)`,
+  radius ~100. Bars centred at `(1232, 310) (1232, 585) (1232, 840)`.
+
+A full 360-degree drag of a handle did **not** bring any bar green, so the
+mechanic is not simply "rotate until the bar turns green", and this task is
+**not solved**. Whatever the interaction is, it has to be found by experiment in a
+live panel rather than reasoned about.
+
+### Polus 8-wire panel is not supported
 
 On Polus the final panel, in Electrical, has **eight** wires: the four standard
 colours plus light green, white, cyan and gray. **[high]** There are no templates
