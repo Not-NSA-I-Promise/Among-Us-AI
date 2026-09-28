@@ -144,14 +144,24 @@ def _panel_open():
 def _geometry_available():
     """Has the plugin build that publishes this panel's real geometry been loaded?
 
-    If not, the dial positions are guesses and the solver must say so rather than
-    quietly clicking around.
+    A `class` line on its own is NOT enough. An earlier build reported
+    'class Minigame' - the BASE class, because Minigame.Instance is statically
+    typed as Minigame so GetType() returns the base proxy - and published no
+    sprite positions at all. The harness saw the class line, believed the
+    geometry build was loaded, stayed quiet, and went on colour-matching the
+    game's own HUD.
+
+    So this requires a real class AND at least one sprite position.
     """
     try:
         c = botlink.read_minigame_controls() or {}
     except Exception:
         return False
-    return bool(c.get("class"))
+    cls = c.get("class")
+    if not cls or cls in ("Minigame", "unknown"):
+        return False
+    sprites = c.get("sprites") or {}
+    return bool(sprites)
 
 
 def _solve():
