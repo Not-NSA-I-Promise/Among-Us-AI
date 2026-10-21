@@ -1037,7 +1037,7 @@ def focus():
               f"continuing, it is probably already focused")
         return False
 
-def move(dest_list : list, G = None) -> int:
+def move(dest_list : list, G = None, timeout=45.0) -> int:
     # G used to be a default argument calling getGameData(), which ran at import
     # time and blew up whenever the game was not in a match. Resolve it lazily.
     if G is None:
@@ -1080,8 +1080,23 @@ def move(dest_list : list, G = None) -> int:
 
     skip = False
 
+    # The walk has to be BOUNDED. This loop used to have no exit but reaching
+    # the destination, so anything that stopped the player moving - a closed
+    # door, a paused game, a target the player could not get to - left it
+    # pushing the stick at a wall for the rest of the match. The bot looked
+    # like it had stopped working, and the task it was walking to was never
+    # attempted.
+    deadline = time.time() + timeout
+
     # Main loop
     while len(dest_list) > 0:
+
+        if time.time() > deadline:
+            gamepad.reset()
+            gamepad.update()
+            print(f"  move: gave up after {timeout:.0f}s, still {dist(pos, dest_list[0]):.1f} "
+                  f"from the next node")
+            return 0
 
         # Exit case
         if in_meeting() or keyboard.is_pressed('`'):

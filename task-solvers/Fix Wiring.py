@@ -96,7 +96,9 @@ def open_panel():
 if not open_panel():
     print("Fix Wiring: could not open the panel - the wire endpoints were never "
           "visible, so no wire was dragged")
-    raise SystemExit(0)
+    # Exits 1, not 0: a solver that exits 0 is reported as a completed task,
+    # and this one did not complete anything.
+    raise SystemExit(1)
 
 def _save_debug(why):
     """Save the panel to a PNG so a failure can be looked at.

@@ -6,9 +6,17 @@ import numpy as np
 import cv2
 import os
 import pydirectinput
+import sys
 import time
 from wake_keyboard import wake
 from PIL import Image
+
+
+# This project lives one directory up from here, and a solver is run as a
+# script from task-solvers/, so that directory is not on the path by default.
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+if _PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, _PROJECT_ROOT)
 
 
 ctypes.windll.user32.SetProcessDPIAware()
@@ -90,6 +98,33 @@ def getGameData():
             tasks.pop(0)
             task_locations.pop(0)
     return {"position" : (x,y), "status" : status, "tasks" : tasks, "task_locations" : task_locations, "task_steps" : task_steps, "map_id" : map_id, "dead": dead, "room" : room}
+
+def open_task_panel(retries=8, pause=0.4):
+    """Open the task panel, if the game says it is not open already.
+
+    USE is a TOGGLE: clicking it on an open panel CLOSES it. So the game's
+    own state is checked first, and a click is only ever spent on a panel
+    known to be closed. That is what makes this safe to call from a solver
+    whose panel may or may not be up, and it is why no solver should ever
+    call click_use() on its own.
+
+    Returns True when the game confirms a panel is open.
+    """
+    import botlink
+    for _ in range(retries):
+        try:
+            state = botlink.read_minigame() or {}
+        except Exception:
+            state = {}
+        if state.get("open"):
+            return True
+        click_use()
+        time.sleep(pause)
+    try:
+        return bool((botlink.read_minigame() or {}).get("open"))
+    except Exception:
+        return False
+
 
 def get_screenshot(dimensions=None, window_title="Among Us", tries=3):
     """Screenshot of a region, or of the whole game client if no region is given.

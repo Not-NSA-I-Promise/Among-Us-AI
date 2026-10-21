@@ -220,6 +220,7 @@ ABILITY_PATH = os.path.join(_GAME_DIR, "abilityData.txt")
 VENT_PATH = os.path.join(_GAME_DIR, "ventData.txt")
 MINIGAME_PATH = os.path.join(_GAME_DIR, "minigameState.txt")
 MINIGAME_CONTROLS_PATH = os.path.join(_GAME_DIR, "minigameControls.txt")
+MINIGAME_HOT_PATH = os.path.join(_GAME_DIR, "minigameHot.txt")
 
 
 def solver_interrupted():
@@ -423,6 +424,79 @@ def read_minigame(retries=4):
                 out["task"] = line[5:].strip()
         return out
     return out
+
+
+def read_minigame_hot(retries=2):
+    """The open panel's HOT state: the few numbers a solver races against.
+
+    The plugin writes minigameHot.txt on every FixedUpdate, separately from the
+    snapshot, because the snapshot is throttled to 50ms and two of the tasks
+    are a race against a moving dial. A solver that samples the target window
+    at 20Hz can miss it entirely.
+
+    The keys are task specific, and which ones appear depends on the task:
+
+        Calibrate Distributor
+            spinner   which dial is live (0..2)
+            dist      how far that dial's angle is from its target, in degrees
+            angle     the dial's angle in degrees
+            spinrate  how fast the dial turns, degrees per second
+        Start Reactor
+            roundready  1 when the round's playback is over and a press will
+                        be accepted. It is 0 while the game is playing the
+                        sequence back, and a press issued then is accepted by
+                        the game and then thrown away, which loses the task.
+            pads      how many pads the panel has
+        every task
+            data      the TASK's own bytes, as data[i] = value
+            step      the task's step counter
+            maxstep   how many steps the task has
+
+    Returns {} when no panel is open.
+    """
+    out = {}
+    for _ in range(retries):
+        try:
+            with open(MINIGAME_HOT_PATH) as f:
+                text = f.read()
+        except OSError:
+            time.sleep(0.02)
+            continue
+        out = {}
+        for line in text.splitlines():
+            parts = line.split()
+            if not parts:
+                continue
+            key = parts[0]
+            if key == "task" and len(parts) > 1:
+                out["task"] = parts[1]
+            elif key == "data" and len(parts) > 2:
+                out.setdefault("data", {})[int(parts[1])] = int(parts[2])
+            elif key in ("spinner", "angle", "dist", "step", "maxstep",
+                         "roundready", "pads") and len(parts) > 1:
+                out[key] = int(parts[1])
+            elif key == "spinrate" and len(parts) > 1:
+                out[key] = float(parts[1])
+        return out
+    return out
+
+
+def minigame_call(method, *args, timeout=3.0):
+    """Call a public method on the open minigame, through the game itself.
+
+    Every minigame with a pressable control exposes it as a plain public
+    method - SweepMinigame.HitButton(int), SimonSaysGame.HitButton(int),
+    SampleMinigame.SelectTube(int) - and those are exactly the methods the
+    panel's own buttons call. So this is not a way around the UI, it IS the
+    UI, minus the part where a pixel has to land on the right sprite.
+
+    Raises CommandFailed when the game declines, so a caller cannot report an
+    action that never happened.
+    """
+    cmd = "minigamecall " + method
+    for a in args:
+        cmd += " " + str(int(a))
+    return send_cmd(cmd, timeout=timeout)
 
 
 def minigame_is(task_name=None, timeout=3.0, poll=0.1):

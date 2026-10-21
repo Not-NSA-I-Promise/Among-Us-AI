@@ -137,6 +137,13 @@ for cx, top, bottom in sliders:
 if still_low:
     print(f"Fix Communications: {still_low} of {len(sliders)} sliders are still "
           f"low after {moved} clicks - NOT completed")
+    try:
+        print(f"Fix Communications: {click_close()}")
+    except TypeError:
+        pass
+    # Exits 1, not 0: a solver that exits 0 is reported as a completed task,
+    # and this one did not complete anything.
+    raise SystemExit(1)
 else:
     print(f"Fix Communications: all {len(sliders)} sliders are up after "
           f"{moved} clicks")

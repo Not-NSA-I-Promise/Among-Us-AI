@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <AssemblyName>cpp2ildrv</AssemblyName>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <RestorePackages>false</RestorePackages>
+    <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Cpp2IL.Core"><HintPath>C:\Games\Among Us\BepInEx\core\Cpp2IL.Core.dll</HintPath></Reference>
+    <Reference Include="LibCpp2IL"><HintPath>C:\Games\Among Us\BepInEx\core\LibCpp2IL.dll</HintPath></Reference>
+    <Reference Include="AssetRipper.Primitives"><HintPath>C:\Games\Among Us\BepInEx\core\AssetRipper.Primitives.dll</HintPath></Reference>
+    <Reference Include="AssetRipper.CIL"><HintPath>C:\Games\Among Us\BepInEx\core\AssetRipper.CIL.dll</HintPath></Reference>
+    <Reference Include="Iced"><HintPath>C:\Games\Among Us\BepInEx\core\Iced.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>
+

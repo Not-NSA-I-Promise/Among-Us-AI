@@ -17,12 +17,17 @@ inversion failing at the door:
 Gamepad-A proximity opening is evidently not reliable here; the mouse click on
 the on-screen button is what demonstrably worked.
 
-This script restores the original behaviour WITHOUT changing any solver file. It
-walks to the panel, opens it the original way, confirms from the game's own state
-that it is actually open, runs the task's existing solver untouched, and then
-confirms from the task bar whether the task actually completed.
+What this does
+--------------
+It walks to the panel and runs the task's own solver, untouched. It does NOT
+open the panel itself: the solver opens it, because that is what the real bot
+does. `main.py` calls `solve_task()`, which spawns the solver, and the solver
+clicks USE. Opening it here as well would close it again - USE is a toggle -
+and the solver would then be working on a closed panel.
 
-Nothing else in the harness is modified by running it.
+That was a real bug: the harness opened the panel, the solver's own `click_use()`
+closed it, and the solver spent the rest of the match clicking at a panel that
+was not there. It looked like the task was being ignored.
 
 Usage - use the VENV, not the bare `python`:
 
@@ -109,7 +114,14 @@ def walk_to_panel(task, budget=45.0):
 
 def open_panel_original_way(budget=8.0):
     """Open with click_use(), the original's method: a mouse click on the
-    on-screen USE button. Verified against Minigame.Instance, not assumed."""
+    on-screen USE button. Verified against Minigame.Instance, not assumed.
+
+    This is only used by --no-solver, which exists to look at a panel. When
+    the SOLVER runs, it opens the panel itself, because that is what the real
+    bot does: `main.py` calls solve_task(), which spawns the solver, and the
+    solver clicks USE. Opening it here as well would close it again - USE is
+    a toggle - and the solver would then work on a closed panel.
+    """
     if minigame().get("open"):
         say("  a panel is already open")
         return True
@@ -160,15 +172,14 @@ def main():
 
     if not walk_to_panel(task):
         return 2
-    if not open_panel_original_way():
-        return 3
-
     if args.no_solver:
+        open_panel_original_way()
         return 0
 
     before = progress_of(task)[0]
     run_solver(task)
     after = progress_of(task)[0]
+    say(f"  panel after: {minigame()}")
 
     say("")
     say(f"  task bar before: {before}   after: {after}")

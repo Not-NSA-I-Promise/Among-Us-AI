@@ -42,11 +42,15 @@ def check(name, cond, detail=""):
 class FakeGame:
     """Stands in for the files the plugin writes."""
 
-    def __init__(self, controls, minigame_open=True):
+    def __init__(self, controls, minigame_open=True, hot=None):
         self.controls = controls
         self.open = minigame_open
         self.clicks = []
         self.drags = []
+        # the panel's hot state: the few numbers a solver races against
+        self.hot = hot if hot is not None else {}
+        # the calls the solver made on the game's own API
+        self.calls = []
 
     def read_minigame_controls(self, retries=4):
         return dict(self.controls) if self.controls else {}
@@ -59,6 +63,13 @@ class FakeGame:
         if c and c.get("type") in ("simon", "garbage"):
             return c
         return None
+
+    def read_minigame_hot(self, retries=2):
+        return dict(self.hot) if self.open else {}
+
+    def minigame_call(self, method, *args, **k):
+        self.calls.append((method, list(args)))
+        return True
 
     def solver_interrupted(self):
         return False
@@ -101,7 +112,8 @@ def run(solver_name, game):
     sys.modules["pyautogui"] = pg
     import botlink
     for name in ("read_minigame_controls", "read_minigame",
-                 "minigame_controls_ready", "solver_interrupted"):
+                 "minigame_controls_ready", "solver_interrupted",
+                 "read_minigame_hot", "minigame_call"):
         setattr(botlink, name, getattr(game, name))
     path = os.path.join(ROOT, "task-solvers", solver_name + ".py")
     src = open(path, encoding="utf-8").read()
@@ -119,21 +131,20 @@ def run(solver_name, game):
 
 
 print()
-print("=== Start Reactor is back on its measured pixel grid ===")
-# The plugin-driven version was removed. It depended on the plugin resolving the
-# concrete minigame class, which never worked: it reported `class TaskAdderGame`
-# for a panel that was neither, and cached that one wrong answer in a single
-# static, so every later panel got the same wrong class and no pad positions.
-# With no pads, the solver had nothing to click and simply did not.
+print("=== Start Reactor is driven by the game, not by a pixel grid ===")
+# The pixel grid is gone. It was a 3x3 arrangement of hardcoded offsets with
+# one hardcoded RGB triple deciding whether a pad was lit, and neither number
+# was ever right for this panel.
 #
-# The 2023 original's 3x3 pad grid is measured against this panel, so it is what
-# is used. What is checked here is that the restored solver keeps the original's
-# geometry and the lit colour, and does not reintroduce the plugin dependency.
+# The game knows the sequence. SimonSaysGame keeps it in the TASK's own bytes -
+# `NormalPlayerTask.Data` - and `HitButton(i)` compares the pressed pad with
+# `Data[taskStep + 1]`, so the pad to press is read, not guessed. The plugin
+# publishes those bytes and the solver hands them straight back to the game.
 src = open(os.path.join(ROOT, "task-solvers", "Start Reactor.py"),
            encoding="utf-8").read()
-# strip comments and docstrings: these files explain WHY they use these numbers
-# and name the very things these checks forbid, and a text search cannot tell an
-# explanation from a call.
+# strip comments and docstrings: these files explain WHY they work and name the
+# very things these checks forbid, and a text search cannot tell an explanation
+# from a call.
 _code = []
 _in_doc = False
 for _line in src.splitlines():
@@ -146,20 +157,17 @@ for _line in src.splitlines():
     _code.append(_line.split("#")[0])
 src = "\n".join(_code)
 
-check("it uses the original pad grid origin x", "dimensions[2] / 3.7" in src)
-check("it uses the original pad grid origin y", "dimensions[3] / 2.3" in src)
-check("it uses the original pad-to-button offset", "dimensions[2] / 3.11" in src)
-check("it uses the original grid steps",
-      "dimensions[2] / 16" in src and "dimensions[3] / 9" in src)
-check("it keeps the measured lit colour", "(68, 168, 255)" in src)
-check("it does not depend on the plugin publishing pads",
-      "read_minigame_controls" not in src and "minigame_controls_ready" not in src,
-      "it still needs the broken class resolution to work")
+check("it no longer lays out a pixel grid",
+      "dimensions[2] / 3.7" not in src and "dimensions[3] / 2.3" not in src)
+check("it no longer looks for a lit colour",
+      "(68, 168, 255)" not in src and "pyautogui.pixel" not in src)
+check("it reads the task's sequence bytes", "read_minigame_hot" in src)
+check("it presses the pad the game says is next", "minigame_call" in src)
+check("it waits for the round's playback to finish before pressing",
+      "roundready" in src,
+      "a press during the playback is accepted and then thrown away")
 check("it does not use the stale JSON cache", "reactor_list" not in src)
 check("it does not open the panel itself", "click_use(" not in src)
-check("it does compute its click points from the window size, as the original "
-      "does", "dimensions[2] / 3.7" in src,
-      "this is the original's measured geometry, not a new guess")
 
 print()
 print("=== Start Reactor must not claim success on a closed panel ===")
@@ -171,7 +179,7 @@ class ClosedGame(FakeGame):
 
 rc, out = run("Start Reactor", ClosedGame())
 check("it refuses when the game says no panel is open", rc != 0, f"rc={rc}")
-check("and it clicked nothing", True)
+check("and it pressed nothing", True)
 check("and it says why", "no panel is open" in out, out)
 
 print()

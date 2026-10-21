@@ -16,3 +16,13 @@ inspect_sample_debug_*.png
 fix_wiring_debug_*.png
 calibrate_distributor_controls_*.txt
 calibrate_distributor_*.png
+
+# build output of the BepInEx plugin and of the IL2CPP decompiler driver
+plugin/bin/
+plugin/obj/
+tools/cpp2ildrv/bin/
+tools/cpp2ildrv/obj/
+
+# scratch: screenshots and logs from the development tools
+_peek/
+

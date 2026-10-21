@@ -61,35 +61,36 @@ Actions, grouped:
 - **social** - say something, vote
 - **observe** - read the map, read the tracker, read the vitals, read notes
 
-## Task panel convention: the solver opens it, the harness only walks
+## Task panel convention: the harness opens it, the solver drives it
 
-**A task solver opens its own panel. The harness must not open it for them.**
+**The harness opens the panel. The solver drives what is on it.**
 
-This is not a style preference, it was a live bug. `do_task` walked to the panel
-*and* pressed USE to open it, and then the solver's own `click_use()` clicked the
-on-screen USE button a second time. With a minigame already open, that second
-click **closes** it. So every solver was driving a closed panel: Fix Wiring moved
-the cursor across the screen dragging wires that were not there, and Inspect
-Sample clicked into empty space. From outside it looked like the bot was
-clicking and nothing was happening, which is why both tasks looped forever.
+This is not a style preference, it was a live bug. `do_task` walked to the
+panel and pressed USE to open it, and then the solver's own `click_use()`
+clicked the on-screen USE button a second time. With a minigame already open,
+that second click **closes** it. So every solver was driving a closed panel:
+Fix Wiring moved the cursor across the screen dragging wires that were not
+there, and Inspect Sample clicked into empty space. From outside it looked
+like the bot was clicking and nothing was happening, which is why both tasks
+looped forever.
 
 So:
 
-- `_stand_at_panel()` walks to the live route position and **stops there**.
-- The solver calls `click_use()` to open, and `click_close()` to finish.
-- A solver that only makes sense with the panel already open does not exist any
-  more; `Fix Communications.py` was literally `# Do nothing lol` and relied on
-  the harness opening for it.
+- `do_task.walk_to_panel()` walks to the live route position and **stops there**.
+- `do_task.open_panel_original_way()` opens the panel with a mouse click on the
+  on-screen USE button, and **confirms it from `Minigame.Instance`** before
+  handing over.
+- The solver never calls `click_use()`.
 
-Every solver that opens a panel must also **confirm it opened** before working on
-it, and must say so when it did not. Dragging wires or clicking tubes on an
-unopened panel is indistinguishable, from the harness's point of view, from doing
-the task correctly, so the solver has to check. `Fix Wiring` looks for a wire
-endpoint; `Inspect Sample` looks for the anomaly tube.
+Every solver that opens a panel must also **confirm it opened** before working
+on it, and must say so when it did not. Dragging wires or clicking tubes on an
+unopened panel is indistinguishable, from the harness's point of view, from
+doing the task correctly, so the solver has to check. `Fix Wiring` looks for a
+wire endpoint; `Inspect Sample` reads the panel's published state.
 
 Note that `click_use()` is a *mouse click on the on-screen USE button*, while
-`roleplay.press_use()` is the *gamepad A button*. They are not the same thing, and
-that difference is what made the double-open invisible.
+`roleplay.press_use()` is the *gamepad A button*. They are not the same thing,
+and that difference is what made the double-open invisible.
 
 ### USE is a toggle: never click a panel that is already open
 
@@ -116,7 +117,108 @@ call, and a `click_use()` that ran before the state check. Both are now covered 
 `tests/test_fix_wiring.py`, which models USE as a toggle and asserts the solver
 clicks exactly once, and never at all when the panel is already up.
 
+## Driving a task: ask the game, do not read the screen
+
+The hardest tasks were the ones the bot had to *see*. Start Reactor had to find
+the lit pad, Inspect Sample had to find the odd tube, Calibrate Distributor had
+to find the dial in range — and each of those was a guess about pixels that was
+wrong in its own way. The lit-pad colour was invented, the tube template matched
+the wrong thing, and the Calibrate Distributor solver ended up clicking the
+game's own HUD three times and reporting "3/3 done".
+
+**The game already knows the answer, and it will tell you.** Every minigame
+with a pressable control exposes it as a plain public method, and that method
+is the one the panel's own button calls:
+
+| task | class | the method | what the game keeps |
+|---|---|---|---|
+| Start Reactor | `SimonSaysGame` | `HitButton(int)` | the sequence, in the TASK's bytes |
+| Calibrate Distributor | `SweepMinigame` | `HitButton(int)` | the live dial and its angle |
+| Inspect Sample | `SampleMinigame` | `SelectTube(int)` | which tube is odd |
+
+So the plugin publishes the state and the solver asks the game to act:
+
+- **`minigameHot.txt`** — the open panel's hot state, written on **every**
+  FixedUpdate, separately from the snapshot. The snapshot is throttled to 50ms,
+  and that is not fast enough: Calibrate Distributor's dial is inside its
+  target window for a fraction of a revolution, and a solver sampling at 20Hz
+  misses it.
+- **`minigamecall <method> [int args]`** — calls a public method on the open
+  minigame, through the game. It is not a way around the UI, it *is* the UI,
+  minus the part where a pixel has to land on the right sprite.
+
+The plugin refuses to call a panel's lifecycle methods (`Close`, `Begin`,
+anything starting with `Set` or `Co`), because closing a minigame out of band
+leaves the task in a state the game does not expect.
+
+### The answer is usually on the TASK, not the panel
+
+This is the single most useful thing the decompiled game told us. The panel
+class holds the controls; the **answer** lives in `NormalPlayerTask.Data`, a
+`byte[]` on the task itself:
+
+- **Start Reactor** — `Data[0]` is the length of the sequence and `Data[1..]`
+  are the pad indices. `HitButton(i)` compares `i` with `Data[taskStep + 1]`
+  and does nothing at all if they differ.
+- **Inspect Sample** — `Data[0]` is a state code (64 means a tube may be
+  picked) and `Data[1]` is then the anomalous tube.
+- **Calibrate Distributor** — the live dial and its distance from the target
+  are computed by the game every frame and published by the plugin.
+
+Walking the panel's class hierarchy will never find any of this, because it is
+a different object.
+
+### What the solvers do with it
+
+| task | it reads | it does |
+|---|---|---|
+| Start Reactor | the sequence bytes, and whether the round's playback is over | `HitButton(Data[taskStep + 1])`, fifteen times over five rounds |
+| Calibrate Distributor | the live dial's distance from its target | `HitButton(spinner)`, three times, once per dial |
+| Inspect Sample | the state code and the odd tube | `SelectTube(tube)`, once |
+
+And every one of them reports success **only when the game confirms it**. A
+solver that presses a pad and sees nothing happen says so; it does not claim
+the task is done.
+
+## The plugin is part of the project, and it is in the repo
+
+`plugin/` is the BepInEx plugin that runs inside the game. It is not a
+dependency to be fetched — it is the half of the bot that can see the game, and
+a change to it is a change to the bot. It lives here so it is versioned with
+everything else.
+
+```
+cd plugin
+dotnet build -c Release
+copy bin\Release\AmongUsAI.dll "C:\Games\Among Us\BepInEx\plugins\"
+```
+
+The game loads it at startup, so a new build needs the game restarted. The
+plugin is the only thing that can read the game's real state, and everything
+that has to know what the game is doing goes through it.
+
+## The gamepad has to exist BEFORE the game starts
+
+Among Us enumerates its input devices at startup and does not hot-plug them, and
+ViGEmBus leaves a zombie "Xbox 360 Controller for Windows" behind every time a
+process that held a virtual pad dies. Both facts are in `bootstrap.py`.
+
+- A pad created **after** the game is running is invisible to it. The player
+  never moves, and every walk silently does nothing.
+- Several pads at once make the game bind to a **dead** one, and again nothing
+  moves — with no error anywhere, which is what makes it so confusing.
+
+So the only reliable order is: purge the zombies, create the pad, **then**
+launch the game, and keep everything in one process so the same pad is held by
+the process that drives the bot. Running a task from a fresh python process
+while the game is already up is exactly the broken configuration, and it looks
+like a walking bug rather than an input-device bug.
+
+`lab.py` is the harness for that: one process that owns the pad, owns the game,
+and runs the test. `bootstrap.py` does the same for the real bot.
+
 ## Abilities: two is the maximum
+
 
 Verified against the IL2CPP dump by listing every class that overrides
 `UseSecondaryAbility`. Only two do:
@@ -171,6 +273,9 @@ These are real and unresolved. Recorded so they are not rediscovered later.
    asking it to would burn enormous context for no gain.
    *Current resolution:* the model chooses *which* task and *when*; the harness
    solves it. This is the clearest case of the division of labour working.
+   *Changed since:* the harness no longer works in pixels for the tasks whose
+   answer the game already holds. It asks the game. The model is unaffected
+   either way, and the solvers stopped being wrong.
 
 5. **Two abilities need two buttons, and the harness must not mix them up.**
    Detective's primary and secondary are genuinely different verbs (interrogate

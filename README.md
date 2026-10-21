@@ -12,7 +12,7 @@ Here's a video I made detailing the creation process: https://youtu.be/VF41pxxw9
 
 | doc | what it covers |
 |---|---|
-| [ARCHITECTURE.md](ARCHITECTURE.md) | the model plays, the harness only executes — and the six real conflicts that creates |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | the model plays, the harness only executes — and the real conflicts that creates |
 | [TOOLS.md](TOOLS.md) | all 20 actions the model can take (19 while `wait` is cooling down), what each refuses, and what it has no access to |
 | [MAPS.md](MAPS.md) | which maps actually work - only Skeld and Polus, verified by test |
 | [KNOWLEDGE_BASE.md](KNOWLEDGE_BASE.md) | researched game facts the harness relies on, and which ones are still uncertain |
@@ -20,6 +20,47 @@ Here's a video I made detailing the creation process: https://youtu.be/VF41pxxw9
 | [REFERENCES.md](REFERENCES.md) | external repos and the sources behind the dataset |
 | [dataset/README.md](dataset/README.md) | the hand-authored SFT set, the game dictionary, and the entry gate |
 | [DATASET_SOURCES.md](DATASET_SOURCES.md) | provenance for the task durations, with how much to trust them |
+
+## The plugin
+
+`plugin/` is the BepInEx plugin that runs inside the game. It is the half of
+the bot that can see the game: it publishes what the game is doing (position,
+tasks, the open task panel, who is in a vent, what a role can do) and it
+executes the actions the bot asks for. It lives in this repository because a
+change to it is a change to the bot.
+
+```
+cd plugin
+dotnet build -c Release
+copy bin\Release\AmongUsAI.dll "C:\Games\Among Us\BepInEx\plugins\"
+```
+
+The game loads the plugin at startup, so a new build needs the game restarted.
+
+## Development tools
+
+These are for working on the bot, not part of it.
+
+| script | what it does |
+|---|---|
+| `lab.py` | one process that owns the virtual gamepad, owns the game, and runs the tests. `--all` solves every task in a round; `--watch N` dumps the open panel's state for N seconds |
+| `practice.py` | rerolls a practice round until the wanted tasks turn up |
+| `poke.py` | click, drag and focus the game window, in client coordinates |
+| `peek.py` | screenshot the game window |
+| `watch.py` | watch the open panel's published state change over time |
+| `gcmd.py` | send one command to the game and print the game's own answer |
+| `pefloat.py` | read float constants out of the game's binary by address |
+| `tools/cpp2ildrv/` | decompile the game's own code - see KNOWLEDGE_BASE.md |
+
+Two things make them necessary rather than convenient:
+
+- **The gamepad has to exist before the game starts.** Among Us enumerates its
+  input devices at startup and does not hot-plug them, and ViGEmBus leaves a
+  zombie pad behind every time a process that held one dies. A pad created
+  after the game is running is invisible to it, and the player never moves.
+  `lab.py` and `bootstrap.py` get the order right.
+- **The game has to be the foreground window.** Among Us pauses when it loses
+  focus, and the plugin stops publishing, so everything looks frozen.
 
 ## Features
 - Dynamic movement and intelligent task routing

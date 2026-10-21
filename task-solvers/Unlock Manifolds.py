@@ -34,5 +34,8 @@ for i in range(1, 11):
         time.sleep(0.4)
     if not pos:
         print(f"Unlock Manifolds: gave up looking for step {i}")
-        break
+        # This used to fall off the end of the file, which exits 0 - and a
+        # solver that exits 0 is reported as a completed task. So a task that
+        # was never finished was being reported as finished. Exit non-zero.
+        raise SystemExit(1)
     pyautogui.click(pos)

@@ -1,142 +1,145 @@
-"""Start Reactor, restored to the logic that was known to work.
+"""Start Reactor, driven by the game's own sequence.
 
-Original in git history: 2d3b70b, 2023-01-31.
+What the task actually is
+-------------------------
+A memory game. The panel flashes a sequence of squares on the left and you
+press the matching pads on the right, in the same order. It is five rounds,
+and each round replays the whole sequence with one more element added, so the
+rounds are 1, 2, 3, 4 and 5 presses long.
 
-The rewrite replaced this with "ask the plugin for the pads and the sequence".
-That was a good idea in principle - the game really does expose
-SimonSaysGame.Buttons and the `operations` queue - but it depends on the plugin
-successfully resolving the concrete minigame class, and that has never worked: it
-reported `class TaskAdderGame` for a panel that was neither, and it cached that
-one wrong answer in a single static, so it was wrong for every panel afterwards.
-With no pads published, the rewrite had no way to work and simply did not click.
+None of that is a guess. It is what the game does, read out of the game's own
+code:
 
-So the pixel grid is restored. It is measured against this panel, not guessed: a
-3x3 arrangement of possible pad positions, each sampled for the one colour the
-game uses to indicate a lit pad, and a fixed horizontal offset to the pad itself.
+  * NormalPlayerTask.Initialize allocates `Data` as `new byte[6]` for a Start
+    Reactor task - room for a count and five indices.
+  * SimonSaysGame.AddIndex appends one random pad index to `Data` at the start
+    of every round and bumps `Data[0]`, the count. So `Data[0]` is how long
+    the current sequence is and `Data[1..]` are the pad indices.
+  * SimonSaysGame.HitButton(i) compares `i` with `Data[taskStep + 1]` and
+    does nothing at all if they differ. So the pad to press is
+    `Data[taskStep + 1]`, and `taskStep` counts the presses made so far in
+    this round.
+  * The end of the round's playback sets `taskStep` back to 0, which is why
+    every round starts again at `Data[1]`.
+  * A press on the WRONG pad sets `Data[0] = 0`, which throws the sequence
+    away and starts the next round over with a fresh random pad. So a wrong
+    press is not a lost point, it is a lost task.
 
-Kept from the rewrite, because none of it touches the coordinates:
+The one trap
+------------
+HitButton does not check whether the round's playback is still running. A
+press issued mid-playback is accepted and then silently discarded when the
+playback resets the counter, which leaves the bot one press out of step - and
+the next press is then the wrong one, which loses the task.
 
-  - the harness opens the panel and confirms it from Minigame.Instance, so this
-    does not call click_use(). The original did, which toggled the panel shut.
-  - no JSON file. The original persisted the sequence to
-    task-solvers/reactor_list/reactor_list.json so an interrupted run could pick
-    up where it left off, and cleared it at the end. A stale file from a killed
-    run made the next one replay clicks for pads that were never lit. The
-    sequence is per-panel state and belongs in memory.
-  - the result is only reported as success when the game says the task is done,
-    rather than when the last pad happened to be clicked.
+So the solver waits for the round to be ready before it presses. The game
+itself says when that is: the playback turns every pad grey as it starts and
+white as it ends, and the plugin publishes that as `roundready`.
 """
 import os
 import sys
 import time
 
-import pyautogui
-
-from task_utility import get_dimensions, is_task_done  # noqa: E402
-
 ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, ROOT)
-import botlink  # noqa: E402
+sys.path.insert(0, os.path.join(os.getcwd(), "task-solvers"))
 
-# The one colour the game lights a pad with, from the original solver.
-LIT = (68, 168, 255)
+import botlink  # noqa: E402
+from task_utility import is_task_done, open_task_panel  # noqa: E402
 
 
 def _interrupted():
-    return botlink.solver_interrupted()
-
-
-def _panel_open():
     try:
-        return (botlink.read_minigame() or {}).get("open")
+        return botlink.solver_interrupted()
     except Exception:
-        return None
+        return False
 
 
-def _solve():
-    if _panel_open() is False:
-        print("Start Reactor: the game says no panel is open, so nothing was "
-              "clicked")
+def solve():
+    if not open_task_panel():
+        print("Start Reactor: no panel is open - it would not open, so nothing was pressed")
         return 1
-
-    dimensions = get_dimensions()
-    if not dimensions:
-        print("Start Reactor: no game window dimensions")
+    hot = botlink.read_minigame_hot()
+    if not hot:
+        print("Start Reactor: no panel is open, so nothing was pressed")
         return 1
+    print(f"Start Reactor: the panel says {hot.get('task')!r}")
 
-    # Original geometry, unchanged.
-    x_start = dimensions[0] + round(dimensions[2] / 3.7)
-    y_start = dimensions[1] + round(dimensions[3] / 2.3)
-    x_offset = round(dimensions[2] / 16)
-    y_offset = round(dimensions[3] / 9)
-    button_x_offset = round(dimensions[2] / 3.11)
+    deadline = time.time() + 120
+    presses = 0
+    rounds = 0
+    last_count = 0
+    # The round the solver is on. The game resets its own counter to 0 at the
+    # end of every playback, and the solver keeps its own so it can tell a
+    # fresh round from a stale counter left over from the last one.
+    pos = 0
 
-    click_list = []
-    seen_pos = []
-    start = time.time()
-
-    while not is_task_done("Start Reactor"):
+    while time.time() < deadline:
         if _interrupted():
             print("Start Reactor: interrupted")
             return 2
-        if time.time() - start > 45:
-            print(f"Start Reactor: gave up after 45s having read "
-                  f"{len(click_list)} pad(s)")
+        if is_task_done("Start Reactor"):
+            print(f"Start Reactor: the game confirms it done "
+                  f"({presses} press(es) over {rounds} round(s))")
+            return 0
+
+        hot = botlink.read_minigame_hot()
+        if not hot:
+            if is_task_done("Start Reactor"):
+                print(f"Start Reactor: the game confirms it done "
+                      f"({presses} press(es) over {rounds} round(s))")
+                return 0
+            print("Start Reactor: the panel closed and the task is not done")
             return 1
 
-        found = False
-        for i in range(3):
-            if found:
-                break
-            for j in range(3):
-                pos = (x_start + x_offset * i, y_start + y_offset * j)
-                try:
-                    pixel = pyautogui.pixel(pos[0], pos[1])
-                except Exception:
-                    continue
-                if (abs(pixel[0] - LIT[0]) < 2 and abs(pixel[1] - LIT[1]) < 2
-                        and abs(pixel[2] - LIT[2]) < 2):
-                    found = True
-                    if pos in seen_pos:
-                        # this is the start of the player's turn: the pads we
-                        # recorded are lit again, waiting to be pressed
-                        seen_pos.remove(pos)
-                        time.sleep(0.2)
-                        break
-                    time.sleep(1.0)     # let the pad finish lighting
-                    click_list.append(pos)
-                    for cpos in click_list:
-                        pyautogui.click(cpos[0] + button_x_offset, cpos[1])
-                        seen_pos.append(cpos)
-                        time.sleep(1 / 60)
-                    print(f"Start Reactor: read {len(click_list)} pad(s) and "
-                          f"pressed them in order")
-                    # Start Reactor plays several rounds, each one longer. The
-                    # original never cleared click_list, so round two replayed
-                    # round one's sequence - which is why it solved the first
-                    # round and then got stuck. Clear it unless the panel closed,
-                    # in which case there is nothing left to do.
-                    time.sleep(0.5)
-                    if is_task_done("Start Reactor"):
-                        break
-                    if click_list:
-                        print(f"Start Reactor: clearing the {len(click_list)} "
-                              f"pad(s) from the previous round")
-                        click_list = []
-                        seen_pos = []
-                    break
-        if not found:
-            time.sleep(0.05)
+        data = hot.get("data") or {}
+        count = data.get(0, 0)
+        step = hot.get("step", 0)
 
-    if is_task_done("Start Reactor"):
-        print(f"Start Reactor: the game confirms it done - "
-              f"{len(click_list)} pad(s) pressed")
-        return 0
-    print("Start Reactor: the game does NOT report the task as done")
+        if count == 0:
+            # No round, or the last press was wrong and the sequence was
+            # thrown away. The game is about to build a fresh one.
+            pos = 0
+            time.sleep(0.05)
+            continue
+
+        if count != last_count:
+            # A new round: one more element than last time.
+            rounds += 1
+            last_count = count
+            pos = 0
+            print(f"Start Reactor: round {rounds}, {count} pad(s) to press")
+
+        if pos >= count:
+            # This round is done; wait for the game to build the next one.
+            time.sleep(0.02)
+            continue
+
+        if not hot.get("roundready"):
+            # The playback is still running. Pressing now would be accepted
+            # and then thrown away, which is how a task is lost.
+            time.sleep(0.02)
+            continue
+
+        pad = data.get(pos + 1)
+        if pad is None:
+            time.sleep(0.02)
+            continue
+
+        try:
+            botlink.minigame_call("HitButton", pad, timeout=2.0)
+        except botlink.CommandFailed as exc:
+            print(f"Start Reactor: the game refused the press ({exc.reason})")
+            return 1
+        presses += 1
+        pos += 1
+        time.sleep(0.03)
+
+    print("Start Reactor: gave up after 120s")
     return 1
 
 
-solve = _solve
+solve = solve
 
 
 if __name__ == "__main__":

@@ -72,6 +72,141 @@ harness enforces this in `agent.fake_task`.
 
 ---
 
+## Inspect Sample — verified working
+
+Measured live on Skeld MedBay, 1920x1080 game on a 2560x1600 desktop:
+
+- `do_task.py` walks to the panel, opens it with `task_utility.click_use()` (a
+  mouse click on the on-screen USE button), and it opens **on the first click**.
+  Opening the panel with gamepad A via `roleplay.press_use()` is *not* reliable —
+  tasks that way log "the game says no panel is open" and refuse at the door. The
+  2023 convention of the solver clicking its own panel open is correct.
+- The tube is matched at y=497 and the submit click is at **y=873**, i.e.
+  `tube_y + height/2.87`, exactly as the 2023 original computes it. This is
+  correct. An earlier reading of the panel screenshot suggested the click landed
+  below the buttons; that was a misread of a scaled image, and a rewrite to
+  locate the buttons by colour was reverted rather than shipped.
+- For the record, the green confirm buttons sit at y 825..868 in the *game crop*
+  (`task_utility.get_screenshot()` is 1920x1080), and the green "SELECT ANOMALY"
+  text below them is at y 923..957. `pyautogui.screenshot()` returns the whole
+  2560x1600 desktop instead. Do not mix the two up when reasoning about panel
+  coordinates — but the 2023 arithmetic already lands on a working click, so the
+  mapping is not needed.
+- **It is flaky on a cold panel.** Two consecutive identical runs: the first
+  clicked (733, 873) and the panel stayed open; the second clicked the identical
+  point and submitted, task bar 0/1 → 1/1. The first click after START can be
+  swallowed while the panel settles. A retry on "panel still open" is the obvious
+  hardening; it is not implemented yet.
+- Verified result: `VERIFIED: the game reports Inspect Sample complete (1/1)`.
+
+### It is now driven by the game, and the flakiness is gone
+
+The pixel version above still works, but the game knows the answer, so the
+solver no longer has to find it. `SampleMinigame` keeps the id of the
+anomalous tube in **the task's own bytes**, and refuses a pick made before it
+is ready — read out of the game's own code:
+
+| what | where | meaning |
+|---|---|---|
+| the state code | `NormalPlayerTask.Data[0]` | 32 = processing finished, 64 = a tube may be picked, 128 = the lower buttons are up |
+| the odd tube | `NormalPlayerTask.Data[1]` | written when the processing finishes, and only valid once the state is 64 |
+| the pick | `SampleMinigame.SelectTube(int)` | does nothing unless the state is 64, and compares its argument with `Data[1]` |
+
+So the solver waits for the state to be 64, reads `Data[1]`, and calls
+`SelectTube` — the same public method the tube's own button calls. The START
+press is still a mouse click, because the START button is ordinary panel
+furniture and the game exposes no method for it; that click is retried,
+because the old solver's one known flaw was the first click after the panel
+opens being swallowed.
+
+**Verified live:** the game named tube 4, the pick was made, and the task bar
+went 0/1 → 1/1.
+
+---
+
+## Start Reactor — verified working
+
+The panel is a memory game. On the left, a 3x3 grid of squares; on the right,
+a 3x3 grid of pads. The game plays a sequence back and you press the matching
+pads in the same order. There are five rounds, and each round replays the whole
+sequence with one more element added — so the rounds are 1, 2, 3, 4 and 5
+presses long, and the task needs 15 presses in total.
+
+**The sequence is not in the minigame, and it is not on the screen.** It is in
+the task's own bytes, `NormalPlayerTask.Data`, a `byte[6]` allocated for a
+Start Reactor task — room for a count and five indices:
+
+| what | meaning |
+|---|---|
+| `Data[0]` | how long the current sequence is |
+| `Data[1..count]` | the pad indices, in order |
+| `taskStep` | how many of them have been pressed **this round** |
+
+`SimonSaysGame.HitButton(i)` compares `i` with `Data[taskStep + 1]` and does
+nothing at all if they differ, so **the pad to press is `Data[taskStep + 1]`**.
+`taskStep` is reset to 0 at the end of every round's playback, which is why
+every round starts again at `Data[1]`. A press on the WRONG pad sets
+`Data[0] = 0`, which throws the sequence away and restarts with a fresh random
+pad — a wrong press loses the task, it is not a lost point.
+
+### The trap: a press during the playback is accepted and then thrown away
+
+`HitButton` does not check whether the round's playback is still running. A
+press issued mid-playback passes the `Data[taskStep + 1]` check, bumps
+`taskStep`, and is then silently discarded when the playback resets the
+counter. The bot is now one press out of step, and its next press is the wrong
+one, which loses the task.
+
+The game's own end-of-playback signal is its colour: the playback turns every
+pad **grey** as it starts and **white** as it ends, and nothing else makes a
+pad white while a playback is running. The press echo is a brief blue flash on
+one pad, so "at least one pad is white" is true whenever the player is allowed
+to press. The plugin publishes that as `roundready`.
+
+**Verified live:** five rounds, 15 presses, task bar 0/5 → 5/5, in 14.6s.
+
+---
+
+## Calibrate Distributor — verified working
+
+Three dials, each with a handle on its rim. The handle sweeps round, and the
+dial is only correct while it is within **13 degrees** of the top. The game
+accepts a press only on the live dial and only inside that window; a press at
+the wrong time is not ignored, it throws the whole task away — the dials are
+re-randomised and you start again.
+
+All of that is the game's own arithmetic, read out of its code:
+
+```
+SweepMinigame.CalcXPerc():
+    int rem  = (int)(SpinRate * timer) % 360;
+    int dist = min(rem, 360 - rem);
+    // accepted when 13.0f > dist
+```
+
+`SweepMinigame.FixedUpdate` advances `timer` and writes the same distance into
+`Gauges[spinnerIdx].Value` — 0.9 when the dial is in range, 0.1 when it is
+not, with a small Perlin wobble on top. `SweepMinigame.HitButton(i)` does
+nothing unless `i == spinnerIdx`, and on a good press it moves on to the next
+dial; on a bad one it calls `ResetGauges()`, which sets `spinnerIdx` back to 0
+and re-randomises the timers.
+
+The plugin publishes the live dial's `spinner`, `dist` and `spinrate`, computed
+with the game's own arithmetic, so the solver cannot get the rounding wrong.
+
+**Verified live:** three dials, three presses, task bar 0/1 → 1/1, in 5.8s.
+
+### A note on the Fix Wiring section below
+
+The "rings ROTATED" passage that used to sit under Fix Wiring was describing
+**Calibrate Distributor**, not Fix Wiring. The three dials with a handle on
+their rim and a bar beside each one are Calibrate Distributor's panel. Fix
+Wiring's panel is a pair of wire columns and nothing else. That misreading is
+why the old Calibrate Distributor solver went looking for coloured blobs in a
+cropped picture of the panel: it was reading the wrong task's shape.
+
+---
+
 ## Dummy tasks
 
 Some "tasks" shown to an impostor **cannot be completed at all**. **[med]**
@@ -179,24 +314,37 @@ the column corrected they read, live: yellow `rgb(255,227,0)`, blue
 `rgb(83,98,255)`, cyan `rgb(111,249,255)` - all three pass the 2023 tests
 exactly as written.
 
-### UNSOLVED: the task also needs the rings ROTATED
+> **Those measurements are Calibrate Distributor's, not Fix Wiring's.** The three
+> rows of coloured bars and the button under each are that task's panel. They
+> were filed here, and the mismatch is why the Calibrate Distributor solver
+> ended up hunting for coloured blobs in a cropped picture: it was reading the
+> wrong task's shape. The numbers above are therefore **not** a description of
+> Fix Wiring and should not be copied into anything.
 
-The original only reads a colour and clicks a bar. On the current game that is
-not the whole task. Measured live:
+### The rings are not part of Fix Wiring
 
-- each of the three rings has a **draggable handle** on its rim;
-- each row's bar is **green while that handle sits in the correct arc** and
-  **silver otherwise** - the green-dominant pixel count at the bar's centre is a
-  reliable signal (green ~60, silver 0);
-- clicking the right-hand panel **rotated ring 1's handle**, and its bar went from
-  green to silver;
-- ring geometry at 1920x1080: centres `(700, 258) (700, 535) (700, 812)`,
-  radius ~100. Bars centred at `(1232, 310) (1232, 585) (1232, 840)`.
+An earlier version of this file claimed that Fix Wiring's panel has rotating
+rings with draggable handles, and that a full 360-degree drag never turned any
+bar green. **That was Calibrate Distributor's panel**, described by mistake. The
+rings are the three dials, the bars are the gauges beside them, and the reason
+a drag did nothing is now known exactly: the dials are not dragged at all, they
+are pressed, and the press is only accepted inside a 13-degree window. See
+**Calibrate Distributor** above.
 
-A full 360-degree drag of a handle did **not** bring any bar green, so the
-mechanic is not simply "rotate until the bar turns green", and this task is
-**not solved**. Whatever the interaction is, it has to be found by experiment in a
-live panel rather than reasoned about.
+Fix Wiring's panel is a pair of wire columns with a header, and nothing else.
+What is true of it, and was measured, is below.
+
+### The wires themselves
+
+Fix Wiring's solver locates each wire by its **colour**. There are four
+templates — red, blue, yellow and pink — and a wire is dragged from the left
+column's end of that colour to the right column's end of the same colour. The
+wiki's description of the panel agrees: "at each panel, 4 wires are assigned one
+of the default colors: red, blue, yellow, and magenta". **[high]**
+
+### UNSOLVED: the Polus 8-wire panel
+
+That is the only part of this task left open. It is described below.
 
 ### Polus 8-wire panel is not supported
 
@@ -272,6 +420,58 @@ mechanism is documented, the exact range is not. Verify in game.
   when one eject ends the game. **[med]**
 - Skipping is usually right when you have no information. Ejecting an innocent
   loses the round. **[med]**
+
+---
+
+## How to get the truth about a minigame
+
+There is a way to read what a minigame actually does, and it is not by
+guessing at pixels: **the game's own code is in the IL2CPP binary, and it can
+be decompiled.**
+
+`tools/dump/dump.cs` is an Il2CppDumper dump. It has every class, field and
+method SIGNATURE, and the RVA of every method — but not the bodies. So it
+tells you that `SweepMinigame` has a `HitButton(int)` and a `float SpinRate`,
+and nothing about what `HitButton` accepts.
+
+Cpp2IL recovers the bodies. `Cpp2IL.Core.dll` and `LibCpp2IL.dll` are in
+`C:\Games\Among Us\BepInEx\core`, the metadata is in
+`Among Us_Data\il2cpp_data\Metadata\global-metadata.dat`, and the code is in
+`GameAssembly.dll`. A small driver that loads all three and asks
+`MethodAnalysisContext.Analyze()` gives the bodies as IL.
+
+**Use the raw x86, not Cpp2IL's ISIL.** The ISIL is a normalised form and it
+loses the detail that matters: it renders `Data[taskStep + 1]` as a comparison
+against a pointer, because it cannot tell an array read from a field read. The
+raw disassembly is exact, and the difference between the two is the difference
+between "the solver presses the wrong pad" and "the solver presses the right
+one".
+
+The driver lives at `tools/cpp2ildrv` and runs as:
+
+```
+cd tools/cpp2ildrv
+dotnet run -c Release --no-build -- out.txt "SimonSaysGame" --raw
+```
+
+`--raw` gives exact x86-64 for every method of the named types; without it you
+get the ISIL. Types are matched by name, and a nested coroutine's name is
+given as `Outer+<Coroutine>d__NN`.
+
+### The rules that came out of it
+
+- **A minigame's answer is usually on the TASK, not the panel.** The panel
+  class holds the controls; the sequence, the anomaly id and the state code
+  live in `NormalPlayerTask.Data`, and the panel reads them. Walking the
+  panel's class hierarchy will never find them.
+- **A minigame that has a pressable control exposes it as a public method**,
+  and that method is the one the panel's own button calls. `HitButton(int)`,
+  `SelectTube(int)` and friends are the game's UI, not a way around it. The
+  plugin calls them through `minigamecall`.
+- **Read the constants out of the binary, do not recall them.** The 13-degree
+  window in Calibrate Distributor, the 1.0-3.0 second random timer, the
+  `byte[6]` task data, the 64 state code: each is a float or a byte in
+  `GameAssembly.dll`, and `pefloat.py` in this repo reads them by address.
 
 ---
 

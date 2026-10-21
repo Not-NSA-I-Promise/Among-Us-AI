@@ -1,27 +1,35 @@
-"""Inspect Sample, restored to the logic that was known to work.
+"""Inspect Sample, driven by the game's own answer.
 
-Original in git history: 1aee06f, 2023-01-29. Two things in it matter and both
-were lost in a rewrite that looked like an improvement:
+What the task actually is
+-------------------------
+A rack of five sample tubes. The panel processes the sample and then one of
+them is the odd one out; you pick it.
 
-  1. It waits 61 seconds for the sample animation. The rewrite polled for 30 x
-     0.25s, i.e. 7.5 seconds, and then gave up - so it could never find the tube,
-     because the tube is not identifiable until the animation has run. It then
-     printed a specific and confident lie about what it had found.
+The old solver found the odd tube by matching a picture of it on the screen
+and clicking at a fixed distance below the match, and it was flaky: the first
+click after START was often swallowed, and the whole thing depended on where
+the template happened to be.
 
-  2. The START click is at window_x + width/1.52, window_y + height/1.16. The
-     rewrite moved it to the centre of a guessed panel region, which is not where
-     the button is. The report was "the panel opens but START is never pressed",
-     which is exactly what a wrong click position looks like.
+The game knows the answer. It is not a matter of looking:
 
-Kept from the rewrite, because neither touches the coordinates:
+  * The task keeps a byte array, `NormalPlayerTask.Data`. For this task
+    `Data[0]` is a STATE CODE, not a count: 64 means a tube may be picked,
+    32 means the processing has finished, 128 means the lower buttons are up.
+  * When the processing finishes, SampleMinigame.FixedUpdate picks a random
+    tube at random and writes its index into `Data[1]`, and highlights it.
+  * SampleMinigame.SelectTube(i) does nothing unless `Data[0]` is 64, and
+    then compares `i` with `Data[1]`. So the tube to pick is `Data[1]`, and
+    the game refuses a pick made before it is ready.
 
-  - the harness opens the panel and confirms it from Minigame.Instance, so this
-    does not call click_use(). The original did, which toggled the panel shut.
-  - polling instead of a blind 61s sleep, which is strictly better: the click
-    happens the moment the tube is identifiable rather than 61s later whatever
-    happened. The timeout stays generous because the animation genuinely takes
-    about that long.
-  - the result is only reported as success when the game says the task is done.
+So the solver does not look for anything. It waits for the game to say the
+panel is ready, reads the tube the game picked, and asks the game to select
+it - the same public method the tube's own button calls.
+
+The one thing still done with the mouse is the START press, because the
+START button is ordinary panel furniture and the game does not expose it as
+a method. Its position is the one the 2023 original used, which was verified
+in a live game; the click is retried, because the old solver's one known
+flaw was that the first click after the panel opens can be swallowed.
 """
 import os
 import sys
@@ -29,120 +37,142 @@ import time
 
 import pyautogui
 
-from task_utility import get_dimensions, get_dir  # noqa: E402
-from task_utility import click_close  # noqa: E402
-
 ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, ROOT)
-import botlink  # noqa: E402
+sys.path.insert(0, os.path.join(os.getcwd(), "task-solvers"))
 
-# The original waited a flat 61s. Poll for this long instead - the same ceiling,
-# but the click lands as soon as the tube can be seen.
-TUBE_TIMEOUT = 65.0
+import botlink  # noqa: E402
+from task_utility import get_dimensions, is_task_done, open_task_panel  # noqa: E402
+
+# The panel's state code that means "a tube may be selected".
+READY = 64
+
+# How long to wait for the panel to be ready. The processing animation is
+# about a minute in the current build, so this is generous on purpose.
+READY_TIMEOUT = 75.0
 
 
 def _interrupted():
-    return botlink.solver_interrupted()
-
-
-def _panel_open():
     try:
-        return (botlink.read_minigame() or {}).get("open")
+        return botlink.solver_interrupted()
     except Exception:
-        return None
+        return False
 
 
-def _find_tube(region):
-    """The anomaly tube, or None.
+def _start_position(dimensions):
+    """Where the START button is, in screen pixels.
 
-    locateCenterOnScreen RAISES ImageNotFoundException when it cannot find the
-    template, which used to kill the solver outright. Caught here so a tube that
-    has not appeared yet is simply "not yet".
+    The 2023 original's position, width/1.52 and height/1.16 from the top
+    left of the client area. It was confirmed in a live game, so it is the
+    one position in this file that is not derived from the game itself -
+    which is why the click is retried rather than trusted.
     """
-    try:
-        return pyautogui.locateCenterOnScreen(
-            os.path.join(get_dir(), "task-solvers", "cv2-templates",
-                         "Inspect Sample", "anomaly.png"),
-            confidence=0.5, region=region)
-    except Exception:
-        return None
+    return (dimensions[0] + round(dimensions[2] / 1.52),
+            dimensions[1] + round(dimensions[3] / 1.16))
 
 
-def _solve():
-    if _panel_open() is False:
-        print("Inspect Sample: the game says no panel is open, so nothing was "
-              "clicked")
-        return 1
-
+def solve():
     dimensions = get_dimensions()
     if not dimensions:
         print("Inspect Sample: no game window dimensions")
         return 1
 
-    # Original START position, unchanged.
-    x = dimensions[0] + round(dimensions[2] / 1.52)
-    y = dimensions[1] + round(dimensions[3] / 1.16)
-    pyautogui.click((x, y))
-    print(f"Inspect Sample: clicked START at ({x},{y})")
-    time.sleep(0.8)
-
-    # Original search region for the tube, unchanged. The original clicked a
-    # fixed distance BELOW the match, which is preserved: the template matches
-    # the top of the tube and the click target is lower down it.
-    y_offset = dimensions[3]
-    region = [
-        dimensions[0] + round(dimensions[2] / 2.81),
-        dimensions[1] + round(dimensions[3] / 3.2),
-        round(dimensions[2] / 3.4),
-        round(dimensions[3] / 3.6),
-    ]
-
-    deadline = time.time() + TUBE_TIMEOUT
-    pos = None
-    while time.time() < deadline:
-        if _interrupted():
-            print("Inspect Sample: interrupted while waiting for the sample")
-            return 2
-        # the game closes the panel itself once the right tube is submitted
-        if _panel_open() is False:
-            print("Inspect Sample: the panel closed, so the sample was submitted")
-            return 0
-        pos = _find_tube(region)
-        if pos:
-            break
-        time.sleep(0.5)
-
-    if not pos:
-        print(f"Inspect Sample: START was clicked but no anomaly tube was "
-              f"identifiable within {TUBE_TIMEOUT:.0f}s, so nothing was clicked")
-        try:
-            click_close()
-        except Exception:
-            pass
+    if not open_task_panel():
+        print("Inspect Sample: no panel is open - it would not open, so nothing was pressed")
         return 1
 
-    target = (pos[0], pos[1] + round(y_offset / 2.87))
-    pyautogui.click(target)
-    print(f"Inspect Sample: matched the tube at {pos} and clicked {target}")
+    hot = botlink.read_minigame_hot()
+    if not hot:
+        print("Inspect Sample: no panel is open, so nothing was pressed")
+        return 1
+    print(f"Inspect Sample: the panel says {hot.get('task')!r}")
 
-    # The truth: the panel should close by itself on a correct pick.
-    deadline = time.time() + 5.0
+    x, y = _start_position(dimensions)
+    deadline = time.time() + READY_TIMEOUT
+    start_clicked = False
+    next_click = 0.0
+
     while time.time() < deadline:
-        if _panel_open() is False:
-            print("Inspect Sample: the panel closed, so the sample was submitted")
+        if _interrupted():
+            print("Inspect Sample: interrupted")
+            return 2
+        if is_task_done("Inspect Sample"):
+            print("Inspect Sample: the game confirms it done")
             return 0
-        time.sleep(0.2)
 
-    print("Inspect Sample: the panel is still open after clicking the tube, so "
-          "the sample was NOT submitted")
-    try:
-        click_close()
-    except Exception:
-        pass
+        hot = botlink.read_minigame_hot()
+        if not hot:
+            if is_task_done("Inspect Sample"):
+                print("Inspect Sample: the game confirms it done")
+                return 0
+            print("Inspect Sample: the panel closed and the task is not done")
+            return 1
+
+        data = hot.get("data") or {}
+        state = data.get(0, 0)
+
+        if state == READY:
+            anomaly = data.get(1)
+            if anomaly is None:
+                time.sleep(0.05)
+                continue
+            print(f"Inspect Sample: the game says tube {anomaly} is the odd one")
+            try:
+                botlink.minigame_call("SelectTube", anomaly, timeout=3.0)
+            except botlink.CommandFailed as exc:
+                # The game can refuse the pick, and it does not always refuse
+                # for the same reason. So the refusal is retried a couple of
+                # times, and the task bar is checked in between: a pick that
+                # the game actually carried out and then complained about is
+                # still a completed task.
+                print(f"Inspect Sample: the game refused the pick "
+                      f"({exc.reason}) - trying again")
+                for _ in range(3):
+                    if is_task_done("Inspect Sample"):
+                        print("Inspect Sample: the game confirms it done")
+                        return 0
+                    time.sleep(1.0)
+                    try:
+                        botlink.minigame_call("SelectTube", anomaly, timeout=3.0)
+                        break
+                    except botlink.CommandFailed as exc2:
+                        print(f"Inspect Sample: refused again ({exc2.reason})")
+                        exc = exc2
+                else:
+                    if is_task_done("Inspect Sample"):
+                        print("Inspect Sample: the game confirms it done")
+                        return 0
+                    print(f"Inspect Sample: the pick was refused and the task is "
+                          f"not done ({exc.reason})")
+                    return 1
+            # The task completes itself from here; the game closes the panel.
+            for _ in range(40):
+                if is_task_done("Inspect Sample"):
+                    print("Inspect Sample: the game confirms it done")
+                    return 0
+                time.sleep(0.25)
+            print("Inspect Sample: the pick was made but the task is not done")
+            return 1
+
+        # Not ready yet. Press START if we have not, and keep pressing it
+        # occasionally: the old solver's one known flaw was that the first
+        # click after the panel opens is often swallowed.
+        now = time.time()
+        if not start_clicked or now >= next_click:
+            pyautogui.click(x, y)
+            if not start_clicked:
+                print(f"Inspect Sample: pressed START at ({x},{y})")
+                start_clicked = True
+                next_click = now + 3.0
+            else:
+                next_click = now + 5.0
+        time.sleep(0.25)
+
+    print(f"Inspect Sample: the panel was still not ready after {READY_TIMEOUT:.0f}s")
     return 1
 
 
-solve = _solve
+solve = solve
 
 
 if __name__ == "__main__":
